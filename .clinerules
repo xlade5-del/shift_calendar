@@ -1,0 +1,341 @@
+# Shift Calendar for Couples - Development Guidelines
+
+## 📋 Core Documentation
+- **PRD:** docs/shift_calendar_prd_v2.md (Complete product requirements)
+- **Checklist:** docs/quick_mvp_checklist.md (Week-by-week tasks)
+- **Updates:** docs/mvp_updates_summary.md (Key decisions and rationale)
+
+## 🎯 Project Overview
+Real-time calendar sync app for couples with shift work schedules.
+**Mission:** Help couples find more time together by eliminating manual schedule coordination.
+
+## 🏗️ Tech Stack (from PRD Section 3.3)
+- **Frontend:** Flutter (cross-platform iOS/Android)
+- **Backend:** Firebase (Firestore, Auth, Cloud Functions)
+- **Local Storage:** SQLite (offline cache, sync queue)
+- **Push Notifications:** FCM (Android) + APNs (iOS)
+- **State Management:** Riverpod (or Provider)
+- **iCal Parsing:** ical.js in Cloud Functions
+
+## ⚡ MVP Scope - P0 Features ONLY (PRD Section 6.1)
+**Must-Have for Launch:**
+1. Authentication (email, Google, Apple) - US-001
+2. Partner linking (6-digit code + email) - US-002
+3. Manual shift creation/editing - US-003, US-004
+4. Week view calendar (shared, color-coded) - US-005
+5. iCal import (1 feed per user) - US-006
+6. Offline mode with sync queue - US-007
+7. Push notifications - US-008
+8. Conflict alerts (overlapping shifts) - US-009
+
+**Explicitly OUT of MVP:**
+- ❌ Month/day calendar views (P1)
+- ❌ AI suggestions (requires 10k+ users)
+- ❌ PDF export (premium feature)
+- ❌ Templates (P1)
+- ❌ Analytics dashboard (P2)
+- ❌ Multiple iCal feeds (premium only)
+
+## 🎨 Architecture Decisions (PRD Section 5)
+
+### Sync Strategy (PRD 3.2)
+- **Real-time:** Firebase Firestore with real-time listeners (<2s latency)
+- **Background:** iOS 15min fetch, Android WorkManager
+- **Offline:** SQLite queue with exponential backoff (1s, 2s, 4s, 8s...)
+- **Conflicts:** Versioned optimistic locking (see PRD 5.2)
+
+### Conflict Resolution (PRD 5.2)
+```
+1. Each event has version field (increments on change)
+2. Client sends current version with updates
+3. Server validates: match = accept, mismatch = conflict
+4. User prompted: "Keep yours / Keep theirs / Merge"
+5. Auto-merge if only metadata changed (color, notes)
+6. Timestamp breaks ties for time conflicts
+```
+
+### iCal Import Process (PRD 3.2)
+```
+Cloud Function (Node.js) runs every 15 minutes via Firebase Scheduler:
+
+1. Fetch iCal feed via HTTPS (HTTP not supported)
+2. Parse events using ical.js library
+3. Compare UID + LAST-MODIFIED fields against existing DB events
+4. Insert new events, update changed events
+5. Mark source='ical-import' and store icalUid for tracking
+6. Trigger FCM/APNs notifications for immediate app refresh
+7. Real-time sync propagates imported changes to partner's device
+
+Important:
+- URL must be HTTPS (validate on input)
+- Poll interval: 15 minutes (configurable per user in premium)
+- Handle parsing errors gracefully (log + notify user)
+- Respect iCal LAST-MODIFIED to avoid duplicate updates
+- Store lastSync timestamp for each feed
+```
+
+### Data Models (PRD 5.3)
+**Users Collection:**
+- userId, email, name, partnerId, icalFeeds[], notificationSettings
+
+**Events Collection:**
+- eventId, userId, title, startTime, endTime, notes, color, source, version
+
+**Sync Queue (SQLite):**
+- id, operation (create/update/delete), event_data, timestamp, retry_count, status
+
+## 📊 Non-Functional Requirements (PRD Section 7)
+
+| Metric | MVP Target | Production Target | Measurement |
+|--------|-----------|------------------|-------------|
+| Sync Reliability | ≥95% | ≥99.9% | Firebase Performance |
+| Update Latency | <3 seconds | <2 seconds | Firebase Performance |
+| Crash-Free Sessions | ≥99% | ≥99.5% | Crashlytics |
+| App Load Time | <3 seconds | <2 seconds | Firebase Performance |
+| Offline Sync Success | ≥90% | ≥95% | Custom analytics |
+| Data Loss Rate | <0.5% | <0.1% | Firestore logs |
+| API Response Time | <500ms | <300ms | Cloud Functions logs |
+
+## 🗂️ Project Structure
+```
+lib/
+├── models/          # Event, User, Partner, SyncQueue models
+├── screens/         # Calendar, Auth, Settings, Partner screens
+├── services/        # auth, firestore, sync, ical, notification, conflict
+├── widgets/         # Reusable UI components
+└── utils/           # Date formatting, validators, helpers
+
+test/
+├── unit/           # Service and model tests
+├── widget/         # UI component tests
+└── integration/    # End-to-end tests
+```
+
+## 🔐 Security Requirements (PRD 5.4)
+- **Auth:** Firebase Auth with JWT tokens (email, Google, Apple Sign-In)
+- **Firestore Rules:** User-level access (own + partner's events only)
+- **Encryption:** TLS 1.3 in transit, AES-256 at rest
+- **Rate Limiting:** 100 requests per minute per user
+- **App Check:** Enabled to prevent API abuse
+- **Session Management:** JWT tokens expire after 1 hour, refresh tokens valid 30 days
+
+## 🌍 Compliance (PRD 5.4)
+- **GDPR:** Data export (iCal format), full deletion within 30 days
+- **Multi-Region:** Firestore deployed in US + EU for data residency
+- **Privacy Policy:** Required before launch, hosted and accessible
+- **Explicit Consent:** Partner linking requires mutual approval with audit log
+- **Right to Delete:** Users can export all data and request account deletion
+
+## 💰 Monetization (PRD Section 8)
+
+**Free Tier:**
+- Unlimited manual events
+- 1 iCal feed per user
+- Week view
+- Real-time sync
+- Offline mode
+- Conflict alerts
+
+**Premium ($4.99/month or $49.99/year):**
+- Unlimited iCal feeds
+- Free time finder
+- PDF/iCal export
+- Priority support (24hr response)
+- Advanced notification customization
+- Future: AI suggestions (post-10k users)
+
+## ⏱️ Timeline (PRD Section 9)
+**Total: 20 weeks (16 weeks development + 4 weeks beta testing)**
+
+- **Weeks 1-8:** Auth + Partner Linking + Calendar UI
+  - Firebase setup, auth flows, partner codes, manual events, week view
+- **Weeks 9-12:** Real-time Sync + iCal + Offline Mode
+  - Firestore listeners, SQLite queue, Cloud Functions, conflict detection
+- **Weeks 13-16:** Notifications + Conflicts + Polish
+  - FCM/APNs, conflict alerts UI, settings, onboarding, error handling
+- **Weeks 17-20:** Beta Testing + Store Submission
+  - 50 couples, bug fixes, performance tuning, store approval
+
+## ✅ Critical Checkpoints (PRD 9.3)
+- **Week 4:** Auth complete (all 3 methods working on iOS + Android)
+- **Week 10:** Sync working (>95% reliable in testing)
+- **Week 12:** Offline tested (10+ queued changes with airplane mode)
+- **Week 14:** Notifications live (<5s delivery via FCM/APNs)
+- **Week 17:** Beta recruited (50 couples confirmed and onboarded)
+
+## 🚨 Critical Success Criteria (Must Pass Before Launch)
+- [ ] 95% sync reliability achieved in beta testing
+- [ ] <3 seconds average update latency
+- [ ] <1% crash rate across all beta sessions
+- [ ] Offline mode tested with airplane mode (10+ queued changes)
+- [ ] 10+ conflict scenarios tested and resolved correctly
+- [ ] iOS App Store build approved
+- [ ] Google Play Store build approved
+- [ ] Privacy policy and terms of service live
+- [ ] Support email functional (support@shiftcalendar.app)
+
+## 🧪 Testing Requirements
+- **Unit Tests:** All services and models (70% code coverage target)
+- **Widget Tests:** All screens and components
+- **Integration Tests:** Signup → Partner Link → Create Event → Sync
+- **Offline Tests:** Airplane mode with 10+ queued changes
+- **Platform Tests:** iOS + Android simulators + real devices
+- **Conflict Tests:** 10+ scenarios (simultaneous edits, time conflicts, metadata changes)
+
+## 🚨 Common Issues & Solutions (PRD Derived)
+
+### Sync Issues
+1. Check Firestore security rules
+2. Verify auth token not expired
+3. Test with simple events first
+4. Add verbose logging to sync_service.dart
+5. Use Firebase Local Emulator
+
+### Offline Mode Issues
+1. Test SQLite directly (insert/query)
+2. Verify sync queue logic
+3. Check connectivity listeners
+4. Test multiple offline changes
+5. Verify version conflict resolution
+
+### Notification Issues
+1. Check FCM/APNs tokens registered
+2. Verify Cloud Functions trigger
+3. Test with Firebase Console manual send
+4. Check app permissions
+5. Review notification payload format
+
+### iCal Import Issues
+1. Validate iCal URL is HTTPS (HTTP not supported)
+2. Test URL directly in browser to verify accessibility
+3. Check Cloud Function logs for parsing errors
+4. Verify ical.js library version compatibility
+5. Test with known-good iCal feeds (Google Calendar export)
+6. Check CORS if fetching fails
+7. Verify lastSync timestamp updating correctly
+
+## 🎯 Development Philosophy
+- **Ship P0 features with quality, defer everything else**
+- Focus on reliability over features
+- Test offline mode extensively (shift workers have spotty connectivity)
+- Prioritize cross-platform consistency
+- Measure everything (Firebase Analytics)
+- Cut scope, not quality
+- Real users > perfect code
+
+## 🚫 Scope Discipline
+When tempted to add features:
+1. Check PRD Section 6.2 (Feature Priority Matrix)
+2. If P1/P2, add to backlog, don't implement
+3. If unclear, defer to post-MVP
+4. Protect the 20-week timeline
+
+## 📊 Success Metrics (PRD Section 10)
+**Launch Targets:**
+- 100 DAU at launch
+- 4.5+ app store rating
+- 70% onboarding completion
+- 60% D90 retention
+
+**6-Month Targets:**
+- 1,000 DAU
+- 4.7+ rating
+- 20-50% premium conversion
+- <5% monthly churn
+
+## 📝 Coding Guidelines
+
+### When Implementing Features:
+1. **Always reference PRD section** for detailed requirements
+2. **Check quick_mvp_checklist.md** for current phase tasks
+3. **Follow data models** from PRD Section 5.3 exactly
+4. **Implement NFRs** from PRD Section 7 (measure everything)
+5. **Write tests first** (70% code coverage target minimum)
+6. **Document complex logic** (especially sync and conflict resolution)
+
+### Code Organization:
+```dart
+// lib/models/ - Data classes only, no business logic
+class Event {
+  final String eventId;
+  final String userId;
+  final DateTime startTime;
+  // ... fromJson, toJson, copyWith
+}
+
+// lib/services/ - Business logic and external integrations
+class SyncService {
+  Future<void> syncEvent(Event event) { }
+  Stream<List<Event>> watchPartnerEvents() { }
+}
+
+// lib/screens/ - UI and state management
+class CalendarScreen extends ConsumerWidget { }
+
+// lib/widgets/ - Reusable UI components
+class EventCard extends StatelessWidget { }
+```
+
+### Naming Conventions:
+- **Files:** `snake_case.dart` (e.g., `sync_service.dart`, `event_card.dart`)
+- **Classes:** `PascalCase` (e.g., `SyncService`, `EventCard`)
+- **Variables/Functions:** `camelCase` (e.g., `syncEvent`, `partnerEvents`)
+- **Constants:** `SCREAMING_SNAKE_CASE` (e.g., `MAX_RETRY_COUNT`, `SYNC_INTERVAL_MS`)
+
+### Before Committing Code:
+- [ ] Run `flutter analyze` (zero warnings/errors)
+- [ ] Run `dart format .` (consistent formatting)
+- [ ] Run `flutter test` (all tests pass)
+- [ ] Check NFRs still met (sync latency, crash rate)
+- [ ] Update tests if adding new features
+
+### When Stuck:
+1. Check PRD section for requirements clarity
+2. Review CLAUDE.md for architecture patterns
+3. Check Common Issues section in this file
+4. Test with Firebase Local Emulator first
+5. Add verbose logging before debugging
+
+## 🎓 Development Principles
+
+1. **MVP Focus:** Ship P0 features only, defer everything else to post-launch
+2. **Offline-First:** All operations must work without internet, sync when online
+3. **User Feedback:** Weekly surveys during beta testing (50 couples)
+4. **Iterative:** Ship → Measure → Learn → Improve (fail fast, iterate faster)
+5. **Quality Over Speed:** 95% reliability before launch, not 100% features
+
+## 📚 Reference Links
+
+- **PRD Full:** docs/shift_calendar_prd_v2.md (complete product requirements)
+- **Checklist:** docs/quick_mvp_checklist.md (week-by-week sprint tasks)
+- **Updates:** docs/mvp_updates_summary.md (key decisions and rationale)
+- **Firebase Flutter:** https://firebase.google.com/docs/flutter
+- **Flutter Docs:** https://docs.flutter.dev
+- **iCal RFC 5545:** https://tools.ietf.org/html/rfc5545
+
+---
+
+## 💬 How to Use This with Claude Code
+
+When starting a task, tell Claude Code:
+
+**"I'm implementing [feature name] per docs/shift_calendar_prd_v2.md Section [X.X]. Please follow the .clinerules and PRD requirements."**
+
+### Examples:
+
+- **"Implement US-001 authentication per PRD Section 6.1"**
+  - Claude will reference auth requirements, implement email/Google/Apple Sign-In
+
+- **"Set up Firestore data model per PRD Section 5.3"**
+  - Claude will create Users and Events collections with exact schema
+
+- **"Implement conflict resolution per PRD Section 5.2"**
+  - Claude will use versioned optimistic locking strategy
+
+- **"Build week view calendar per US-005"**
+  - Claude will implement 7-day horizontal scroll with color-coded partner events
+
+- **"Set up iCal import Cloud Function per PRD 3.2"**
+  - Claude will create 15-minute cron job with ical.js parsing
+
+This ensures every implementation aligns with PRD specs and MVP scope!
