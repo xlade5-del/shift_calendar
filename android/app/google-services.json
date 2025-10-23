@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "983110812621",
+    "project_id": "deb-shiftsync-7984c",
+    "storage_bucket": "deb-shiftsync-7984c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983110812621:android:84ab1df8f2b7f6eafffa84",
+        "android_client_info": {
+          "package_name": "com.shiftcalendar.shift_calendar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDdA6dfM-6NJvTnItr1KOcezxSESJK0ak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
