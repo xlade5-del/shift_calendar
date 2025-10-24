@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:google_sign_in/google_sign_in.dart'; // TODO: Fix Google Sign-In API for version 7.2.0
 import '../models/user_model.dart';
 
 class AuthService {
@@ -88,47 +89,15 @@ class AuthService {
   }
 
   // Sign in with Google
+  // TODO: Implement Google Sign-In for mobile using google_sign_in 7.2.0 API
   Future<UserModel?> signInWithGoogle() async {
-    try {
-      // Use Google Auth Provider directly for web
-      final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-
-      // Sign in with popup for web
-      final UserCredential userCredential = await _auth.signInWithPopup(googleProvider);
-
-      final User? user = userCredential.user;
-
-      if (user == null) return null;
-
-      // Check if user document exists
-      final docSnapshot = await _firestore.collection('users').doc(user.uid).get();
-
-      if (docSnapshot.exists) {
-        return UserModel.fromMap(docSnapshot.data()!, user.uid);
-      } else {
-        // Create new user document
-        final userModel = UserModel(
-          uid: user.uid,
-          email: user.email ?? '',
-          displayName: user.displayName,
-          photoUrl: user.photoURL,
-          partnerId: null,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-        await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
-        return userModel;
-      }
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
-    } catch (e) {
-      throw 'An unexpected error occurred during Google Sign-In. Please try again.';
-    }
+    throw UnimplementedError('Google Sign-In is not yet implemented for mobile platforms. Use email/password authentication instead.');
   }
 
   // Sign out
   Future<void> signOut() async {
     try {
+      // TODO: Add Google Sign-In sign out when implemented
       await _auth.signOut();
     } catch (e) {
       throw 'Error signing out. Please try again.';

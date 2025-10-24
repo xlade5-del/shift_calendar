@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import 'partner/partner_invite_screen.dart';
+import 'partner/partner_accept_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -132,6 +134,51 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
+                      // Partner Linking Section
+                      const Divider(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Partner Linking:',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Invite Partner Button
+                      FilledButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const PartnerInviteScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.person_add),
+                        label: const Text('Invite Partner'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Accept Invite Button
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const PartnerAcceptScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.link),
+                        label: const Text('Enter Partner Code'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
                       // Coming Soon Features
                       const Divider(),
                       const SizedBox(height: 16),
@@ -142,12 +189,6 @@ class HomeScreen extends ConsumerWidget {
                             ),
                       ),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(
-                        context,
-                        Icons.link,
-                        'Partner Linking',
-                        'Connect with your partner',
-                      ),
                       _buildFeatureItem(
                         context,
                         Icons.calendar_today,

@@ -18,18 +18,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### ✅ Completed
 - Flutter project initialized with Firebase
 - Riverpod state management configured
-- Firebase Authentication integration (email/password, Google Sign-In)
+- Firebase Authentication integration (email/password)
 - Basic auth screens (LoginScreen, SignupScreen)
 - AuthService with sign-in/sign-up/sign-out methods
 - User model with Firestore serialization
 - Auth state management with authProvider
 - Main app with AuthWrapper for route management
-- Home screen placeholder
+- Home screen with user info display
+- **Android emulator setup and configuration**
+- **Android build fixed (core library desugaring for flutter_local_notifications)**
+- **Unit tests for AuthService (10 tests passing)**
+- **Comprehensive error handling in AuthService**
+- **Testing dependencies added (mockito, build_runner)**
 
 ### 🚧 In Progress
+- Google Sign-In for mobile (API compatibility issue with google_sign_in 7.2.0)
 - Apple Sign-In integration (sign_in_with_apple package installed)
-- Auth error handling improvements
-- Profile screen
 
 ### ⏳ Not Yet Started
 - Partner linking system (6-digit code + email invite)
@@ -40,7 +44,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Notification service (FCM/APNs)
 - Conflict detection logic
 - Offline mode with sync queue
-- Test suites (unit, widget, integration)
+- Widget and integration tests
 
 ### Current Firebase Setup
 
@@ -106,12 +110,12 @@ main.dart                        # ✅ App entry point with AuthWrapper
 ## Next Development Steps
 
 ### Immediate (Complete Week 4 Checkpoint)
-1. ✅ Complete Apple Sign-In integration
-2. Add comprehensive error handling to AuthService
-3. Create profile screen to display user info
-4. Implement auth persistence testing
-5. Write unit tests for AuthService (lib/services/auth_service.dart)
-6. Test all 3 sign-in methods on iOS + Android
+1. ⏳ Fix Google Sign-In for mobile (google_sign_in 7.2.0 API issues)
+2. ⏳ Complete Apple Sign-In integration
+3. ✅ Add comprehensive error handling to AuthService
+4. ⏳ Test auth persistence (close/reopen app)
+5. ✅ Write unit tests for AuthService (10 tests passing)
+6. ⏳ Test all auth methods on iOS + Android
 
 ### Week 5-8 (Partner Linking & Basic UI)
 1. Create FirestoreService for user/partner CRUD operations

@@ -1,0 +1,283 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
+import '../models/user_model.dart';
+
+/// Service for managing Firestore database operations
+/// Handles user data, partner linking, and partner code generation
+class FirestoreService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Collection references
+  static const String usersCollection = 'users';
+  static const String partnerCodesCollection = 'partnerCodes';
+
+  /// Get user data by user ID
+  Future<UserModel?> getUserData(String uid) async {
+    try {
+      final doc = await _firestore.collection(usersCollection).doc(uid).get();
+
+      if (!doc.exists) return null;
+
+      return UserModel.fromMap(doc.data()!, uid);
+    } catch (e) {
+      throw 'Error fetching user data: $e';
+    }
+  }
+
+  /// Update user data
+  Future<void> updateUser(String uid, Map<String, dynamic> data) async {
+    try {
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await _firestore.collection(usersCollection).doc(uid).update(data);
+    } catch (e) {
+      throw 'Error updating user: $e';
+    }
+  }
+
+  /// Generate a unique 6-digit partner code
+  /// Code expires in 24 hours and can only be used once
+  Future<String> generatePartnerCode(String userId) async {
+    try {
+      // Generate a random 6-digit code
+      final random = Random.secure();
+      String code;
+      bool isUnique = false;
+      int attempts = 0;
+      const maxAttempts = 10;
+
+      // Keep trying until we get a unique code
+      do {
+        code = (random.nextInt(900000) + 100000).toString(); // 100000-999999
+
+        // Check if code already exists and is not expired
+        final existingCode = await _firestore
+            .collection(partnerCodesCollection)
+            .doc(code)
+            .get();
+
+        if (!existingCode.exists) {
+          isUnique = true;
+        } else {
+          // Check if existing code is expired
+          final data = existingCode.data()!;
+          final expiresAt = (data['expiresAt'] as Timestamp).toDate();
+          if (DateTime.now().isAfter(expiresAt)) {
+            isUnique = true; // Can reuse expired codes
+          }
+        }
+
+        attempts++;
+        if (attempts >= maxAttempts && !isUnique) {
+          throw 'Failed to generate unique partner code. Please try again.';
+        }
+      } while (!isUnique);
+
+      // Store the partner code in Firestore
+      await _firestore.collection(partnerCodesCollection).doc(code).set({
+        'userId': userId,
+        'createdAt': FieldValue.serverTimestamp(),
+        'expiresAt': Timestamp.fromDate(
+          DateTime.now().add(const Duration(hours: 24)),
+        ),
+        'used': false,
+      });
+
+      return code;
+    } catch (e) {
+      throw 'Error generating partner code: $e';
+    }
+  }
+
+  /// Validate and use a partner code to link users
+  /// Returns the user ID of the code owner
+  Future<String> validateAndUsePartnerCode(String code, String currentUserId) async {
+    try {
+      // Get the partner code document
+      final codeDoc = await _firestore
+          .collection(partnerCodesCollection)
+          .doc(code)
+          .get();
+
+      if (!codeDoc.exists) {
+        throw 'Invalid partner code. Please check and try again.';
+      }
+
+      final codeData = codeDoc.data()!;
+
+      // Check if code has been used
+      if (codeData['used'] == true) {
+        throw 'This partner code has already been used.';
+      }
+
+      // Check if code is expired
+      final expiresAt = (codeData['expiresAt'] as Timestamp).toDate();
+      if (DateTime.now().isAfter(expiresAt)) {
+        throw 'This partner code has expired. Please request a new code.';
+      }
+
+      final partnerUserId = codeData['userId'] as String;
+
+      // Prevent user from using their own code
+      if (partnerUserId == currentUserId) {
+        throw 'You cannot use your own partner code.';
+      }
+
+      // Check if current user already has a partner
+      final currentUser = await getUserData(currentUserId);
+      if (currentUser?.partnerId != null) {
+        throw 'You are already linked with a partner. Unlink first to add a new partner.';
+      }
+
+      // Check if partner already has a different partner
+      final partnerUser = await getUserData(partnerUserId);
+      if (partnerUser?.partnerId != null && partnerUser!.partnerId != currentUserId) {
+        throw 'This user is already linked with another partner.';
+      }
+
+      // Use a batch write to ensure atomicity
+      final batch = _firestore.batch();
+
+      // Update both users to link them as partners
+      batch.update(
+        _firestore.collection(usersCollection).doc(currentUserId),
+        {
+          'partnerId': partnerUserId,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+      );
+
+      batch.update(
+        _firestore.collection(usersCollection).doc(partnerUserId),
+        {
+          'partnerId': currentUserId,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+      );
+
+      // Mark the code as used
+      batch.update(
+        _firestore.collection(partnerCodesCollection).doc(code),
+        {
+          'used': true,
+          'usedAt': FieldValue.serverTimestamp(),
+          'usedBy': currentUserId,
+        },
+      );
+
+      // Commit the batch
+      await batch.commit();
+
+      return partnerUserId;
+    } catch (e) {
+      if (e is String) rethrow;
+      throw 'Error validating partner code: $e';
+    }
+  }
+
+  /// Unlink current user from their partner
+  Future<void> unlinkPartner(String userId) async {
+    try {
+      // Get current user data
+      final currentUser = await getUserData(userId);
+      if (currentUser?.partnerId == null) {
+        throw 'You are not currently linked with a partner.';
+      }
+
+      final partnerId = currentUser!.partnerId!;
+
+      // Use a batch write to ensure atomicity
+      final batch = _firestore.batch();
+
+      // Remove partner link from both users
+      batch.update(
+        _firestore.collection(usersCollection).doc(userId),
+        {
+          'partnerId': FieldValue.delete(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+      );
+
+      batch.update(
+        _firestore.collection(usersCollection).doc(partnerId),
+        {
+          'partnerId': FieldValue.delete(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+      );
+
+      // Commit the batch
+      await batch.commit();
+    } catch (e) {
+      if (e is String) rethrow;
+      throw 'Error unlinking partner: $e';
+    }
+  }
+
+  /// Get partner data for current user
+  Future<UserModel?> getPartnerData(String userId) async {
+    try {
+      final currentUser = await getUserData(userId);
+
+      if (currentUser?.partnerId == null) {
+        return null;
+      }
+
+      return await getUserData(currentUser!.partnerId!);
+    } catch (e) {
+      throw 'Error fetching partner data: $e';
+    }
+  }
+
+  /// Stream of user data (real-time updates)
+  Stream<UserModel?> userDataStream(String uid) {
+    return _firestore
+        .collection(usersCollection)
+        .doc(uid)
+        .snapshots()
+        .map((doc) {
+      if (!doc.exists) return null;
+      return UserModel.fromMap(doc.data()!, uid);
+    });
+  }
+
+  /// Stream of partner data (real-time updates)
+  Stream<UserModel?> partnerDataStream(String userId) {
+    return userDataStream(userId).asyncMap((user) async {
+      if (user?.partnerId == null) return null;
+      return await getUserData(user!.partnerId!);
+    });
+  }
+
+  /// Check if a user has a partner
+  Future<bool> hasPartner(String userId) async {
+    try {
+      final user = await getUserData(userId);
+      return user?.partnerId != null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Clean up expired partner codes (should be run periodically)
+  Future<void> cleanupExpiredCodes() async {
+    try {
+      final now = Timestamp.now();
+
+      final expiredCodes = await _firestore
+          .collection(partnerCodesCollection)
+          .where('expiresAt', isLessThan: now)
+          .where('used', isEqualTo: false)
+          .get();
+
+      final batch = _firestore.batch();
+
+      for (final doc in expiredCodes.docs) {
+        batch.delete(doc.reference);
+      }
+
+      await batch.commit();
+    } catch (e) {
+      // Silently fail - cleanup is not critical
+    }
+  }
+}

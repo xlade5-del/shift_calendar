@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
 
 // Auth service provider
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -99,4 +100,35 @@ class AuthStateNotifier extends Notifier<AsyncValue<UserModel?>> {
 // Auth state notifier provider
 final authStateNotifierProvider = NotifierProvider<AuthStateNotifier, AsyncValue<UserModel?>>(() {
   return AuthStateNotifier();
+});
+
+// ============================================================================
+// Firestore Providers
+// ============================================================================
+
+// Firestore service provider
+final firestoreServiceProvider = Provider<FirestoreService>((ref) {
+  return FirestoreService();
+});
+
+// Partner data provider (real-time stream)
+final partnerDataProvider = StreamProvider<UserModel?>((ref) {
+  final user = ref.watch(currentFirebaseUserProvider);
+
+  if (user == null) {
+    return Stream.value(null);
+  }
+
+  final firestoreService = ref.watch(firestoreServiceProvider);
+  return firestoreService.partnerDataStream(user.uid);
+});
+
+// Check if user has a partner
+final hasPartnerProvider = FutureProvider<bool>((ref) async {
+  final user = ref.watch(currentFirebaseUserProvider);
+
+  if (user == null) return false;
+
+  final firestoreService = ref.watch(firestoreServiceProvider);
+  return await firestoreService.hasPartner(user.uid);
 });
