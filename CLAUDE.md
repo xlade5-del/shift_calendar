@@ -10,7 +10,158 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Target Users:** Couples working non-standard shifts in healthcare, emergency services, retail, hospitality, and manufacturing.
 
+## Current Implementation Status
+
+**Phase:** Week 1-4 (Authentication & Basic Setup)
+**Last Updated:** October 2025
+
+### ✅ Completed
+- Flutter project initialized with Firebase
+- Riverpod state management configured
+- Firebase Authentication integration (email/password, Google Sign-In)
+- Basic auth screens (LoginScreen, SignupScreen)
+- AuthService with sign-in/sign-up/sign-out methods
+- User model with Firestore serialization
+- Auth state management with authProvider
+- Main app with AuthWrapper for route management
+- Home screen placeholder
+
+### 🚧 In Progress
+- Apple Sign-In integration (sign_in_with_apple package installed)
+- Auth error handling improvements
+- Profile screen
+
+### ⏳ Not Yet Started
+- Partner linking system (6-digit code + email invite)
+- Calendar UI (week view)
+- Firestore service layer (FirestoreService)
+- Sync service with SQLite
+- iCal import Cloud Functions
+- Notification service (FCM/APNs)
+- Conflict detection logic
+- Offline mode with sync queue
+- Test suites (unit, widget, integration)
+
+### Current Firebase Setup
+
+**Configured:**
+- ✅ Firebase Core
+- ✅ Firebase Auth (email/password, Google Sign-In)
+- ✅ Platform configs: Android (google-services.json)
+- ✅ iOS configuration files ready
+
+**Not Yet Configured:**
+- ⏳ Cloud Firestore security rules
+- ⏳ Cloud Functions directory
+- ⏳ FCM/APNs for push notifications
+- ⏳ Firebase Scheduler for iCal polling
+
+**Firebase Project:** deb-shiftsync-7984c
+
+### State Management Implementation (Riverpod)
+
+**Current Providers (lib/providers/auth_provider.dart):**
+- `authServiceProvider` - Manages AuthService singleton instance
+- `authStateChangesProvider` - Streams Firebase auth state changes
+- `currentUserProvider` - Provides current User model from Firestore (when implemented)
+
+**Usage Pattern:**
+```dart
+// In widgets - watching auth state
+final authState = ref.watch(authStateChangesProvider);
+
+// Calling auth methods
+final authService = ref.read(authServiceProvider);
+await authService.signInWithEmail(email, password);
+await authService.signUpWithEmail(email, password, name);
+await authService.signInWithGoogle();
+await authService.signOut();
+```
+
+### Current Project Structure
+
+```
+lib/
+├── models/
+│   └── user_model.dart          # ✅ User model with Firestore serialization
+├── providers/
+│   └── auth_provider.dart       # ✅ Riverpod auth providers
+├── screens/
+│   ├── auth/
+│   │   ├── login_screen.dart    # ✅ Email/Google sign-in UI
+│   │   └── signup_screen.dart   # ✅ Email/Google sign-up UI
+│   └── home_screen.dart         # ✅ Post-auth placeholder screen
+├── services/
+│   └── auth_service.dart        # ✅ Firebase Auth wrapper
+├── widgets/                     # ⏳ Empty (reusable components)
+└── utils/                       # ⏳ Empty (helpers, validators)
+
+test/
+└── widget_test.dart             # ⏳ Default test (needs implementation)
+
+firebase_options.dart            # ✅ Auto-generated Firebase config
+main.dart                        # ✅ App entry point with AuthWrapper
+```
+
+## Next Development Steps
+
+### Immediate (Complete Week 4 Checkpoint)
+1. ✅ Complete Apple Sign-In integration
+2. Add comprehensive error handling to AuthService
+3. Create profile screen to display user info
+4. Implement auth persistence testing
+5. Write unit tests for AuthService (lib/services/auth_service.dart)
+6. Test all 3 sign-in methods on iOS + Android
+
+### Week 5-8 (Partner Linking & Basic UI)
+1. Create FirestoreService for user/partner CRUD operations
+2. Implement 6-digit partner code generation and validation
+3. Build partner linking UI (invite screen, accept screen)
+4. Add partner invite via email
+5. Create partner management screen
+6. Build basic calendar week view UI (no events yet)
+
+### Week 9-12 (Sync & Calendar)
+1. Create Event model and Firestore schema
+2. Implement manual event creation/editing/deletion
+3. Build SyncService with real-time Firestore listeners
+4. Set up SQLite for offline cache
+5. Implement sync queue for offline changes
+6. Create iCal import Cloud Functions
+7. Test offline mode extensively
+
+See **docs/quick_mvp_checklist.md** for detailed week-by-week breakdown.
+
 ## Development Commands
+
+### Current Phase Commands (Week 1-4: Auth)
+
+```bash
+# Test authentication flow
+flutter run
+
+# Test with verbose logging
+flutter run -v
+
+# Clear app data and test fresh install
+flutter run --clear-app-data
+
+# Check for auth-specific issues
+flutter analyze
+
+# Hot reload during development (press 'r' in terminal while app is running)
+# Hot restart (press 'R' in terminal)
+```
+
+**Testing Checklist:**
+- [ ] Email sign-up with valid credentials
+- [ ] Email login with existing account
+- [ ] Google Sign-In flow
+- [ ] Sign out functionality
+- [ ] Auth state persistence (close/reopen app)
+- [ ] Error handling (wrong password, network issues)
+
+## Standard Development Commands
 
 ### Setup & Dependencies
 ```bash
@@ -83,17 +234,23 @@ dart format .
 dart fix --apply
 ```
 
-### Firebase
+### Firebase (When Configured in Later Phases)
+
+**Note:** Cloud Functions not yet set up. These commands will be used in Week 9-12.
+
 ```bash
-# Deploy Cloud Functions
+# Initialize Firebase Functions (to be done later)
+firebase init functions
+
+# Deploy Cloud Functions (Week 9-12)
 cd functions
 npm install
 npm run deploy
 
-# Deploy Firestore rules
+# Deploy Firestore rules (Week 5-8)
 firebase deploy --only firestore:rules
 
-# Deploy Firestore indexes
+# Deploy Firestore indexes (Week 9-12)
 firebase deploy --only firestore:indexes
 
 # View Firebase logs
@@ -105,30 +262,40 @@ firebase functions:log
 ### Tech Stack
 - **Frontend:** Flutter (Dart) - Cross-platform mobile framework
 - **Backend:** Firebase (Firestore, Auth, Cloud Functions, FCM)
-- **State Management:** Provider/Riverpod
+- **State Management:** Riverpod
 - **Local Storage:** SQLite (offline cache, sync queue)
 - **Push Notifications:** FCM (Android) + APNs (iOS)
 
-### Project Structure
+### Planned Project Structure (Full MVP)
+
+**Note:** See "Current Project Structure" section above for what's currently implemented.
 
 ```
 lib/
 ├── models/          # Data models (Event, User, Partner, SyncQueue)
+│   ├── user_model.dart             # ✅ Implemented
+│   ├── event_model.dart            # ⏳ To be created
+│   ├── partner_model.dart          # ⏳ To be created
+│   └── sync_queue_model.dart       # ⏳ To be created
 ├── screens/         # UI screens (Calendar, Auth, Settings, Partner)
+│   ├── auth/                       # ✅ Login & Signup implemented
+│   ├── calendar/                   # ⏳ Week view to be created
+│   ├── partner/                    # ⏳ Partner linking to be created
+│   └── settings/                   # ⏳ Settings to be created
 ├── services/        # Business logic services
-│   ├── auth_service.dart           # Firebase Authentication
-│   ├── firestore_service.dart      # Firestore CRUD operations
-│   ├── sync_service.dart           # Real-time sync + offline queue
-│   ├── ical_service.dart           # iCal feed parsing
-│   ├── notification_service.dart   # FCM/APNs push notifications
-│   └── conflict_service.dart       # Conflict detection logic
-├── widgets/         # Reusable UI components
-└── utils/           # Helper functions (date formatting, validators)
+│   ├── auth_service.dart           # ✅ Firebase Authentication
+│   ├── firestore_service.dart      # ⏳ Firestore CRUD operations
+│   ├── sync_service.dart           # ⏳ Real-time sync + offline queue
+│   ├── ical_service.dart           # ⏳ iCal feed parsing
+│   ├── notification_service.dart   # ⏳ FCM/APNs push notifications
+│   └── conflict_service.dart       # ⏳ Conflict detection logic
+├── widgets/         # ⏳ Reusable UI components
+└── utils/           # ⏳ Helper functions (date formatting, validators)
 
 test/
-├── unit/           # Unit tests for services and models
-├── widget/         # Widget tests for UI components
-└── integration/    # End-to-end integration tests
+├── unit/           # ⏳ Unit tests for services and models
+├── widget/         # ⏳ Widget tests for UI components
+└── integration/    # ⏳ End-to-end integration tests
 
 assets/
 ├── images/         # App images and icons
@@ -142,7 +309,9 @@ docs/               # Project documentation
 
 ### Core Architecture Patterns
 
-#### Three-Layer Sync Architecture
+**Note:** These patterns describe the planned architecture for the full MVP. Implementation begins in Week 5+.
+
+#### Three-Layer Sync Architecture (Weeks 9-12)
 
 1. **Real-Time Cloud Database (Firebase Firestore)**
    - Single source of truth for all calendar events
@@ -161,7 +330,7 @@ docs/               # Project documentation
    - Exponential backoff retry: 1s, 2s, 4s, 8s, 16s, 32s
    - Version-based conflict resolution on reconnection
 
-#### Conflict Resolution Strategy
+#### Conflict Resolution Strategy (Weeks 9-12)
 
 **Versioned Optimistic Locking:**
 - Each event has an integer `version` field that increments with changes
@@ -172,7 +341,7 @@ docs/               # Project documentation
 - Auto-merge if only metadata changed (color, notes)
 - Timestamp-based last-write-wins for irreconcilable time conflicts
 
-#### Background Sync Strategy
+#### Background Sync Strategy (Weeks 13-16)
 
 **iOS:**
 - FCM triggers immediate foreground refresh
