@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import '../models/user_model.dart';
+import '../models/event_model.dart';
 
 /// Service for managing Firestore database operations
 /// Handles user data, partner linking, and partner code generation
@@ -10,6 +11,7 @@ class FirestoreService {
   // Collection references
   static const String usersCollection = 'users';
   static const String partnerCodesCollection = 'partnerCodes';
+  static const String eventsCollection = 'events';
 
   /// Get user data by user ID
   Future<UserModel?> getUserData(String uid) async {
@@ -278,6 +280,165 @@ class FirestoreService {
       await batch.commit();
     } catch (e) {
       // Silently fail - cleanup is not critical
+    }
+  }
+
+  // ==================== EVENT CRUD OPERATIONS ====================
+
+  /// Create a new event
+  Future<String> createEvent(EventModel event) async {
+    try {
+      final docRef = await _firestore.collection(eventsCollection).add(event.toFirestore());
+      return docRef.id;
+    } catch (e) {
+      throw 'Error creating event: $e';
+    }
+  }
+
+  /// Update an existing event
+  Future<void> updateEvent(EventModel event) async {
+    try {
+      await _firestore
+          .collection(eventsCollection)
+          .doc(event.eventId)
+          .update(event.toFirestore());
+    } catch (e) {
+      throw 'Error updating event: $e';
+    }
+  }
+
+  /// Delete an event
+  Future<void> deleteEvent(String eventId) async {
+    try {
+      await _firestore.collection(eventsCollection).doc(eventId).delete();
+    } catch (e) {
+      throw 'Error deleting event: $e';
+    }
+  }
+
+  /// Get a single event by ID
+  Future<EventModel?> getEvent(String eventId) async {
+    try {
+      final doc = await _firestore.collection(eventsCollection).doc(eventId).get();
+
+      if (!doc.exists) return null;
+
+      return EventModel.fromFirestore(doc);
+    } catch (e) {
+      throw 'Error fetching event: $e';
+    }
+  }
+
+  /// Get all events for a specific user
+  Future<List<EventModel>> getUserEvents(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection(eventsCollection)
+          .where('userId', isEqualTo: userId)
+          .orderBy('startTime')
+          .get();
+
+      return snapshot.docs.map((doc) => EventModel.fromFirestore(doc)).toList();
+    } catch (e) {
+      throw 'Error fetching user events: $e';
+    }
+  }
+
+  /// Get events for a specific date range (for week view)
+  /// Includes events from both the user and their partner
+  Future<List<EventModel>> getEventsForDateRange(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    try {
+      // Get current user data to find partner
+      final userData = await getUserData(userId);
+      final partnerId = userData?.partnerId;
+
+      // Query events for user and partner in date range
+      final userIds = partnerId != null ? [userId, partnerId] : [userId];
+
+      final snapshot = await _firestore
+          .collection(eventsCollection)
+          .where('userId', whereIn: userIds)
+          .where('startTime', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .where('startTime', isLessThan: Timestamp.fromDate(endDate))
+          .orderBy('startTime')
+          .get();
+
+      return snapshot.docs.map((doc) => EventModel.fromFirestore(doc)).toList();
+    } catch (e) {
+      throw 'Error fetching events for date range: $e';
+    }
+  }
+
+  /// Get events for a specific week (Monday to Sunday)
+  Future<List<EventModel>> getEventsForWeek(String userId, DateTime weekStart) async {
+    final weekEnd = weekStart.add(const Duration(days: 7));
+    return getEventsForDateRange(userId, weekStart, weekEnd);
+  }
+
+  /// Stream of events for a specific user (real-time updates)
+  Stream<List<EventModel>> userEventsStream(String userId) {
+    return _firestore
+        .collection(eventsCollection)
+        .where('userId', isEqualTo: userId)
+        .orderBy('startTime')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => EventModel.fromFirestore(doc)).toList();
+    });
+  }
+
+  /// Stream of events for a date range (real-time updates)
+  /// Includes events from both user and partner
+  Stream<List<EventModel>> eventsForDateRangeStream(
+    String userId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async* {
+    // Get current user data to find partner
+    final userData = await getUserData(userId);
+    final partnerId = userData?.partnerId;
+
+    // Query events for user and partner in date range
+    final userIds = partnerId != null ? [userId, partnerId] : [userId];
+
+    yield* _firestore
+        .collection(eventsCollection)
+        .where('userId', whereIn: userIds)
+        .where('startTime', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .where('startTime', isLessThan: Timestamp.fromDate(endDate))
+        .orderBy('startTime')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => EventModel.fromFirestore(doc)).toList();
+    });
+  }
+
+  /// Get events for both user and partner
+  Future<List<EventModel>> getCombinedEvents(String userId) async {
+    try {
+      final userData = await getUserData(userId);
+      final partnerId = userData?.partnerId;
+
+      if (partnerId == null) {
+        // No partner, just return user events
+        return getUserEvents(userId);
+      }
+
+      // Get events for both users
+      final userIds = [userId, partnerId];
+      final snapshot = await _firestore
+          .collection(eventsCollection)
+          .where('userId', whereIn: userIds)
+          .orderBy('startTime')
+          .get();
+
+      return snapshot.docs.map((doc) => EventModel.fromFirestore(doc)).toList();
+    } catch (e) {
+      throw 'Error fetching combined events: $e';
     }
   }
 }

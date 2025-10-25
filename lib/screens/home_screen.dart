@@ -191,7 +191,7 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
 
                       // View Calendar Button
-                      FilledButton.tonal.icon(
+                      FilledButton.tonalIcon(
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../event/add_event_screen.dart';
+import '../../providers/event_provider.dart';
+import '../../models/event_model.dart';
 
 /// Calendar week view showing both partners' schedules
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -54,6 +57,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final theme = Theme.of(context);
     final isCurrentWeek = _isCurrentWeek();
 
+    // Watch events for the current week
+    final eventsAsync = ref.watch(eventsStreamProvider(_weekStart));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendar'),
@@ -75,16 +81,30 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
           // Calendar Grid
           Expanded(
-            child: _buildCalendarGrid(theme),
+            child: eventsAsync.when(
+              data: (events) => _buildCalendarGrid(theme, events),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(
+                child: Text('Error loading events: $error'),
+              ),
+            ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Navigate to add event screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Add event coming soon!')),
+        onPressed: () async {
+          final result = await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddEventScreen(initialDate: _selectedWeek),
+            ),
           );
+
+          // If event was created successfully, show success message
+          if (result == true && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Event added to calendar!')),
+            );
+          }
         },
         child: const Icon(Icons.add),
       ),
@@ -171,7 +191,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   /// Build calendar grid showing days and time slots
-  Widget _buildCalendarGrid(ThemeData theme) {
+  Widget _buildCalendarGrid(ThemeData theme, List<EventModel> events) {
     return SingleChildScrollView(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,8 +203,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Expanded(
             child: Row(
               children: _weekDays.map((day) {
+                // Filter events for this specific day
+                final dayEvents = events.where((event) {
+                  return event.startTime.year == day.year &&
+                      event.startTime.month == day.month &&
+                      event.startTime.day == day.day;
+                }).toList();
+
                 return Expanded(
-                  child: _buildDayColumn(day, theme),
+                  child: _buildDayColumn(day, theme, dayEvents),
                 );
               }).toList(),
             ),
@@ -221,12 +248,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  /// Build a single day column
-  Widget _buildDayColumn(DateTime day, ThemeData theme) {
+  /// Build a single day column with events
+  Widget _buildDayColumn(DateTime day, ThemeData theme, List<EventModel> events) {
     final today = DateTime.now();
     final isToday = day.year == today.year &&
         day.month == today.month &&
         day.day == today.day;
+
+    const hourHeight = 60.0;
 
     return Container(
       decoration: BoxDecoration(
@@ -237,26 +266,100 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           right: BorderSide(color: theme.dividerColor, width: 0.5),
         ),
       ),
-      child: Column(
+      child: Stack(
         children: [
-          // Hour rows
-          ...List.generate(24, (hour) {
-            return Container(
-              height: 60,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: theme.dividerColor, width: 0.5),
+          // Background grid (hour rows)
+          Column(
+            children: List.generate(24, (hour) {
+              return Container(
+                height: hourHeight,
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: theme.dividerColor, width: 0.5),
+                  ),
                 ),
-              ),
-              child: Center(
-                child: hour == 12
-                    ? Text(
-                        'No events',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+              );
+            }),
+          ),
+
+          // Events overlay
+          ...events.map((event) {
+            // Calculate position and height based on start/end times
+            final startHour = event.startTime.hour + event.startTime.minute / 60.0;
+            final endHour = event.endTime.hour + event.endTime.minute / 60.0;
+            final top = startHour * hourHeight;
+            final height = (endHour - startHour) * hourHeight;
+
+            // Parse color from hex string
+            final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
+            final eventColor = Color(0xFF000000 | colorValue);
+
+            return Positioned(
+              top: top,
+              left: 2,
+              right: 2,
+              height: height.clamp(20.0, double.infinity),
+              child: GestureDetector(
+                onTap: () {
+                  // TODO: Navigate to event details/edit screen
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(event.title),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Start: ${DateFormat('h:mm a').format(event.startTime)}'),
+                          Text('End: ${DateFormat('h:mm a').format(event.endTime)}'),
+                          if (event.notes != null) ...[
+                            const SizedBox(height: 8),
+                            Text('Notes: ${event.notes}'),
+                          ],
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Close'),
                         ),
-                      )
-                    : null,
+                      ],
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: eventColor.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: eventColor, width: 1),
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        event.title,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (height > 30)
+                        Text(
+                          '${DateFormat('h:mm a').format(event.startTime)} - ${DateFormat('h:mm a').format(event.endTime)}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white70,
+                            fontSize: 10,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                ),
               ),
             );
           }),
