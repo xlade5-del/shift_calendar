@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import 'partner/partner_invite_screen.dart';
 import 'partner/partner_accept_screen.dart';
+import 'calendar/calendar_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -178,6 +179,34 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
+                      // Calendar Section
+                      const Divider(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Calendar:',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // View Calendar Button
+                      FilledButton.tonal.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const CalendarScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.calendar_month),
+                        label: const Text('View Calendar'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
                       // Coming Soon Features
                       const Divider(),
                       const SizedBox(height: 16),
@@ -190,15 +219,15 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       _buildFeatureItem(
                         context,
-                        Icons.calendar_today,
-                        'Week View Calendar',
-                        'View both schedules together',
-                      ),
-                      _buildFeatureItem(
-                        context,
                         Icons.sync,
                         'Real-time Sync',
                         'Instant updates across devices',
+                      ),
+                      _buildFeatureItem(
+                        context,
+                        Icons.event_note,
+                        'Manual Event Creation',
+                        'Add your own shifts manually',
                       ),
                     ],
                   ),
