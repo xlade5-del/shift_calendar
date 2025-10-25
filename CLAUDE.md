@@ -12,38 +12,71 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Implementation Status
 
-**Phase:** Week 1-4 (Authentication & Basic Setup)
-**Last Updated:** October 2025
+**Phase:** Week 9-12 (Manual Event Creation & Real-Time Sync) - COMPLETE
+**Last Updated:** October 25, 2025
 
-### ✅ Completed
+### ✅ Completed (Weeks 1-12)
+
+**Week 1-4: Authentication System**
 - Flutter project initialized with Firebase
 - Riverpod state management configured
 - Firebase Authentication integration (email/password)
 - Basic auth screens (LoginScreen, SignupScreen)
-- AuthService with sign-in/sign-up/sign-out methods
+- AuthService with comprehensive error handling
 - User model with Firestore serialization
 - Auth state management with authProvider
-- Main app with AuthWrapper for route management
-- Home screen with user info display
-- **Android emulator setup and configuration**
-- **Android build fixed (core library desugaring for flutter_local_notifications)**
-- **Unit tests for AuthService (10 tests passing)**
-- **Comprehensive error handling in AuthService**
-- **Testing dependencies added (mockito, build_runner)**
+- Android emulator setup and build configuration
+- 10 unit tests for AuthService
+
+**Week 5-6: Partner Linking System**
+- FirestoreService with user CRUD operations
+- 6-digit partner code generation (secure random, 24hr expiration)
+- Partner code validation and linking
+- PartnerInviteScreen and PartnerAcceptScreen
+- Riverpod providers for partner data
+- Real-time partner data streams
+- Batch operations for atomic partner linking
+- Tested successfully on 2 Android emulators
+
+**Week 7-8: Calendar Week View UI**
+- EventModel with Firestore serialization
+- CalendarScreen with 7-day week view
+- 24-hour time slot grid (60px per hour)
+- Week navigation (previous/next, today button)
+- Day headers with current day highlighting
+- FloatingActionButton for adding events
+- Integration with Home screen
+
+**Week 9-12: Manual Event Creation & Real-Time Sync**
+- Event CRUD operations in FirestoreService (8 new methods)
+- Event providers in Riverpod for state management
+- AddEventScreen with comprehensive form:
+  - Title, start/end date/time pickers
+  - 8 color options (blue, green, orange, red, purple, teal, pink, amber)
+  - Optional notes field
+  - Form validation and error handling
+- Calendar event rendering:
+  - Events displayed as colored blocks with accurate positioning
+  - Stack-based layout for overlapping events
+  - Tap to view event details in dialog
+  - Real-time updates via Firestore streams
+- Partner event visibility (combined queries)
+- Successfully tested on both Android emulators
 
 ### 🚧 In Progress
-- Google Sign-In for mobile (API compatibility issue with google_sign_in 7.2.0)
-- Apple Sign-In integration (sign_in_with_apple package installed)
+- Google Sign-In for mobile (API compatibility issue)
+- Apple Sign-In integration (package installed, not yet tested)
 
 ### ⏳ Not Yet Started
-- Partner linking system (6-digit code + email invite)
-- Calendar UI (week view)
-- Firestore service layer (FirestoreService)
-- Sync service with SQLite
+- Event edit/delete functionality
+- Conflict detection logic and alerts
+- Push notifications (FCM/APNs)
+- Partner management screen (view info, unlink)
+- Free time finder (mutual availability)
+- SQLite cache for offline mode
+- Sync queue for offline changes
 - iCal import Cloud Functions
-- Notification service (FCM/APNs)
-- Conflict detection logic
-- Offline mode with sync queue
+- Settings screen
 - Widget and integration tests
 
 ### Current Firebase Setup
@@ -87,20 +120,32 @@ await authService.signOut();
 ```
 lib/
 ├── models/
-│   └── user_model.dart          # ✅ User model with Firestore serialization
+│   ├── user_model.dart          # ✅ User model with Firestore serialization
+│   └── event_model.dart         # ✅ Event/shift model with version control
 ├── providers/
-│   └── auth_provider.dart       # ✅ Riverpod auth providers
+│   ├── auth_provider.dart       # ✅ Auth & Firestore providers
+│   └── event_provider.dart      # ✅ Event CRUD & streams
 ├── screens/
 │   ├── auth/
-│   │   ├── login_screen.dart    # ✅ Email/Google sign-in UI
-│   │   └── signup_screen.dart   # ✅ Email/Google sign-up UI
-│   └── home_screen.dart         # ✅ Post-auth placeholder screen
+│   │   ├── login_screen.dart    # ✅ Email sign-in UI
+│   │   └── signup_screen.dart   # ✅ Email sign-up UI
+│   ├── partner/
+│   │   ├── partner_invite_screen.dart   # ✅ Generate partner codes
+│   │   └── partner_accept_screen.dart   # ✅ Accept partner codes
+│   ├── calendar/
+│   │   └── calendar_screen.dart # ✅ Week view with real-time events
+│   ├── event/
+│   │   └── add_event_screen.dart # ✅ Create events with form
+│   └── home_screen.dart         # ✅ Main navigation hub
 ├── services/
-│   └── auth_service.dart        # ✅ Firebase Auth wrapper
+│   ├── auth_service.dart        # ✅ Firebase Auth wrapper
+│   └── firestore_service.dart   # ✅ User, partner & event CRUD
 ├── widgets/                     # ⏳ Empty (reusable components)
 └── utils/                       # ⏳ Empty (helpers, validators)
 
 test/
+├── unit/
+│   └── auth_service_test.dart   # ✅ 10 tests for AuthService
 └── widget_test.dart             # ⏳ Default test (needs implementation)
 
 firebase_options.dart            # ✅ Auto-generated Firebase config
@@ -109,30 +154,32 @@ main.dart                        # ✅ App entry point with AuthWrapper
 
 ## Next Development Steps
 
-### Immediate (Complete Week 4 Checkpoint)
-1. ⏳ Fix Google Sign-In for mobile (google_sign_in 7.2.0 API issues)
-2. ⏳ Complete Apple Sign-In integration
-3. ✅ Add comprehensive error handling to AuthService
-4. ⏳ Test auth persistence (close/reopen app)
-5. ✅ Write unit tests for AuthService (10 tests passing)
-6. ⏳ Test all auth methods on iOS + Android
+### Week 13-16 (Notifications & Conflict Detection)
+1. Implement event edit/delete functionality
+2. Build partner management screen (view info, unlink)
+3. Add conflict detection alerts (both working same time)
+4. Set up FCM for Android push notifications
+5. Set up APNs for iOS push notifications
+6. Create notification settings screen
+7. Implement free time finder (mutual availability)
 
-### Week 5-8 (Partner Linking & Basic UI)
-1. Create FirestoreService for user/partner CRUD operations
-2. Implement 6-digit partner code generation and validation
-3. Build partner linking UI (invite screen, accept screen)
-4. Add partner invite via email
-5. Create partner management screen
-6. Build basic calendar week view UI (no events yet)
+### Week 17-20 (Offline Mode & iCal Integration)
+1. Set up SQLite for local event cache
+2. Implement sync queue for offline changes
+3. Build version-based conflict resolution UI
+4. Create iCal import Cloud Functions (15min polling)
+5. Add settings screen (notifications, iCal feeds, account)
+6. Implement onboarding flow for new users
+7. Add profile editing functionality
 
-### Week 9-12 (Sync & Calendar)
-1. Create Event model and Firestore schema
-2. Implement manual event creation/editing/deletion
-3. Build SyncService with real-time Firestore listeners
-4. Set up SQLite for offline cache
-5. Implement sync queue for offline changes
-6. Create iCal import Cloud Functions
-7. Test offline mode extensively
+### Week 21-24 (Beta Testing & Launch)
+1. Recruit 50 couples for beta testing
+2. Collect and triage feedback
+3. Fix critical bugs
+4. Optimize sync reliability (target ≥95%)
+5. Write privacy policy and terms of service
+6. Prepare App Store and Google Play submissions
+7. Launch MVP!
 
 See **docs/quick_mvp_checklist.md** for detailed week-by-week breakdown.
 

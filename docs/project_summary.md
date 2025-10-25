@@ -1,8 +1,8 @@
 # Shift Calendar for Couples - Project Summary
 
 **Last Updated:** October 25, 2025
-**Current Phase:** Week 5-6 (Partner Linking) - Complete
-**Next Phase:** Week 7-8 (Partner Management & Calendar UI)
+**Current Phase:** Week 9-12 (Manual Event Creation & Real-Time Sync) - Complete
+**Next Phase:** Week 13-16 (Notifications & Conflict Detection)
 
 ---
 
@@ -161,47 +161,198 @@ final hasPartnerProvider = FutureProvider<bool>
 - "Enter Partner Code" button (navigates to PartnerAcceptScreen)
 - Material Design 3 styling with FilledButton and OutlinedButton
 
+### Week 7-8: Calendar Week View UI ✅
+
+#### Event Model
+Created `lib/models/event_model.dart` (145 lines) with:
+```dart
+class EventModel {
+  final String eventId;
+  final String userId;
+  final String title;
+  final DateTime startTime;
+  final DateTime endTime;
+  final String? notes;
+  final String color;       // Hex color string
+  final EventSource source; // manual, ical, google, apple
+  final String? icalUid;    // For iCal synced events
+  final int version;        // For conflict resolution
+  final DateTime createdAt;
+  final DateTime updatedAt;
+}
+```
+
+**Helper Methods:**
+- `duration` - Calculate event length
+- `isAllDay` - Check if 24+ hour event starting at midnight
+- `isNow` - Check if event is currently happening
+- `isPast` / `isFuture` - Temporal status checks
+
+#### Calendar Screen
+Created `lib/screens/calendar/calendar_screen.dart` (279 lines) with:
+
+**Week View Grid:**
+- 7-day week view (Monday - Sunday)
+- 24-hour time slots (12 AM - 11 PM)
+- 60px per hour row height
+- Scrollable grid to view all time slots
+- Current day highlighting in header and column
+
+**Navigation:**
+- Previous/Next week arrow buttons
+- Week date range display (e.g., "Oct 21 - Oct 27")
+- "Today" button to jump back to current week
+- Week start calculated from Monday
+
+**UI Components:**
+- FloatingActionButton for adding events
+- Time labels column on left side
+- Day header row with dates
+- Material Design 3 theming
+
+**Integration:**
+- Accessible from Home screen via "View Calendar" button
+- Navigation using MaterialPageRoute
+
+### Week 9-12: Manual Event Creation & Real-Time Sync ✅
+
+#### Firestore Service Event Operations
+Extended `lib/services/firestore_service.dart` (+161 lines) with:
+
+**CRUD Operations:**
+- `createEvent(EventModel)` - Add new event to Firestore
+- `updateEvent(EventModel)` - Update existing event
+- `deleteEvent(String eventId)` - Remove event
+- `getEvent(String eventId)` - Fetch single event
+
+**Query Methods:**
+- `getUserEvents(String userId)` - All events for a user
+- `getEventsForDateRange(userId, startDate, endDate)` - Events in time window
+- `getEventsForWeek(userId, weekStart)` - Helper for week view
+- `getCombinedEvents(userId)` - User + partner events
+
+**Real-Time Streams:**
+- `userEventsStream(userId)` - Live updates for user events
+- `eventsForDateRangeStream(userId, startDate, endDate)` - Live week view updates
+- Automatically includes partner events via `whereIn` query
+
+#### Event Providers (Riverpod)
+Created `lib/providers/event_provider.dart` (110 lines) with:
+
+```dart
+// Real-time event stream for current week
+final eventsStreamProvider = StreamProvider.family<List<EventModel>, DateTime>
+
+// One-time fetch for specific week
+final eventsForWeekProvider = FutureProvider.family<List<EventModel>, DateTime>
+
+// All user events
+final userEventsProvider = FutureProvider<List<EventModel>>
+
+// Combined user + partner events
+final combinedEventsProvider = FutureProvider<List<EventModel>>
+
+// Event CRUD notifier
+final eventStateNotifierProvider = NotifierProvider<EventStateNotifier, AsyncValue<void>>
+```
+
+#### Add Event Screen
+Created `lib/screens/event/add_event_screen.dart` (320 lines) with:
+
+**Form Fields:**
+- Title input (required, text field with validation)
+- Start date picker (Material DatePicker)
+- Start time picker (Material TimePicker)
+- End date picker (Material DatePicker)
+- End time picker (Material TimePicker)
+- Color selector (8 predefined colors as circular swatches)
+- Notes input (optional, multi-line text field)
+
+**Predefined Colors:**
+- Blue, Green, Orange, Red, Purple, Teal, Pink, Amber
+
+**Features:**
+- Default 8-hour shift duration
+- Smart date adjustment (if start > end, adjust end date)
+- Validation prevents end time before/equal to start time
+- Form validation for required title
+- Loading states during save
+- Success/error snackbar feedback
+
+**UI/UX:**
+- Material Design 3 components
+- SAVE button in AppBar and bottom of form
+- Date/time displayed in localized format
+- Color selection with checkmark on selected color
+- Returns `true` on successful save for navigation handling
+
+#### Calendar Event Display
+Updated `lib/screens/calendar/calendar_screen.dart` (+134 lines):
+
+**Event Rendering:**
+- Events displayed as colored blocks on calendar grid
+- Stack-based positioning using Positioned widget
+- Accurate vertical placement based on start/end times
+- Height calculated from event duration (hourHeight × duration)
+- 2px horizontal padding for visual separation
+- Minimum 20px height for visibility
+
+**Event Blocks:**
+- Background color from event.color with 90% opacity
+- Border with full opacity for definition
+- 4px border radius for rounded corners
+- White text with bold title
+- Time range displayed if block height > 30px
+- Text truncation with ellipsis for long titles
+
+**Interaction:**
+- Tap event to view details in AlertDialog
+- Dialog shows title, start/end times, notes
+- "Close" button to dismiss dialog
+
+**Real-Time Updates:**
+- `eventsStreamProvider` watches current week
+- Automatic UI rebuild on Firestore changes
+- Partner events appear immediately
+- Loading spinner during initial fetch
+- Error state with message display
+
+**Event Filtering:**
+- Events filtered by day for each column
+- Comparison by year, month, day
+- Sorted by start time (from Firestore query)
+
+#### Testing Results
+- Tested on two Android emulators (emulator-5554 and emulator-5556)
+- Partner linking verified working ("Already Linked! You are already linked with Sandra")
+- Both apps successfully built and running
+- Fixed FilledButton.tonalIcon syntax error in home_screen.dart
+- Manual event creation flow working end-to-end
+- Real-time sync confirmed across devices
+
 ---
 
 ## Pending Features
 
-### Week 7-8: Partner Management & Calendar Foundation
-- [ ] Test partner linking flow end-to-end on Android emulator
-- [ ] Create partner management screen
-  - View current partner information
-  - Unlink partner functionality
-  - Confirmation dialogs for destructive actions
-- [ ] Build basic calendar week view UI
-  - Week navigation (previous/next)
-  - Day headers with dates
-  - Empty state (no events yet)
-  - Both users' schedules side-by-side or overlaid
+### Week 13-16: Notifications & Conflict Detection
+- [ ] Push notifications for partner schedule changes
+- [ ] FCM/APNs integration
+- [ ] Notification settings screen
+- [ ] Conflict detection alerts (both working same time)
+- [ ] Partner management screen (view partner info, unlink functionality)
+- [ ] Event edit/delete functionality
+- [ ] Free time finder (mutual availability)
 
-### Week 9-12: Sync Engine & Event Management
-- [ ] Event model and Firestore schema
-- [ ] Manual event CRUD operations
-  - Create shift/event
-  - Edit existing events
-  - Delete events
-  - Color coding
-- [ ] SyncService with real-time Firestore listeners
+### Week 17-20: Offline Mode & iCal Integration
 - [ ] SQLite local cache for offline mode
 - [ ] Sync queue for offline changes
+- [ ] Version-based conflict resolution UI
 - [ ] iCal import Cloud Functions (polls every 15 minutes)
-- [ ] Version-based conflict resolution
-
-### Week 13-16: UX Polish & Notifications
-- [ ] Push notifications via FCM (Android) and APNs (iOS)
-- [ ] Conflict detection alerts
-- [ ] Free time finder (mutual availability)
-- [ ] Settings screen
-  - Notification preferences
-  - iCal feed management
-  - Account settings
+- [ ] Settings screen (notification preferences, iCal feeds, account)
 - [ ] Onboarding flow for new users
 - [ ] Profile editing
 
-### Week 17-20: Beta Testing & Launch
+### Week 21-24: Beta Testing & Launch
 - [ ] Recruit 50 couples for beta testing
 - [ ] Bug fixes based on beta feedback
 - [ ] Performance optimization (sync reliability ≥95%)
