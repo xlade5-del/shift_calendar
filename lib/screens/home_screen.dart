@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import 'partner/partner_invite_screen.dart';
 import 'partner/partner_accept_screen.dart';
+import 'partner/partner_management_screen.dart';
 import 'calendar/calendar_screen.dart';
+import 'settings/notification_settings_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -17,6 +19,17 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Deb ShiftSync'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const NotificationSettingsScreen(),
+                ),
+              );
+            },
+            tooltip: 'Notification Settings',
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -134,48 +147,73 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // Partner Linking Section
+                      // Partner Section
                       const Divider(),
                       const SizedBox(height: 16),
-                      Text(
-                        'Partner Linking:',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Invite Partner Button
-                      FilledButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const PartnerInviteScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.person_add),
-                        label: const Text('Invite Partner'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                      // Re-watch user data for partner status
+                      ...userAsync.when(
+                        data: (currentUserData) => [
+                          Text(
+                            currentUserData?.partnerId != null ? 'Partner:' : 'Partner Linking:',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Show different content based on partner status
+                          if (currentUserData?.partnerId != null)
+                        // Manage Partner Button (when partner is linked)
+                        FilledButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const PartnerManagementScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.manage_accounts),
+                          label: const Text('Manage Partner'),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        )
+                      else ...[
+                        // Invite Partner Button
+                        FilledButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const PartnerInviteScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.person_add),
+                          label: const Text('Invite Partner'),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
-                      // Accept Invite Button
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const PartnerAcceptScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.link),
-                        label: const Text('Enter Partner Code'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        // Accept Invite Button
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const PartnerAcceptScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.link),
+                          label: const Text('Enter Partner Code'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
                         ),
+                          ],
+                        ],
+                        loading: () => [const CircularProgressIndicator()],
+                        error: (_, __) => [const SizedBox.shrink()],
                       ),
                       const SizedBox(height: 24),
 

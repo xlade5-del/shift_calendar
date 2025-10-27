@@ -45,5 +45,14 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Firebase Cloud Messaging & Notifications -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<!-- Notification permission description -->
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>We need permission to send you notifications about schedule changes and conflicts with your partner.</string>
 </dict>
 </plist>

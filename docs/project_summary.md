@@ -1,8 +1,8 @@
 # Shift Calendar for Couples - Project Summary
 
-**Last Updated:** October 27, 2025
-**Current Phase:** Week 9-12 (Manual Event Creation & Real-Time Sync) - ✅ COMPLETE & TESTED
-**Next Phase:** Week 13-16 (Notifications & Conflict Detection)
+**Last Updated:** October 28, 2025
+**Current Phase:** Week 13-16 (Notifications & Conflict Detection) - 🚧 IN PROGRESS
+**Next Phase:** Week 17-20 (Offline Mode & iCal Integration)
 
 ---
 
@@ -45,6 +45,19 @@
 - 100% sync reliability in testing
 - Firestore composite indexes and security rules deployed
 
+### 🚧 Week 13-16: Notifications & Conflict Detection (IN PROGRESS)
+
+**✅ Completed:**
+- Conflict detection system with overlap detection algorithm
+- Partner Management Screen with unlink functionality
+- Calendar conflict warning badge with live counts
+- Home screen dynamic UI (shows "Manage Partner" when linked)
+
+**🚧 In Progress:**
+- Event edit/delete functionality (edit button added)
+- Push notifications (FCM/APNs)
+- Free time finder
+
 ### 📊 Performance Highlights
 - **Sync Latency:** <1 second (67% better than 3-second target)
 - **Sync Reliability:** 100% (exceeds 95% target)
@@ -52,10 +65,14 @@
 - **Platform Support:** Android fully tested on 2 emulators
 
 ### 📁 Codebase Stats
-- **Total Files:** 15+ core implementation files
-- **Lines of Code:** ~2,500+ lines across models, services, screens, providers
-- **Git Commits:** 15+ commits documenting Week 1-12 progress
+- **Total Files:** 18+ core implementation files
+- **Lines of Code:** ~3,300+ lines across models, services, screens, providers, utilities
+- **Git Commits:** 17+ commits documenting Week 1-13 progress
 - **Documentation:** 4 comprehensive docs (PRD, checklist, summary, guidelines)
+- **New in Week 13-16:**
+  - Partner Management Screen (404 lines)
+  - Conflict Detector utility (181 lines)
+  - Calendar & Home screen enhancements (~150 lines)
 
 ---
 
@@ -399,17 +416,120 @@ Updated `lib/screens/calendar/calendar_screen.dart` (+134 lines):
 
 **Conclusion:** Week 9-12 objectives fully achieved. Real-time sync working faster than target specification with 100% reliability in testing.
 
+### Week 13-16: Notifications & Conflict Detection (IN PROGRESS)
+
+#### Conflict Detection System ✅
+Created `lib/utils/conflict_detector.dart` (181 lines) with:
+
+**Core Detection Logic:**
+- `eventsOverlap(event1, event2)` - Check if two events overlap in time
+- `findConflictsForEvent(event, partnerEvents)` - Find all conflicts for a single event
+- `detectAllConflicts(allEvents, userId)` - Detect all conflicts in event list
+- `getConflictPairs(allEvents, userId)` - Get unique conflict pairs (user + partner)
+- `hasConflict(event, allEvents)` - Check if specific event has any conflicts
+- `getOverlapDuration(event1, event2)` - Calculate overlap duration between events
+
+**ConflictPair Class:**
+- Represents a conflict between user and partner events
+- `overlapDuration` - Duration of overlap
+- `overlapTimeRange` - Formatted time range string (e.g., "2 hr 30 min (9:00 AM - 11:30 AM)")
+
+**Algorithm:**
+```dart
+// Events overlap if:
+// - event1 starts before event2 ends AND
+// - event2 starts before event1 ends
+eventsOverlap = event1.startTime.isBefore(event2.endTime) &&
+                event2.startTime.isBefore(event1.endTime)
+```
+
+**Integration with Calendar:**
+- Conflict warning badge in AppBar showing number of conflicts
+- Conflicts dialog to view all conflict details
+- Visual indicator on conflicting events in calendar grid
+- Real-time conflict detection as events update
+
+#### Partner Management Screen ✅
+Created `lib/screens/partner/partner_management_screen.dart` (404 lines):
+
+**Features:**
+- Display partner information (name, email, avatar)
+- Partnership status badge ("Linked")
+- Information cards explaining partnership features:
+  - Real-time sync
+  - Calendar sharing
+  - Change notifications
+- Unlink partner functionality with confirmation dialog
+- "Danger Zone" section with clear warning about unlinking consequences
+
+**Unlink Flow:**
+1. User clicks "Unlink Partner" button in danger zone
+2. Confirmation dialog explains consequences:
+   - Stop calendar sync
+   - Remove access to each other's schedules
+   - Require new partner code to re-link
+3. Loading state during unlink operation
+4. Success/error snackbar feedback
+5. Navigate back to home screen
+
+**Edge Cases Handled:**
+- No partner linked state (shows "Back to Home" button)
+- Partner not found error
+- Unlink operation errors with user feedback
+
+#### Home Screen Dynamic UI ✅
+Updated `lib/screens/home_screen.dart`:
+
+**Partner Status-Based UI:**
+- **When no partner linked:** Shows "Invite Partner" and "Enter Partner Code" buttons
+- **When partner is linked:** Shows "Manage Partner" button
+- Real-time updates based on user data changes
+
+**UI Improvements:**
+- Section header changes from "Partner Linking:" to "Partner:" when linked
+- Material Design 3 styling with FilledButton.icon
+- Clean conditional rendering using spread operators
+
+#### Calendar Conflict Warnings ✅
+Updated `lib/screens/calendar/calendar_screen.dart`:
+
+**Conflict Badge in AppBar:**
+- Warning icon with badge showing number of conflicts
+- Orange icon color for visibility
+- Red badge with conflict count
+- Tap to view conflicts dialog
+- Only shows when conflicts exist
+
+**Visual Conflict Indicators:**
+- Conflicting events highlighted with border/styling
+- Integration with ConflictDetector utility
+- Real-time updates as events change
+
+#### Event Edit Functionality (IN PROGRESS)
+**Recent Work:**
+- Fixed edit button visibility in event details dialog
+- Edit button now properly appears for user's own events
+- EditEventScreen created (referenced but implementation ongoing)
+
+**Remaining Work:**
+- Complete edit form implementation
+- Event update logic
+- Validation for edited events
+- Delete functionality with confirmation
+
 ---
 
 ## Pending Features
 
-### Week 13-16: Notifications & Conflict Detection
+### Week 13-16: Notifications & Conflict Detection (Partially Complete)
+- [x] Conflict detection system (logic and utilities)
+- [x] Partner management screen (view partner info, unlink functionality)
+- [x] Conflict alerts in calendar UI (warning badge)
+- [x] Home screen improvements (dynamic partner UI)
+- [ ] Event edit/delete functionality (edit button added, form in progress)
 - [ ] Push notifications for partner schedule changes
 - [ ] FCM/APNs integration
 - [ ] Notification settings screen
-- [ ] Conflict detection alerts (both working same time)
-- [ ] Partner management screen (view partner info, unlink functionality)
-- [ ] Event edit/delete functionality
 - [ ] Free time finder (mutual availability)
 
 ### Week 17-20: Offline Mode & iCal Integration
@@ -607,16 +727,20 @@ shift_calendar/
 │   │   │   ├── login_screen.dart        # ✅ Email/password sign-in UI
 │   │   │   └── signup_screen.dart       # ✅ User registration UI
 │   │   ├── partner/
-│   │   │   ├── partner_invite_screen.dart   # ✅ Generate and share partner code
-│   │   │   └── partner_accept_screen.dart   # ✅ Enter partner code to link
+│   │   │   ├── partner_invite_screen.dart       # ✅ Generate and share partner code
+│   │   │   ├── partner_accept_screen.dart       # ✅ Enter partner code to link
+│   │   │   └── partner_management_screen.dart   # ✅ View/manage partner, unlink
 │   │   ├── calendar/
-│   │   │   └── calendar_screen.dart     # ✅ Week view with real-time events
+│   │   │   └── calendar_screen.dart     # ✅ Week view with real-time events & conflicts
 │   │   ├── event/
-│   │   │   └── add_event_screen.dart    # ✅ Manual event creation form
-│   │   └── home_screen.dart             # ✅ Post-auth landing page
+│   │   │   ├── add_event_screen.dart    # ✅ Manual event creation form
+│   │   │   └── edit_event_screen.dart   # 🚧 Edit existing events (in progress)
+│   │   └── home_screen.dart             # ✅ Post-auth landing page with dynamic UI
 │   ├── services/
 │   │   ├── auth_service.dart            # ✅ Firebase Auth wrapper
 │   │   └── firestore_service.dart       # ✅ User, partner & event CRUD operations
+│   ├── utils/
+│   │   └── conflict_detector.dart       # ✅ Conflict detection logic & utilities
 │   ├── widgets/                         # ⏳ Empty (reusable components)
 │   └── main.dart                        # ✅ App entry point with AuthWrapper
 ├── test/
@@ -809,6 +933,11 @@ shift_calendar/
 
 ### Recent Commits
 ```
+97da77b - Fix edit button visibility in event details dialog
+  - Fixed edit button now properly shows for user's own events
+  - Event edit functionality improvements in calendar screen
+  - Better user experience for event management
+
 c4dd268 - Complete Week 12 real-time sync testing - all targets exceeded
   - Verified <1 second sync latency across two Android emulators
   - Confirmed 100% sync reliability (target: >95%)
@@ -839,6 +968,13 @@ aaa58fd - Add comprehensive project documentation summary
   - Added technical decisions and architecture notes
 ```
 
+### New Features Since Last Commit (Not Yet Committed)
+- ✅ Partner Management Screen with unlink functionality
+- ✅ Conflict detection utility class (ConflictDetector)
+- ✅ Calendar conflict warning badge
+- ✅ Home screen dynamic UI based on partner status
+- 🚧 Event edit screen implementation in progress
+
 ---
 
-**Status:** Week 9-12 Complete ✅ | Ready for Week 13-16 Notifications & Conflict Detection
+**Status:** Week 13-16 In Progress 🚧 | Conflict Detection & Partner Management Completed

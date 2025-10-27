@@ -4,9 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../event/add_event_screen.dart';
 import '../event/edit_event_screen.dart';
+import 'free_time_finder_screen.dart';
 import '../../providers/event_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/event_model.dart';
+import '../../utils/conflict_detector.dart';
 
 /// Calendar week view showing both partners' schedules
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -59,6 +61,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCurrentWeek = _isCurrentWeek();
+    final currentUser = ref.watch(currentFirebaseUserProvider);
 
     // Watch events for the current week
     final eventsAsync = ref.watch(eventsStreamProvider(_weekStart));
@@ -67,6 +70,43 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       appBar: AppBar(
         title: const Text('Calendar'),
         actions: [
+          // Free Time Finder button
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const FreeTimeFinderScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.favorite),
+            tooltip: 'Find Free Time',
+          ),
+          // Conflict warning badge
+          eventsAsync.when(
+            data: (events) {
+              if (currentUser == null) return const SizedBox.shrink();
+
+              final conflicts = ConflictDetector.getConflictPairs(
+                events,
+                currentUser.uid,
+              );
+
+              if (conflicts.isEmpty) return const SizedBox.shrink();
+
+              return IconButton(
+                onPressed: () => _showConflictsDialog(conflicts),
+                icon: Badge(
+                  label: Text('${conflicts.length}'),
+                  backgroundColor: Colors.red,
+                  child: const Icon(Icons.warning, color: Colors.orange),
+                ),
+                tooltip: 'View schedule conflicts',
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
           if (!isCurrentWeek)
             TextButton(
               onPressed: _goToToday,
@@ -85,7 +125,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           // Calendar Grid
           Expanded(
             child: eventsAsync.when(
-              data: (events) => _buildCalendarGrid(theme, events),
+              data: (events) => _buildCalendarGrid(theme, events, currentUser),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Center(
                 child: Text('Error loading events: $error'),
@@ -194,7 +234,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   /// Build calendar grid showing days and time slots
-  Widget _buildCalendarGrid(ThemeData theme, List<EventModel> events) {
+  Widget _buildCalendarGrid(ThemeData theme, List<EventModel> events, User? currentUser) {
     return SingleChildScrollView(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +254,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 }).toList();
 
                 return Expanded(
-                  child: _buildDayColumn(day, theme, dayEvents),
+                  child: _buildDayColumn(day, theme, dayEvents, events, currentUser),
                 );
               }).toList(),
             ),
@@ -252,7 +292,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   /// Build a single day column with events
-  Widget _buildDayColumn(DateTime day, ThemeData theme, List<EventModel> events) {
+  Widget _buildDayColumn(
+    DateTime day,
+    ThemeData theme,
+    List<EventModel> events,
+    List<EventModel> allEvents,
+    User? currentUser,
+  ) {
     final today = DateTime.now();
     final isToday = day.year == today.year &&
         day.month == today.month &&
@@ -297,6 +343,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
             final eventColor = Color(0xFF000000 | colorValue);
 
+            // Check if this event has conflicts
+            final hasConflict = currentUser != null &&
+                ConflictDetector.hasConflict(event, allEvents);
+
             return Positioned(
               top: top,
               left: 2,
@@ -304,27 +354,42 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               height: height.clamp(20.0, double.infinity),
               child: GestureDetector(
                 onTap: () {
-                  _showEventDetails(event);
+                  _showEventDetails(event, allEvents);
                 },
                 child: Container(
                   decoration: BoxDecoration(
                     color: eventColor.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: eventColor, width: 1),
+                    border: Border.all(
+                      color: hasConflict ? Colors.red : eventColor,
+                      width: hasConflict ? 2.5 : 1,
+                    ),
                   ),
                   padding: const EdgeInsets.all(4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        event.title,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              event.title,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (hasConflict)
+                            const Icon(
+                              Icons.warning,
+                              color: Colors.red,
+                              size: 14,
+                            ),
+                        ],
                       ),
                       if (height > 30)
                         Text(
@@ -348,9 +413,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   /// Show event details dialog with edit/delete options
-  Future<void> _showEventDetails(EventModel event) async {
+  Future<void> _showEventDetails(EventModel event, List<EventModel> allEvents) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     final isUserEvent = currentUser?.uid == event.userId;
+
+    // Check for conflicts
+    final conflictingEvents = ConflictDetector.findConflictsForEvent(
+      event,
+      allEvents.where((e) => e.userId != event.userId).toList(),
+    );
 
     final result = await showDialog<String>(
       context: context,
@@ -396,6 +467,40 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ],
               ),
             ],
+            // Show conflict warning
+            if (conflictingEvents.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.warning, size: 16, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Schedule Conflict!',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ...conflictingEvents.map((conflictEvent) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 24, top: 4),
+                  child: Text(
+                    '• ${conflictEvent.title} (${DateFormat('h:mm a').format(conflictEvent.startTime)} - ${DateFormat('h:mm a').format(conflictEvent.endTime)})',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.red[700],
+                    ),
+                  ),
+                );
+              }),
+            ],
           ],
         ),
         actions: [
@@ -438,5 +543,120 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return _weekStart.year == nowWeekStartDate.year &&
         _weekStart.month == nowWeekStartDate.month &&
         _weekStart.day == nowWeekStartDate.day;
+  }
+
+  /// Show dialog listing all schedule conflicts
+  Future<void> _showConflictsDialog(List<ConflictPair> conflicts) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.orange),
+            const SizedBox(width: 12),
+            const Text('Schedule Conflicts'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ConflictDetector.getConflictSummary(conflicts),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[700],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'You and your partner have overlapping shifts:',
+                style: TextStyle(fontSize: 12),
+              ),
+              const SizedBox(height: 12),
+              ...conflicts.map((conflict) {
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Date
+                        Text(
+                          DateFormat('EEE, MMM d, yyyy').format(conflict.userEvent.startTime),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Your event
+                        Row(
+                          children: [
+                            const Icon(Icons.person, size: 14),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '${conflict.userEvent.title}\n${DateFormat('h:mm a').format(conflict.userEvent.startTime)} - ${DateFormat('h:mm a').format(conflict.userEvent.endTime)}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Partner event
+                        Row(
+                          children: [
+                            const Icon(Icons.people, size: 14),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '${conflict.partnerEvent.title}\n${DateFormat('h:mm a').format(conflict.partnerEvent.startTime)} - ${DateFormat('h:mm a').format(conflict.partnerEvent.endTime)}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Overlap duration
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.schedule, size: 12, color: Colors.red[700]),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Overlap: ${conflict.overlapTimeRange}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.red[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CLOSE'),
+          ),
+        ],
+      ),
+    );
   }
 }

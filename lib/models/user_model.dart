@@ -4,6 +4,8 @@ class UserModel {
   final String? displayName;
   final String? photoUrl;
   final String? partnerId;
+  final String? fcmToken;
+  final DateTime? lastTokenUpdate;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -13,6 +15,8 @@ class UserModel {
     this.displayName,
     this.photoUrl,
     this.partnerId,
+    this.fcmToken,
+    this.lastTokenUpdate,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -25,6 +29,8 @@ class UserModel {
       displayName: firebaseUser.displayName,
       photoUrl: firebaseUser.photoURL,
       partnerId: null,
+      fcmToken: null,
+      lastTokenUpdate: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -38,6 +44,10 @@ class UserModel {
       displayName: map['name'],
       photoUrl: map['photoUrl'],
       partnerId: map['partnerId'],
+      fcmToken: map['fcmToken'],
+      lastTokenUpdate: map['lastTokenUpdate'] != null
+          ? (map['lastTokenUpdate'] as dynamic).toDate()
+          : null,
       createdAt: (map['createdAt'] as dynamic).toDate(),
       updatedAt: (map['updatedAt'] as dynamic).toDate(),
     );
@@ -50,6 +60,8 @@ class UserModel {
       'name': displayName,
       'photoUrl': photoUrl,
       'partnerId': partnerId,
+      'fcmToken': fcmToken,
+      'lastTokenUpdate': lastTokenUpdate,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -62,6 +74,8 @@ class UserModel {
     String? displayName,
     String? photoUrl,
     String? partnerId,
+    String? fcmToken,
+    DateTime? lastTokenUpdate,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -71,6 +85,8 @@ class UserModel {
       displayName: displayName ?? this.displayName,
       photoUrl: photoUrl ?? this.photoUrl,
       partnerId: partnerId ?? this.partnerId,
+      fcmToken: fcmToken ?? this.fcmToken,
+      lastTokenUpdate: lastTokenUpdate ?? this.lastTokenUpdate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
