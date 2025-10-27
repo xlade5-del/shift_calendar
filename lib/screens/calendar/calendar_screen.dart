@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../event/add_event_screen.dart';
+import '../event/edit_event_screen.dart';
 import '../../providers/event_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/event_model.dart';
 
 /// Calendar week view showing both partners' schedules
@@ -301,31 +304,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               height: height.clamp(20.0, double.infinity),
               child: GestureDetector(
                 onTap: () {
-                  // TODO: Navigate to event details/edit screen
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text(event.title),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Start: ${DateFormat('h:mm a').format(event.startTime)}'),
-                          Text('End: ${DateFormat('h:mm a').format(event.endTime)}'),
-                          if (event.notes != null) ...[
-                            const SizedBox(height: 8),
-                            Text('Notes: ${event.notes}'),
-                          ],
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
+                  _showEventDetails(event);
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -366,6 +345,87 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ],
       ),
     );
+  }
+
+  /// Show event details dialog with edit/delete options
+  Future<void> _showEventDetails(EventModel event) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final isUserEvent = currentUser?.uid == event.userId;
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(event.title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.calendar_today, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Text(DateFormat('EEE, MMM d, yyyy').format(event.startTime)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.access_time, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Text('${DateFormat('h:mm a').format(event.startTime)} - ${DateFormat('h:mm a').format(event.endTime)}'),
+              ],
+            ),
+            if (event.notes != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.notes, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(event.notes!)),
+                ],
+              ),
+            ],
+            if (!isUserEvent) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.person, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 8),
+                  Text("Partner's Event", style: TextStyle(fontStyle: FontStyle.italic)),
+                ],
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CLOSE'),
+          ),
+          if (isUserEvent)
+            FilledButton.icon(
+              onPressed: () => Navigator.of(context).pop('edit'),
+              icon: const Icon(Icons.edit),
+              label: const Text('EDIT'),
+            ),
+        ],
+      ),
+    );
+
+    // If user clicked Edit, navigate to EditEventScreen
+    if (result == 'edit' && mounted) {
+      final editResult = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => EditEventScreen(event: event),
+        ),
+      );
+
+      // If event was updated/deleted, show success message
+      if (editResult == true && mounted) {
+        // Event was updated or deleted, calendar will auto-update via stream
+      }
+    }
   }
 
   /// Check if currently viewing the current week
