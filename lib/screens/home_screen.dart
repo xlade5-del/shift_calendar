@@ -1,317 +1,1100 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
+import '../providers/event_provider.dart';
+import '../models/event_model.dart';
 import 'partner/partner_invite_screen.dart';
 import 'partner/partner_accept_screen.dart';
 import 'partner/partner_management_screen.dart';
 import 'calendar/calendar_screen.dart';
 import 'settings/notification_settings_screen.dart';
+import 'event/add_event_screen.dart';
+import 'event/edit_event_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+/// Redesigned home screen with month calendar view
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  DateTime _selectedDate = DateTime.now();
+  int _selectedTabIndex = 0; // 0: Month, 1: Year, 2: Summary
+  int _selectedBottomIndex = 2; // 0: Paint, 1: Edit, 2: Shifts
+  String _selectedWorkplace = 'My Workplace';
+
+  /// Get the first day of the month
+  DateTime get _monthStart {
+    return DateTime(_selectedDate.year, _selectedDate.month, 1);
+  }
+
+  /// Get the last day of the month
+  DateTime get _monthEnd {
+    return DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
+  }
+
+  /// Get all days to display in the month view (including padding days)
+  List<DateTime?> get _calendarDays {
+    final firstWeekday = _monthStart.weekday; // 1 = Monday, 7 = Sunday
+    final daysInMonth = _monthEnd.day;
+
+    // Start from Monday (1)
+    final leadingEmptyDays = firstWeekday - 1;
+
+    final days = <DateTime?>[];
+
+    // Add empty days for padding
+    for (int i = 0; i < leadingEmptyDays; i++) {
+      days.add(null);
+    }
+
+    // Add actual days of the month
+    for (int day = 1; day <= daysInMonth; day++) {
+      days.add(DateTime(_selectedDate.year, _selectedDate.month, day));
+    }
+
+    return days;
+  }
+
+  void _previousMonth() {
+    setState(() {
+      _selectedDate = DateTime(_selectedDate.year, _selectedDate.month - 1);
+    });
+  }
+
+  void _nextMonth() {
+    setState(() {
+      _selectedDate = DateTime(_selectedDate.year, _selectedDate.month + 1);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserDataProvider);
     final user = ref.watch(currentFirebaseUserProvider);
+    final eventsAsync = ref.watch(eventsStreamProvider(_monthStart));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Deb ShiftSync'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const NotificationSettingsScreen(),
-                ),
-              );
-            },
-            tooltip: 'Notification Settings',
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              // Show confirmation dialog
-              final shouldSignOut = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Sign Out'),
-                  content: const Text('Are you sure you want to sign out?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Sign Out'),
-                    ),
-                  ],
-                ),
-              );
+      backgroundColor: const Color(0xFFF5F5F7),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Top Header with Workplace Selector
+            _buildTopHeader(),
 
-              if (shouldSignOut == true) {
-                final authNotifier = ref.read(authStateNotifierProvider.notifier);
-                await authNotifier.signOut();
-              }
-            },
-            tooltip: 'Sign Out',
+            // Tab Navigation (Month / Year / Summary)
+            _buildTabNavigation(),
+
+            // Calendar Content
+            Expanded(
+              child: _selectedTabIndex == 0
+                  ? _buildMonthCalendarView(eventsAsync)
+                  : _selectedTabIndex == 1
+                      ? _buildYearView()
+                      : _buildSummaryView(userAsync, user),
+            ),
+
+            // Bottom Navigation
+            _buildBottomNavigation(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
-          child: Column(
-            children: [
-              // User Avatar
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                backgroundImage: user?.photoURL != null
-                    ? NetworkImage(user!.photoURL!)
-                    : null,
-                child: user?.photoURL == null
-                    ? Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      )
-                    : null,
-              ),
-              const SizedBox(height: 24),
+      child: Row(
+        children: [
+          // App Icon/Logo
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF007AFF),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.calendar_today,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
 
-              // Welcome Message
-              Text(
-                'Welcome!',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+          // Workplace Selector
+          Expanded(
+            child: GestureDetector(
+              onTap: _showWorkplaceSelector,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F7),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedWorkplace,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2C2C2E),
+                        ),
+                      ),
                     ),
-              ),
-              const SizedBox(height: 8),
-
-              // User Info
-              userAsync.when(
-                data: (userData) {
-                  return Column(
-                    children: [
-                      Text(
-                        userData?.displayName ?? user?.displayName ?? 'User',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        userData?.email ?? user?.email ?? '',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                      ),
-                    ],
-                  );
-                },
-                loading: () => const CircularProgressIndicator(),
-                error: (error, _) => Text(
-                  'Error loading user data',
-                  style: TextStyle(color: Colors.red[700]),
+                    const Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Color(0xFF6E6E73),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 48),
+            ),
+          ),
+          const SizedBox(width: 12),
 
-              // Status Card
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Authentication Working!',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Week 3-4 milestone completed.\nNext: Partner linking & Calendar UI',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
+          // Share Button
+          IconButton(
+            icon: const Icon(Icons.share, color: Color(0xFF007AFF)),
+            onPressed: () {},
+          ),
 
-                      // Partner Section
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      // Re-watch user data for partner status
-                      ...userAsync.when(
-                        data: (currentUserData) => [
-                          Text(
-                            currentUserData?.partnerId != null ? 'Partner:' : 'Partner Linking:',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          const SizedBox(height: 12),
-                          // Show different content based on partner status
-                          if (currentUserData?.partnerId != null)
-                        // Manage Partner Button (when partner is linked)
-                        FilledButton.icon(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const PartnerManagementScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.manage_accounts),
-                          label: const Text('Manage Partner'),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        )
-                      else ...[
-                        // Invite Partner Button
-                        FilledButton.icon(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const PartnerInviteScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.person_add),
-                          label: const Text('Invite Partner'),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
+          // Settings Button
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: Color(0xFF2C2C2E)),
+            onPressed: _showSettingsMenu,
+          ),
+        ],
+      ),
+    );
+  }
 
-                        // Accept Invite Button
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const PartnerAcceptScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.link),
-                          label: const Text('Enter Partner Code'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                          ],
-                        ],
-                        loading: () => [const CircularProgressIndicator()],
-                        error: (_, __) => [const SizedBox.shrink()],
-                      ),
-                      const SizedBox(height: 24),
+  Widget _buildTabNavigation() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildTabButton('OCTOBER', 0),
+          _buildTabButton('2025', 1),
+          _buildTabButton('SUMMARY', 2),
+        ],
+      ),
+    );
+  }
 
-                      // Calendar Section
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Calendar:',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 12),
+  Widget _buildTabButton(String label, int index) {
+    final isSelected = _selectedTabIndex == index;
 
-                      // View Calendar Button
-                      FilledButton.tonalIcon(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const CalendarScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.calendar_month),
-                        label: const Text('View Calendar'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+    // Update the label based on current date if needed
+    String displayLabel = label;
+    if (index == 0) {
+      displayLabel = DateFormat('MMMM').format(_selectedDate).toUpperCase();
+    } else if (index == 1) {
+      displayLabel = DateFormat('yyyy').format(_selectedDate);
+    }
 
-                      // Coming Soon Features
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Coming Soon:',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildFeatureItem(
-                        context,
-                        Icons.sync,
-                        'Real-time Sync',
-                        'Instant updates across devices',
-                      ),
-                      _buildFeatureItem(
-                        context,
-                        Icons.event_note,
-                        'Manual Event Creation',
-                        'Add your own shifts manually',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedTabIndex = index),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF007AFF) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            displayLabel,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : const Color(0xFF6E6E73),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildFeatureItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String subtitle,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildMonthCalendarView(AsyncValue<List<EventModel>> eventsAsync) {
+    return SingleChildScrollView(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Month Navigation Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleSmall,
+                IconButton(
+                  icon: const Icon(Icons.chevron_left, color: Color(0xFF2C2C2E)),
+                  onPressed: _previousMonth,
                 ),
                 Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
+                  DateFormat('MMMM yyyy').format(_selectedDate),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1C1C1E),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right, color: Color(0xFF2C2C2E)),
+                  onPressed: _nextMonth,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Weekday Headers
+            Row(
+              children: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+                  .map((day) => Expanded(
+                        child: Text(
+                          day,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6E6E73),
+                          ),
+                        ),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 8),
+
+            // Calendar Grid
+            eventsAsync.when(
+              data: (events) => _buildCalendarGrid(events),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (error, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Text('Error loading events: $error'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalendarGrid(List<EventModel> events) {
+    final days = _calendarDays;
+    final rows = (days.length / 7).ceil();
+
+    return Column(
+      children: List.generate(rows, (rowIndex) {
+        return Row(
+          children: List.generate(7, (colIndex) {
+            final dayIndex = rowIndex * 7 + colIndex;
+            if (dayIndex >= days.length) return const Expanded(child: SizedBox());
+
+            final day = days[dayIndex];
+            if (day == null) {
+              return const Expanded(child: SizedBox());
+            }
+
+            // Filter events for this day
+            final dayEvents = events.where((event) {
+              return event.startTime.year == day.year &&
+                  event.startTime.month == day.month &&
+                  event.startTime.day == day.day;
+            }).toList();
+
+            return Expanded(
+              child: _buildCalendarDay(day, dayEvents),
+            );
+          }),
+        );
+      }),
+    );
+  }
+
+  Widget _buildCalendarDay(DateTime day, List<EventModel> events) {
+    final isToday = DateTime.now().year == day.year &&
+        DateTime.now().month == day.month &&
+        DateTime.now().day == day.day;
+    final isWeekend = day.weekday == 6 || day.weekday == 7;
+
+    return GestureDetector(
+      onTap: () => _showDayEvents(day, events),
+      child: Container(
+        margin: const EdgeInsets.all(2),
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: isWeekend ? const Color(0xFFFF6B6B).withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: isToday
+              ? Border.all(color: const Color(0xFF007AFF), width: 2)
+              : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${day.day}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                color: isWeekend ? const Color(0xFFFF6B6B) : const Color(0xFF1C1C1E),
+              ),
+            ),
+            const SizedBox(height: 2),
+            // Show event indicators
+            if (events.isNotEmpty)
+              Wrap(
+                spacing: 2,
+                runSpacing: 2,
+                children: events.take(3).map((event) {
+                  final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
+                  final eventColor = Color(0xFF000000 | colorValue);
+
+                  return Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: eventColor,
+                      shape: BoxShape.circle,
+                    ),
+                  );
+                }).toList(),
+              ),
+            if (events.length > 3)
+              Text(
+                '+${events.length - 3}',
+                style: const TextStyle(
+                  fontSize: 8,
+                  color: Color(0xFF6E6E73),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildYearView() {
+    return const Center(
+      child: Text(
+        'Year View\nComing Soon',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF6E6E73),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryView(AsyncValue userAsync, dynamic user) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // User Profile Card
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: const Color(0xFF007AFF).withOpacity(0.2),
+                  backgroundImage: user?.photoURL != null
+                      ? NetworkImage(user!.photoURL!)
+                      : null,
+                  child: user?.photoURL == null
+                      ? const Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Color(0xFF007AFF),
+                        )
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                userAsync.when(
+                  data: (userData) => Column(
+                    children: [
+                      Text(
+                        userData?.displayName ?? user?.displayName ?? 'User',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1C1C1E),
+                        ),
                       ),
+                      const SizedBox(height: 4),
+                      Text(
+                        userData?.email ?? user?.email ?? '',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF6E6E73),
+                        ),
+                      ),
+                    ],
+                  ),
+                  loading: () => const CircularProgressIndicator(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Partner Section
+          userAsync.when(
+            data: (currentUserData) => Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    currentUserData?.partnerId != null ? 'Partner' : 'Partner Linking',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1C1C1E),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (currentUserData?.partnerId != null)
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const PartnerManagementScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.manage_accounts),
+                      label: const Text('Manage Partner'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007AFF),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    )
+                  else ...[
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const PartnerInviteScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.person_add),
+                      label: const Text('Invite Partner'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007AFF),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const PartnerAcceptScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.link),
+                      label: const Text('Enter Partner Code'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF007AFF),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 16),
+
+          // Quick Actions Card
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Quick Actions',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1C1C1E),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildQuickActionButton(
+                  'View Week Calendar',
+                  Icons.calendar_view_week,
+                  () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const CalendarScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildQuickActionButton(
+                  'Notification Settings',
+                  Icons.notifications,
+                  () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationSettingsScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildQuickActionButton(
+                  'Sign Out',
+                  Icons.logout,
+                  () async {
+                    final shouldSignOut = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Sign Out'),
+                        content: const Text('Are you sure you want to sign out?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Sign Out'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (shouldSignOut == true) {
+                      final authNotifier = ref.read(authStateNotifierProvider.notifier);
+                      await authNotifier.signOut();
+                    }
+                  },
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuickActionButton(String label, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F7),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: const Color(0xFF007AFF)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1C1C1E),
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFF6E6E73)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigation() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildBottomNavButton('PAINT', 0, Icons.brush),
+          _buildBottomNavButton('EDIT', 1, Icons.edit),
+          _buildBottomNavButton('SHIFTS', 2, Icons.event),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavButton(String label, int index, IconData icon) {
+    final isSelected = _selectedBottomIndex == index;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedBottomIndex = index);
+
+          // Handle navigation based on button
+          if (index == 1) { // Edit
+            // Navigate to add event screen
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AddEventScreen(initialDate: _selectedDate),
+              ),
+            );
+          } else if (index == 2) { // Shifts
+            // Already on home, just change tab to month view
+            setState(() => _selectedTabIndex = 0);
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF6E6E73),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF6E6E73),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showWorkplaceSelector() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Select Workplace',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1C1C1E),
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildWorkplaceOption('My Workplace'),
+              _buildWorkplaceOption('Hospital A'),
+              _buildWorkplaceOption('Hospital B'),
+              _buildWorkplaceOption('Clinic C'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWorkplaceOption(String name) {
+    final isSelected = _selectedWorkplace == name;
+
+    return InkWell(
+      onTap: () {
+        setState(() => _selectedWorkplace = name);
+        Navigator.pop(context);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF007AFF).withOpacity(0.1) : const Color(0xFFF5F5F7),
+          borderRadius: BorderRadius.circular(12),
+          border: isSelected ? Border.all(color: const Color(0xFF007AFF), width: 2) : null,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.business,
+              color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF6E6E73),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF1C1C1E),
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: Color(0xFF007AFF)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSettingsMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Settings',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1C1C1E),
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildSettingsOption('Notification Settings', Icons.notifications, () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationSettingsScreen(),
+                  ),
+                );
+              }),
+              _buildSettingsOption('Partner Management', Icons.people, () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PartnerManagementScreen(),
+                  ),
+                );
+              }),
+              _buildSettingsOption('Week Calendar View', Icons.calendar_view_week, () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CalendarScreen(),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSettingsOption(String label, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F7),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: const Color(0xFF007AFF)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1C1C1E),
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFF6E6E73)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDayEvents(DateTime day, List<EventModel> events) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          minChildSize: 0.4,
+          expand: false,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    DateFormat('EEEE, MMMM d, yyyy').format(day),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1C1C1E),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (events.isEmpty)
+                    const Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.event_busy, size: 48, color: Color(0xFF6E6E73)),
+                            SizedBox(height: 16),
+                            Text(
+                              'No events scheduled',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF6E6E73),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          final event = events[index];
+                          final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
+                          final eventColor = Color(0xFF000000 | colorValue);
+
+                          return InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => EditEventScreen(event: event),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: eventColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: eventColor, width: 2),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 4,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: eventColor,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          event.title,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1C1C1E),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${DateFormat('h:mm a').format(event.startTime)} - ${DateFormat('h:mm a').format(event.endTime)}',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xFF6E6E73),
+                                          ),
+                                        ),
+                                        if (event.notes != null && event.notes!.isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            event.notes!,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: Color(0xFF6E6E73),
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(Icons.chevron_right, color: eventColor),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AddEventScreen(initialDate: day),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Event'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF007AFF),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

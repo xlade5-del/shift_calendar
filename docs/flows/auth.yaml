@@ -1,0 +1,39 @@
+flow: Auth
+routes:
+  - name: /auth/email
+    purpose: capture email
+    fields:
+      - id: email
+        type: email
+        rules: [required, valid_email]
+    cta: {label: Continue, enabled_when: valid(email)}
+    on_success: /auth/password_or_magic
+  - name: /auth/password_or_magic
+    purpose: choose password or magic link
+    variants:
+      - id: password
+        fields:
+          - id: password
+            type: password
+            rules: [required, min_8]
+        cta: {label: Sign in, enabled_when: valid(password)}
+      - id: magic
+        cta: {label: Send link, enabled_when: valid(email_from_prev)}
+    on_error:
+      inline: under-field
+      network: toast_retry
+  - name: /home
+    purpose: landing after auth
+copy:
+  email_label: "Work email"
+  invalid_email: "That doesn’t look right"
+  pwd_label: "Password"
+  magic_sent: "We’ve sent a sign-in link."
+visual:
+  brand: neutral
+non_functional:
+  a11y: {contrast: AA}
+test_cases:
+  - "CTA disabled until valid input"
+  - "Inline error for invalid email"
+  - "Network error shows retry toast"
