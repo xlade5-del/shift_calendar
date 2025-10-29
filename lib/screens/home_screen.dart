@@ -107,7 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildTopHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -186,7 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildTabNavigation() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -244,83 +244,81 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildMonthCalendarView(AsyncValue<List<EventModel>> eventsAsync) {
-    return SingleChildScrollView(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            // Month Navigation Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left, color: Color(0xFF2C2C2E)),
-                  onPressed: _previousMonth,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Month Navigation Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left, color: Color(0xFF2C2C2E)),
+                onPressed: _previousMonth,
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(),
+              ),
+              Text(
+                DateFormat('MMMM yyyy').format(_selectedDate),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1C1C1E),
                 ),
-                Text(
-                  DateFormat('MMMM yyyy').format(_selectedDate),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1C1C1E),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right, color: Color(0xFF2C2C2E)),
-                  onPressed: _nextMonth,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right, color: Color(0xFF2C2C2E)),
+                onPressed: _nextMonth,
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
 
-            // Weekday Headers
-            Row(
-              children: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
-                  .map((day) => Expanded(
-                        child: Text(
-                          day,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF6E6E73),
-                          ),
+          // Weekday Headers
+          Row(
+            children: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+                .map((day) => Expanded(
+                      child: Text(
+                        day,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF6E6E73),
                         ),
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 8),
+                      ),
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 4),
 
-            // Calendar Grid
-            eventsAsync.when(
+          // Calendar Grid - expands to fill available space
+          Expanded(
+            child: eventsAsync.when(
               data: (events) => _buildCalendarGrid(events),
               loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(),
-                ),
+                child: CircularProgressIndicator(),
               ),
               error: (error, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Text('Error loading events: $error'),
-                ),
+                child: Text('Error loading events: $error'),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -331,27 +329,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Column(
       children: List.generate(rows, (rowIndex) {
-        return Row(
-          children: List.generate(7, (colIndex) {
-            final dayIndex = rowIndex * 7 + colIndex;
-            if (dayIndex >= days.length) return const Expanded(child: SizedBox());
+        return Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: List.generate(7, (colIndex) {
+              final dayIndex = rowIndex * 7 + colIndex;
+              if (dayIndex >= days.length) return const Expanded(child: SizedBox());
 
-            final day = days[dayIndex];
-            if (day == null) {
-              return const Expanded(child: SizedBox());
-            }
+              final day = days[dayIndex];
+              if (day == null) {
+                return Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F7),
+                      border: Border.all(color: const Color(0xFFE5E5E7), width: 1),
+                    ),
+                  ),
+                );
+              }
 
-            // Filter events for this day
-            final dayEvents = events.where((event) {
-              return event.startTime.year == day.year &&
-                  event.startTime.month == day.month &&
-                  event.startTime.day == day.day;
-            }).toList();
+              // Filter events for this day
+              final dayEvents = events.where((event) {
+                return event.startTime.year == day.year &&
+                    event.startTime.month == day.month &&
+                    event.startTime.day == day.day;
+              }).toList();
 
-            return Expanded(
-              child: _buildCalendarDay(day, dayEvents),
-            );
-          }),
+              return Expanded(
+                child: _buildCalendarDay(day, dayEvents),
+              );
+            }),
+          ),
         );
       }),
     );
@@ -366,52 +375,98 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return GestureDetector(
       onTap: () => _showDayEvents(day, events),
       child: Container(
-        margin: const EdgeInsets.all(2),
-        padding: const EdgeInsets.all(4),
+        margin: const EdgeInsets.all(1),
         decoration: BoxDecoration(
-          color: isWeekend ? const Color(0xFFFF6B6B).withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: isToday
-              ? Border.all(color: const Color(0xFF007AFF), width: 2)
-              : null,
+          color: isWeekend ? const Color(0xFFFF6B6B).withOpacity(0.15) : Colors.white,
+          border: Border.all(
+            color: isToday ? const Color(0xFF007AFF) : const Color(0xFFE5E5E7),
+            width: isToday ? 2 : 1,
+          ),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              '${day.day}',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                color: isWeekend ? const Color(0xFFFF6B6B) : const Color(0xFF1C1C1E),
+            // Day number header
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+              color: isWeekend
+                  ? const Color(0xFFFF6B6B).withOpacity(0.2)
+                  : const Color(0xFFF5F5F7),
+              child: Text(
+                '${day.day}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isToday ? FontWeight.bold : FontWeight.w600,
+                  color: isWeekend ? const Color(0xFFFF6B6B) : const Color(0xFF1C1C1E),
+                ),
               ),
             ),
-            const SizedBox(height: 2),
-            // Show event indicators
-            if (events.isNotEmpty)
-              Wrap(
-                spacing: 2,
-                runSpacing: 2,
-                children: events.take(3).map((event) {
-                  final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
-                  final eventColor = Color(0xFF000000 | colorValue);
+            // Events section - fills remaining space
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                child: events.isEmpty
+                    ? const SizedBox()
+                    : ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemCount: events.length > 3 ? 3 : events.length,
+                        itemBuilder: (context, index) {
+                          final event = events[index];
+                          final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
+                          final eventColor = Color(0xFF000000 | colorValue);
 
-                  return Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: eventColor,
-                      shape: BoxShape.circle,
-                    ),
-                  );
-                }).toList(),
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: eventColor,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  event.title,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  DateFormat('h:mm a').format(event.startTime),
+                                  style: const TextStyle(
+                                    fontSize: 8,
+                                    color: Colors.white,
+                                    height: 1.1,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
               ),
+            ),
+            // Show overflow indicator
             if (events.length > 3)
-              Text(
-                '+${events.length - 3}',
-                style: const TextStyle(
-                  fontSize: 8,
-                  color: Color(0xFF6E6E73),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Text(
+                  '+${events.length - 3} more',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 7,
+                    color: Color(0xFF6E6E73),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
           ],
@@ -421,15 +476,195 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildYearView() {
-    return const Center(
-      child: Text(
-        'Year View\nComing Soon',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF6E6E73),
+    final year = _selectedDate.year;
+    final yearEventsAsync = ref.watch(eventsStreamProvider(DateTime(year, 1, 1)));
+
+    return yearEventsAsync.when(
+      data: (events) => Column(
+        children: [
+          // Year Navigation
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildYearNavigationButton('${year - 1}', () {
+                  setState(() {
+                    _selectedDate = DateTime(year - 1, _selectedDate.month);
+                  });
+                }),
+                const SizedBox(width: 16),
+                _buildYearNavigationButton('${year + 1}', () {
+                  setState(() {
+                    _selectedDate = DateTime(year + 1, _selectedDate.month);
+                  });
+                }),
+              ],
+            ),
+          ),
+
+          // 12 Months Grid
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.85,
+              ),
+              itemCount: 12,
+              itemBuilder: (context, index) {
+                final month = index + 1;
+                final monthDate = DateTime(year, month, 1);
+                final monthEvents = events.where((event) {
+                  return event.startTime.year == year && event.startTime.month == month;
+                }).toList();
+                return _buildMiniMonthCalendar(monthDate, monthEvents);
+              },
+            ),
+          ),
+        ],
+      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Text('Error loading year view: $error'),
+      ),
+    );
+  }
+
+  Widget _buildYearNavigationButton(String year, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFE5E5EA), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
+        child: Text(
+          year,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF2C2C2E),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniMonthCalendar(DateTime monthDate, List<EventModel> events) {
+    final firstDay = DateTime(monthDate.year, monthDate.month, 1);
+    final lastDay = DateTime(monthDate.year, monthDate.month + 1, 0);
+    final daysInMonth = lastDay.day;
+    final firstWeekday = firstDay.weekday; // 1 = Monday, 7 = Sunday
+
+    // Build list of all days in month with padding
+    final days = <DateTime?>[];
+    for (int i = 0; i < firstWeekday - 1; i++) {
+      days.add(null);
+    }
+    for (int day = 1; day <= daysInMonth; day++) {
+      days.add(DateTime(monthDate.year, monthDate.month, day));
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2C2C2E), // Dark background like in reference
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Month Name
+          Text(
+            DateFormat('MMMM').format(monthDate).toUpperCase(),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Weekday Headers
+          Row(
+            children: ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+                .map((day) => Expanded(
+                      child: Text(
+                        day,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF8E8E93),
+                        ),
+                      ),
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 2),
+
+          // Calendar Days Grid
+          Expanded(
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                crossAxisSpacing: 2,
+                mainAxisSpacing: 2,
+              ),
+              itemCount: days.length,
+              itemBuilder: (context, index) {
+                final day = days[index];
+                if (day == null) {
+                  return const SizedBox.shrink();
+                }
+
+                // Find events for this day
+                final dayEvents = events.where((event) {
+                  return event.startTime.day == day.day;
+                }).toList();
+
+                // Determine color based on events
+                Color bgColor = Colors.transparent;
+                if (dayEvents.isNotEmpty) {
+                  // Use the first event's color
+                  bgColor = Color(int.parse(dayEvents.first.color.replaceFirst('#', '0xFF')));
+                }
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${day.day}',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: bgColor == Colors.transparent
+                            ? const Color(0xFF8E8E93)
+                            : Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
