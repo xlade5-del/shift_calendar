@@ -28,10 +28,28 @@ class _ShiftConfigurationScreenState
 
   bool _isSaving = false;
 
+  // Schedule tab state
+  TimeOfDay _startTime = const TimeOfDay(hour: 14, minute: 0);
+  TimeOfDay _endTime = const TimeOfDay(hour: 14, minute: 0);
+  bool _isSplitShift = false;
+  final TextEditingController _restTimeController = TextEditingController(text: '0');
+  bool _calculateShiftTime = false;
+  final TextEditingController _shiftHoursController = TextEditingController(text: '0');
+  final TextEditingController _shiftMinutesController = TextEditingController(text: '0');
+
+  // Alarms state
+  bool _alarm1Enabled = false;
+  bool _alarm2Enabled = false;
+
+  // Incomes state
+  final TextEditingController _currencySymbolController = TextEditingController(text: '\$');
+  final TextEditingController _perHourController = TextEditingController();
+  final TextEditingController _perExtraHourController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
 
     // Initialize with existing template data if editing
     if (widget.template != null) {
@@ -51,6 +69,12 @@ class _ShiftConfigurationScreenState
     _tabController.dispose();
     _nameController.dispose();
     _abbreviationController.dispose();
+    _restTimeController.dispose();
+    _shiftHoursController.dispose();
+    _shiftMinutesController.dispose();
+    _currencySymbolController.dispose();
+    _perHourController.dispose();
+    _perExtraHourController.dispose();
     super.dispose();
   }
 
@@ -68,16 +92,10 @@ class _ShiftConfigurationScreenState
 
   Future<void> _saveTemplate() async {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a shift name')),
-      );
       return;
     }
 
     if (_abbreviationController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an abbreviation')),
-      );
       return;
     }
 
@@ -112,21 +130,9 @@ class _ShiftConfigurationScreenState
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(widget.template == null
-                ? 'Shift template created!'
-                : 'Shift template updated!'),
-          ),
-        );
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving template: $e')),
-        );
-      }
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -165,7 +171,7 @@ class _ShiftConfigurationScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Shift name',
+                  'SHIFT NAME',
                   style: TextStyle(
                     color: AppColors.textDark,
                     fontSize: 14,
@@ -242,9 +248,8 @@ class _ShiftConfigurationScreenState
               unselectedLabelColor: AppColors.textGrey,
               labelStyle: const TextStyle(fontWeight: FontWeight.w600),
               tabs: const [
-                Tab(text: 'Appearance'),
-                Tab(text: 'Schedule'),
-                Tab(text: 'Actions'),
+                Tab(text: 'APPEARANCE'),
+                Tab(text: 'SCHEDULE'),
               ],
             ),
           ),
@@ -256,7 +261,6 @@ class _ShiftConfigurationScreenState
               children: [
                 _buildAppearanceTab(),
                 _buildScheduleTab(),
-                _buildActionsTab(),
               ],
             ),
           ),
@@ -486,14 +490,473 @@ class _ShiftConfigurationScreenState
   }
 
   Widget _buildScheduleTab() {
-    return Center(
-      child: Text(
-        'Schedule configuration\ncoming soon!',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: AppColors.textGrey,
-          fontSize: 16,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // SCHEDULE Section
+          _buildSectionHeader('SCHEDULE'),
+          const SizedBox(height: 16),
+          _buildScheduleSection(),
+
+          const SizedBox(height: 24),
+
+          // SHIFT'S ALARMS Section
+          _buildSectionHeader('SHIFT\'S ALARMS'),
+          const SizedBox(height: 16),
+          _buildAlarmsSection(),
+
+          const SizedBox(height: 24),
+
+          // INCOMES Section
+          _buildSectionHeader('INCOMES'),
+          const SizedBox(height: 16),
+          _buildIncomesSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        color: AppColors.textDark,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
+  Widget _buildScheduleSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Start and End Time
+          Row(
+            children: [
+              Expanded(
+                child: _buildTimeField('Start', _startTime, (time) {
+                  setState(() => _startTime = time);
+                }),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  '-',
+                  style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: _buildTimeField('End', _endTime, (time) {
+                  setState(() => _endTime = time);
+                }),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Split shift checkbox
+          _buildCheckboxRow(
+            'Split shift',
+            _isSplitShift,
+            (value) => setState(() => _isSplitShift = value ?? false),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Rest Time
+          _buildNumberInputField(
+            'Rest Time (minutes)',
+            _restTimeController,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Calculate shift time
+          Row(
+            children: [
+              Checkbox(
+                value: _calculateShiftTime,
+                onChanged: (value) => setState(() => _calculateShiftTime = value ?? false),
+                activeColor: AppColors.primaryTeal,
+              ),
+              Text(
+                'Calculate shift time',
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 14,
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: 60,
+                child: TextField(
+                  controller: _shiftHoursController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.cream,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text('h', style: TextStyle(color: AppColors.textDark)),
+              ),
+              SizedBox(
+                width: 60,
+                child: TextField(
+                  controller: _shiftMinutesController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.cream,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Text('m', style: TextStyle(color: AppColors.textDark)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeField(String label, TimeOfDay time, Function(TimeOfDay) onChanged) {
+    return GestureDetector(
+      onTap: () async {
+        final newTime = await showTimePicker(
+          context: context,
+          initialTime: time,
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: AppColors.primaryTeal,
+                  onPrimary: Colors.white,
+                  onSurface: AppColors.textDark,
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (newTime != null) {
+          onChanged(newTime);
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.textGrey,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.cream,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.textLight),
+            ),
+            child: Text(
+              '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCheckboxRow(String label, bool value, Function(bool?) onChanged) {
+    return Row(
+      children: [
+        Checkbox(
+          value: value,
+          onChanged: onChanged,
+          activeColor: AppColors.primaryTeal,
         ),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumberInputField(String label, TextEditingController controller) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 80,
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textDark, fontSize: 14),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.cream,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: AppColors.textLight),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: AppColors.textLight),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAlarmsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildCheckboxRow(
+            'Alarm 1',
+            _alarm1Enabled,
+            (value) => setState(() => _alarm1Enabled = value ?? false),
+          ),
+          const SizedBox(height: 8),
+          _buildCheckboxRow(
+            'Alarm 2',
+            _alarm2Enabled,
+            (value) => setState(() => _alarm2Enabled = value ?? false),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomesSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Currency Symbol
+          Row(
+            children: [
+              Text(
+                'Currency Symbol:',
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _currencySymbolController,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.cream,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Per hour rate
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _perHourController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.cream,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${_currencySymbolController.text} per hour',
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Per extra hour rate
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _perExtraHourController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.cream,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${_currencySymbolController.text} per extra hour',
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
