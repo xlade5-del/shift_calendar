@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import '../models/user_model.dart';
 import '../models/event_model.dart';
+import '../models/shift_template_model.dart';
 
 /// Service for managing Firestore database operations
 /// Handles user data, partner linking, and partner code generation
@@ -12,6 +13,7 @@ class FirestoreService {
   static const String usersCollection = 'users';
   static const String partnerCodesCollection = 'partnerCodes';
   static const String eventsCollection = 'events';
+  static const String shiftTemplatesCollection = 'shiftTemplates';
 
   /// Get user data by user ID
   Future<UserModel?> getUserData(String uid) async {
@@ -440,5 +442,90 @@ class FirestoreService {
     } catch (e) {
       throw 'Error fetching combined events: $e';
     }
+  }
+
+  // ==================== SHIFT TEMPLATE CRUD OPERATIONS ====================
+
+  /// Create a new shift template
+  Future<String> createShiftTemplate(ShiftTemplate template) async {
+    try {
+      final docRef = await _firestore
+          .collection(shiftTemplatesCollection)
+          .add(template.toFirestore());
+      return docRef.id;
+    } catch (e) {
+      throw 'Error creating shift template: $e';
+    }
+  }
+
+  /// Update an existing shift template
+  Future<void> updateShiftTemplate(ShiftTemplate template) async {
+    try {
+      await _firestore
+          .collection(shiftTemplatesCollection)
+          .doc(template.id)
+          .update(template.toFirestore());
+    } catch (e) {
+      throw 'Error updating shift template: $e';
+    }
+  }
+
+  /// Delete a shift template
+  Future<void> deleteShiftTemplate(String templateId) async {
+    try {
+      await _firestore
+          .collection(shiftTemplatesCollection)
+          .doc(templateId)
+          .delete();
+    } catch (e) {
+      throw 'Error deleting shift template: $e';
+    }
+  }
+
+  /// Get a single shift template by ID
+  Future<ShiftTemplate?> getShiftTemplate(String templateId) async {
+    try {
+      final doc = await _firestore
+          .collection(shiftTemplatesCollection)
+          .doc(templateId)
+          .get();
+
+      if (!doc.exists) return null;
+
+      return ShiftTemplate.fromFirestore(doc);
+    } catch (e) {
+      throw 'Error fetching shift template: $e';
+    }
+  }
+
+  /// Get all shift templates for a specific user
+  Future<List<ShiftTemplate>> getUserShiftTemplates(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection(shiftTemplatesCollection)
+          .where('userId', isEqualTo: userId)
+          .orderBy('name')
+          .get();
+
+      return snapshot.docs
+          .map((doc) => ShiftTemplate.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      throw 'Error fetching user shift templates: $e';
+    }
+  }
+
+  /// Stream of shift templates for a specific user (real-time updates)
+  Stream<List<ShiftTemplate>> userShiftTemplatesStream(String userId) {
+    return _firestore
+        .collection(shiftTemplatesCollection)
+        .where('userId', isEqualTo: userId)
+        .orderBy('name')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => ShiftTemplate.fromFirestore(doc))
+          .toList();
+    });
   }
 }

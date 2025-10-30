@@ -9,6 +9,7 @@ import '../../providers/event_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/event_model.dart';
 import '../../utils/conflict_detector.dart';
+import '../../utils/app_colors.dart';
 
 /// Calendar week view showing both partners' schedules
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -126,15 +127,21 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Expanded(
             child: eventsAsync.when(
               data: (events) => _buildCalendarGrid(theme, events, currentUser),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => Center(
+                child: CircularProgressIndicator(color: AppColors.primaryTeal),
+              ),
               error: (error, stack) => Center(
-                child: Text('Error loading events: $error'),
+                child: Text(
+                  'Error loading events: $error',
+                  style: TextStyle(color: AppColors.error),
+                ),
               ),
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primaryTeal,
         onPressed: () async {
           final result = await Navigator.of(context).push(
             MaterialPageRoute(
@@ -145,11 +152,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           // If event was created successfully, show success message
           if (result == true && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Event added to calendar!')),
+              SnackBar(
+                content: const Text('Event added to calendar!'),
+                backgroundColor: AppColors.success,
+              ),
             );
           }
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: AppColors.white),
       ),
     );
   }
@@ -163,25 +173,27 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: theme.dividerColor),
+          bottom: BorderSide(color: AppColors.textLight),
         ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_left),
+            icon: Icon(Icons.chevron_left, color: AppColors.primaryTeal),
             onPressed: _previousWeek,
             tooltip: 'Previous week',
           ),
           Text(
             '${dateFormat.format(_weekStart)} - ${dateFormat.format(weekEnd)}',
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: TextStyle(
+              color: AppColors.textDark,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.chevron_right),
+            icon: Icon(Icons.chevron_right, color: AppColors.primaryTeal),
             onPressed: _nextWeek,
             tooltip: 'Next week',
           ),
@@ -197,9 +209,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
+        color: AppColors.white,
         border: Border(
-          bottom: BorderSide(color: theme.dividerColor),
+          bottom: BorderSide(color: AppColors.textLight),
         ),
       ),
       child: Row(
@@ -213,16 +225,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               decoration: isToday
                   ? BoxDecoration(
-                      color: theme.colorScheme.primaryContainer,
+                      color: AppColors.lightMint,
                     )
                   : null,
               child: Text(
                 dayFormat.format(day),
                 textAlign: TextAlign.center,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: isToday
-                      ? theme.colorScheme.onPrimaryContainer
-                      : theme.colorScheme.onSurface,
+                style: TextStyle(
+                  color: isToday ? AppColors.primaryTeal : AppColors.textDark,
+                  fontSize: 14,
                   fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -270,7 +281,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       width: 60,
       decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: theme.dividerColor),
+          right: BorderSide(color: AppColors.textLight),
         ),
       ),
       child: Column(
@@ -281,8 +292,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             padding: const EdgeInsets.only(right: 8.0, top: 4.0),
             child: Text(
               hour == 0 ? '12 AM' : hour < 12 ? '$hour AM' : hour == 12 ? '12 PM' : '${hour - 12} PM',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              style: TextStyle(
+                color: AppColors.textGrey,
+                fontSize: 12,
               ),
             ),
           );

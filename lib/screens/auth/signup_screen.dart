@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/app_colors.dart';
+import '../home_screen.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -38,26 +39,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           displayName: _nameController.text.trim(),
         );
 
-        // Check for errors after sign up completes
+        // Navigate immediately after successful sign up
         if (mounted) {
-          final authState = ref.read(authStateNotifierProvider);
-          authState.when(
-            data: (_) {
-              // Navigate to home screen on successful sign up
-              context.go('/home');
-            },
-            loading: () {},
-            error: (error, _) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(error.toString()),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
+          print('DEBUG: Sign up completed, navigating to home');
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false,
           );
         }
       } catch (e) {
+        print('DEBUG: Sign up error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -75,26 +66,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       final authNotifier = ref.read(authStateNotifierProvider.notifier);
       await authNotifier.signInWithGoogle();
 
-      // Check for errors after sign in completes
+      // Navigate immediately after successful sign in
       if (mounted) {
-        final authState = ref.read(authStateNotifierProvider);
-        authState.when(
-          data: (_) {
-            // Navigate to home screen on successful sign in
-            context.go('/home');
-          },
-          loading: () {},
-          error: (error, _) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(error.toString()),
-                backgroundColor: Colors.red,
-              ),
-            );
-          },
+        print('DEBUG: Google sign up completed, navigating to home');
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
         );
       }
     } catch (e) {
+      print('DEBUG: Google sign up error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -112,12 +93,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF2C2C2E)),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -137,14 +118,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   style: theme.textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 36,
-                    color: const Color(0xFF1C1C1E),
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Join and start syncing your shifts',
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    color: const Color(0xFF6E6E73),
+                    color: AppColors.textGrey,
                     fontSize: 17,
                   ),
                 ),
@@ -156,12 +137,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   style: const TextStyle(fontSize: 17),
                   decoration: InputDecoration(
                     hintText: 'Full name',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF6E6E73),
+                    hintStyle: TextStyle(
+                      color: AppColors.textGrey,
                       fontSize: 17,
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: AppColors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -172,15 +153,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF007AFF),
+                      borderSide: BorderSide(
+                        color: AppColors.primaryTeal,
                         width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Colors.red,
+                      borderSide: BorderSide(
+                        color: AppColors.error,
                         width: 2,
                       ),
                     ),
@@ -205,12 +186,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   style: const TextStyle(fontSize: 17),
                   decoration: InputDecoration(
                     hintText: 'Email address',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF6E6E73),
+                    hintStyle: TextStyle(
+                      color: AppColors.textGrey,
                       fontSize: 17,
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: AppColors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -221,15 +202,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF007AFF),
+                      borderSide: BorderSide(
+                        color: AppColors.primaryTeal,
                         width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Colors.red,
+                      borderSide: BorderSide(
+                        color: AppColors.error,
                         width: 2,
                       ),
                     ),
@@ -257,18 +238,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   style: const TextStyle(fontSize: 17),
                   decoration: InputDecoration(
                     hintText: 'Password (min 8 characters)',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF6E6E73),
+                    hintStyle: TextStyle(
+                      color: AppColors.textGrey,
                       fontSize: 17,
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: AppColors.white,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: const Color(0xFF6E6E73),
+                        color: AppColors.textGrey,
                       ),
                       onPressed: () {
                         setState(() {
@@ -286,15 +267,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF007AFF),
+                      borderSide: BorderSide(
+                        color: AppColors.primaryTeal,
                         width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Colors.red,
+                      borderSide: BorderSide(
+                        color: AppColors.error,
                         width: 2,
                       ),
                     ),
@@ -322,18 +303,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   style: const TextStyle(fontSize: 17),
                   decoration: InputDecoration(
                     hintText: 'Confirm password',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF6E6E73),
+                    hintStyle: TextStyle(
+                      color: AppColors.textGrey,
                       fontSize: 17,
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: AppColors.white,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: const Color(0xFF6E6E73),
+                        color: AppColors.textGrey,
                       ),
                       onPressed: () {
                         setState(() {
@@ -351,15 +332,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF007AFF),
+                      borderSide: BorderSide(
+                        color: AppColors.primaryTeal,
                         width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Colors.red,
+                      borderSide: BorderSide(
+                        color: AppColors.error,
                         width: 2,
                       ),
                     ),
@@ -384,7 +365,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ElevatedButton(
                   onPressed: authState.isLoading ? null : _handleSignUp,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2C2C2E),
+                    backgroundColor: AppColors.primaryTeal,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
@@ -416,7 +397,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     Text(
                       'Already have an account? ',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF6E6E73),
+                        color: AppColors.textGrey,
                         fontSize: 15,
                       ),
                     ),
@@ -425,7 +406,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         Navigator.of(context).pop();
                       },
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF007AFF),
+                        foregroundColor: AppColors.primaryTeal,
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(0, 0),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -449,3 +430,4 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 }
+

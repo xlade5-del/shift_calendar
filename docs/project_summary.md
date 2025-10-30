@@ -1,7 +1,7 @@
 # Shift Calendar for Couples - Project Summary
 
 **Last Updated:** October 28, 2025
-**Current Phase:** Week 13-16 (Notifications & Conflict Detection) - ✅ COMPLETE
+**Current Phase:** Homepage UI/UX Enhancement - ✅ COMPLETE
 **Next Phase:** Week 17-20 (Offline Mode & iCal Integration)
 
 ---
@@ -91,6 +91,61 @@
   - iOS APNs Setup Guide (163 lines)
   - Week 13-16 Completion Summary (436 lines)
   - Total: +2,802 lines added in Week 13-16
+
+### ✅ Homepage UI/UX Enhancement (October 28, 2025) - COMPLETE
+
+**Major Redesign:**
+- Complete transformation of home screen from profile-style hub to calendar-centric month view interface
+- Applied "airy" design aesthetic matching auth screens (light grey background, white cards, generous spacing)
+- Implemented interactive month calendar grid with proper week alignment (Monday-Sunday)
+
+**All Objectives Met:**
+- ✅ Month calendar view with accurate date grid calculation
+- ✅ Top header with workplace selector dropdown
+- ✅ Tab navigation system (Month/Year/Summary views)
+- ✅ Bottom navigation bar (Paint/Edit/Shifts modes)
+- ✅ Interactive day selection with event listing modal
+- ✅ Sign-in/signup navigation using AuthWrapper (simplified navigation)
+- ✅ Theme consistency with auth pages (Color 0xFFF5F5F7 background)
+
+**Key Features:**
+- HomeScreen rewrite: ConsumerWidget → ConsumerStatefulWidget with full state management
+- State tracking: _selectedDate, _selectedTabIndex, _selectedBottomIndex, _selectedWorkplace
+- Calendar algorithm: First day calculation, padding days, week grid alignment
+- Month navigation: Previous/next month buttons with smooth date transitions
+- Event integration: Real-time event streams with color-coded day indicators
+- Modal bottom sheets: Tap any day to view all events in draggable scrollable sheet
+- Responsive UI: Tab indicators, bottom nav highlighting, workplace selector modal
+
+**Critical Bug Fix:**
+- **Issue:** Sign-in button became grey/stuck after clicking, no navigation to home screen
+- **Root Cause:** Missing explicit navigation after successful Firebase authentication
+- **Solution:** Simplified navigation using AuthWrapper in main.dart to automatically handle auth state changes
+- **Impact:** Users now stay logged in between app restarts, and navigation is automatic
+
+**Code Changes:**
+- **home_screen.dart:** Complete rewrite from 317 → 1,099 lines
+- **main.dart:** Removed go_router, using AuthWrapper for automatic navigation
+- **login_screen.dart:** Removed router navigation, AuthWrapper handles it automatically
+- **signup_screen.dart:** Removed router navigation, AuthWrapper handles it automatically
+- **Total:** 24 files changed, 3,513 insertions(+), 702 deletions(-)
+- **Commit:** ee12e6c "Redesign homepage with month calendar view and fix auth navigation"
+
+**Design Specifications:**
+- Background: Color(0xFFF5F5F7) - Light grey for airy feel
+- Cards: White with shadow (blurRadius: 8, offset: (0, 2))
+- Border Radius: 16px for all rounded components
+- Accent Color: Color(0xFF007AFF) - iOS blue for interactive elements
+- Typography: Bold 24px headers, 15px body text, 12px labels
+- Spacing: 16-24px margins, 8-16px between elements
+
+**Testing:**
+- ✅ Month calendar rendering with accurate date positioning
+- ✅ Sign-in navigation working on Android emulator (emulator-5554)
+- ✅ Event data loading from Firestore in real-time
+- ✅ Interactive day selection and event modal display
+- ✅ Tab and bottom navigation state management
+- ✅ Workplace selector dropdown functionality
 
 ---
 

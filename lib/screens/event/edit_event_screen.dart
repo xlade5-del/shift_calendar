@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../models/event_model.dart';
 import '../../providers/event_provider.dart';
+import '../../utils/app_colors.dart';
 
 /// Screen for editing an existing calendar event/shift
 class EditEventScreen extends ConsumerStatefulWidget {
@@ -147,16 +148,20 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Event'),
-        content: const Text('Are you sure you want to delete this event? This action cannot be undone.'),
+        backgroundColor: AppColors.white,
+        title: Text('Delete Event', style: TextStyle(color: AppColors.textDark)),
+        content: Text(
+          'Are you sure you want to delete this event? This action cannot be undone.',
+          style: TextStyle(color: AppColors.textGrey),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('CANCEL'),
+            child: Text('CANCEL', style: TextStyle(color: AppColors.textDark)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('DELETE'),
           ),
         ],
@@ -180,7 +185,10 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Event deleted successfully!')),
+          SnackBar(
+            content: const Text('Event deleted successfully!'),
+            backgroundColor: AppColors.success,
+          ),
         );
         Navigator.of(context).pop(true); // Return true to indicate change
       } else {
@@ -188,7 +196,10 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
           _isDeleting = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to delete event. Please try again.')),
+          SnackBar(
+            content: const Text('Failed to delete event. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -208,7 +219,10 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     if (endDateTime.isBefore(startDateTime) || endDateTime.isAtSameMomentAs(startDateTime)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('End time must be after start time')),
+          SnackBar(
+            content: const Text('End time must be after start time'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
       return;
@@ -237,12 +251,18 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Event updated successfully!')),
+          SnackBar(
+            content: const Text('Event updated successfully!'),
+            backgroundColor: AppColors.success,
+          ),
         );
         Navigator.of(context).pop(true); // Return true to indicate success
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update event. Please try again.')),
+          SnackBar(
+            content: const Text('Failed to update event. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -250,28 +270,49 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final dateFormat = DateFormat('EEE, MMM d, yyyy');
 
     return Scaffold(
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Edit Event'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Edit Event',
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           if (!_isDeleting)
             IconButton(
               onPressed: _confirmDelete,
               icon: const Icon(Icons.delete),
-              color: Colors.red,
+              color: AppColors.error,
               tooltip: 'Delete Event',
             ),
           TextButton(
             onPressed: _isDeleting ? null : _saveEvent,
-            child: const Text('SAVE'),
+            child: Text(
+              'SAVE',
+              style: TextStyle(
+                color: AppColors.primaryTeal,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
       body: _isDeleting
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(color: AppColors.primaryTeal),
+            )
           : Form(
               key: _formKey,
               child: ListView(
@@ -280,11 +321,26 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                   // Title field
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Title',
+                      labelStyle: TextStyle(color: AppColors.textGrey),
                       hintText: 'e.g., Morning Shift, Night Shift',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.title),
+                      hintStyle: TextStyle(color: AppColors.textGrey),
+                      filled: true,
+                      fillColor: AppColors.white,
+                      prefixIcon: Icon(Icons.title, color: AppColors.primaryTeal),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: AppColors.textLight),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: AppColors.textLight),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                      ),
                     ),
                     textCapitalization: TextCapitalization.words,
                     validator: (value) {
@@ -297,7 +353,11 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                   const SizedBox(height: 24),
 
                   // Start Date & Time
-                  Text('Start', style: theme.textTheme.titleMedium),
+                  Text('Start', style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  )),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -305,16 +365,30 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                         flex: 2,
                         child: OutlinedButton.icon(
                           onPressed: () => _selectDate(context, true),
-                          icon: const Icon(Icons.calendar_today),
-                          label: Text(dateFormat.format(_startDate)),
+                          icon: Icon(Icons.calendar_today, color: AppColors.primaryTeal),
+                          label: Text(
+                            dateFormat.format(_startDate),
+                            style: TextStyle(color: AppColors.textDark),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () => _selectTime(context, true),
-                          icon: const Icon(Icons.access_time),
-                          label: Text(_startTime.format(context)),
+                          icon: Icon(Icons.access_time, color: AppColors.primaryTeal),
+                          label: Text(
+                            _startTime.format(context),
+                            style: TextStyle(color: AppColors.textDark),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
                         ),
                       ),
                     ],
@@ -322,7 +396,11 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                   const SizedBox(height: 24),
 
                   // End Date & Time
-                  Text('End', style: theme.textTheme.titleMedium),
+                  Text('End', style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  )),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -330,16 +408,30 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                         flex: 2,
                         child: OutlinedButton.icon(
                           onPressed: () => _selectDate(context, false),
-                          icon: const Icon(Icons.calendar_today),
-                          label: Text(dateFormat.format(_endDate)),
+                          icon: Icon(Icons.calendar_today, color: AppColors.primaryTeal),
+                          label: Text(
+                            dateFormat.format(_endDate),
+                            style: TextStyle(color: AppColors.textDark),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () => _selectTime(context, false),
-                          icon: const Icon(Icons.access_time),
-                          label: Text(_endTime.format(context)),
+                          icon: Icon(Icons.access_time, color: AppColors.primaryTeal),
+                          label: Text(
+                            _endTime.format(context),
+                            style: TextStyle(color: AppColors.textDark),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: AppColors.primaryTeal, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
                         ),
                       ),
                     ],
@@ -347,7 +439,11 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                   const SizedBox(height: 24),
 
                   // Color picker
-                  Text('Color', style: theme.textTheme.titleMedium),
+                  Text('Color', style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  )),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 12,
@@ -367,7 +463,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                             color: color,
                             shape: BoxShape.circle,
                             border: isSelected
-                                ? Border.all(color: theme.colorScheme.onSurface, width: 3)
+                                ? Border.all(color: AppColors.textDark, width: 3)
                                 : null,
                           ),
                           child: isSelected
@@ -382,11 +478,26 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                   // Notes field
                   TextFormField(
                     controller: _notesController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Notes (optional)',
+                      labelStyle: TextStyle(color: AppColors.textGrey),
                       hintText: 'Add any additional details',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.notes),
+                      hintStyle: TextStyle(color: AppColors.textGrey),
+                      filled: true,
+                      fillColor: AppColors.white,
+                      prefixIcon: Icon(Icons.notes, color: AppColors.primaryTeal),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: AppColors.textLight),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: AppColors.textLight),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                      ),
                     ),
                     maxLines: 3,
                     textCapitalization: TextCapitalization.sentences,
@@ -399,7 +510,10 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                     icon: const Icon(Icons.save),
                     label: const Text('Save Changes'),
                     style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primaryTeal,
+                      foregroundColor: AppColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -410,9 +524,10 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                     icon: const Icon(Icons.delete),
                     label: const Text('Delete Event'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
+                      foregroundColor: AppColors.error,
+                      side: BorderSide(color: AppColors.error),
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ],

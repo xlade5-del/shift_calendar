@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
+import '../../utils/app_colors.dart';
 
 /// Screen for managing partner relationship (view info, unlink)
 class PartnerManagementScreen extends ConsumerWidget {
@@ -13,8 +14,22 @@ class PartnerManagementScreen extends ConsumerWidget {
     final partnerAsync = ref.watch(partnerDataProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Partner Management'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Partner Management',
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: currentUserAsync.when(
         data: (currentUser) {
@@ -30,20 +45,24 @@ class PartnerManagementScreen extends ConsumerWidget {
 
           return partnerAsync.when(
             data: (partner) => _buildPartnerInfoView(context, ref, currentUser, partner),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => Center(
+              child: CircularProgressIndicator(color: AppColors.primaryTeal),
+            ),
             error: (error, _) => Center(
               child: Text(
                 'Error loading partner data: $error',
-                style: TextStyle(color: Colors.red[700]),
+                style: TextStyle(color: AppColors.error),
               ),
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: AppColors.primaryTeal),
+        ),
         error: (error, _) => Center(
           child: Text(
             'Error loading user data: $error',
-            style: TextStyle(color: Colors.red[700]),
+            style: TextStyle(color: AppColors.error),
           ),
         ),
       ),
@@ -60,28 +79,41 @@ class PartnerManagementScreen extends ConsumerWidget {
             Icon(
               Icons.people_outline,
               size: 100,
-              color: Colors.grey[400],
+              color: AppColors.textGrey.withOpacity(0.5),
             ),
             const SizedBox(height: 24),
             Text(
               'No Partner Linked',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
               'You haven\'t linked with a partner yet.\nGo back to the home screen to invite or join a partner.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColors.textGrey,
+                height: 1.5,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            FilledButton.icon(
+            ElevatedButton.icon(
               onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(Icons.arrow_back),
               label: const Text('Back to Home'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryTeal,
+                foregroundColor: AppColors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
             ),
           ],
         ),
@@ -96,12 +128,13 @@ class PartnerManagementScreen extends ConsumerWidget {
     UserModel? partner,
   ) {
     if (partner == null) {
-      return const Center(
-        child: Text('Partner not found'),
+      return Center(
+        child: Text(
+          'Partner not found',
+          style: TextStyle(color: AppColors.textGrey),
+        ),
       );
     }
-
-    final theme = Theme.of(context);
 
     return SingleChildScrollView(
       child: Padding(
@@ -110,74 +143,88 @@ class PartnerManagementScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Partner Card
-            Card(
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  children: [
-                    // Partner Avatar
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: theme.colorScheme.primaryContainer,
-                      child: Icon(
-                        Icons.person,
-                        size: 50,
-                        color: theme.colorScheme.onPrimaryContainer,
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  // Partner Avatar
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: AppColors.primaryTeal.withOpacity(0.15),
+                    child: Icon(
+                      Icons.person,
+                      size: 50,
+                      color: AppColors.primaryTeal,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Partner Name
+                  Text(
+                    partner.displayName ?? 'Partner',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Partner Email
+                  Text(
+                    partner.email,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.textGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Status Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.success.withOpacity(0.3),
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Partner Name
-                    Text(
-                      partner.displayName ?? 'Partner',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Partner Email
-                    Text(
-                      partner.email,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Status Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green[50],
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.green[200]!),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 16,
-                            color: Colors.green[700],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          size: 16,
+                          color: AppColors.success,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Linked',
+                          style: TextStyle(
+                            color: AppColors.success,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Linked',
-                            style: TextStyle(
-                              color: Colors.green[700],
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 32),
@@ -185,8 +232,10 @@ class PartnerManagementScreen extends ConsumerWidget {
             // Partnership Info Section
             Text(
               'Partnership Information',
-              style: theme.textTheme.titleLarge?.copyWith(
+              style: TextStyle(
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 16),
@@ -215,24 +264,28 @@ class PartnerManagementScreen extends ConsumerWidget {
 
             // Danger Zone
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.red[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red[200]!),
+                color: AppColors.error.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.error.withOpacity(0.2),
+                  width: 1,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.warning, color: Colors.red[700]),
+                      Icon(Icons.warning, color: AppColors.error),
                       const SizedBox(width: 12),
                       Text(
                         'Danger Zone',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        style: TextStyle(
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red[700],
+                          color: AppColors.error,
                         ),
                       ),
                     ],
@@ -240,8 +293,10 @@ class PartnerManagementScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Text(
                     'Unlinking will stop calendar sync and remove access to each other\'s schedules.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.red[700],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.error,
+                      height: 1.4,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -252,9 +307,12 @@ class PartnerManagementScreen extends ConsumerWidget {
                       icon: const Icon(Icons.link_off),
                       label: const Text('Unlink Partner'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red[700],
-                        side: BorderSide(color: Colors.red[700]!),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        foregroundColor: AppColors.error,
+                        side: BorderSide(color: AppColors.error, width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
@@ -276,14 +334,22 @@ class PartnerManagementScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            color: Theme.of(context).colorScheme.primary,
+            color: AppColors.primaryTeal,
+            size: 24,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -292,16 +358,20 @@ class PartnerManagementScreen extends ConsumerWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textDark,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textGrey,
+                    height: 1.3,
+                  ),
                 ),
               ],
             ),
@@ -351,8 +421,8 @@ class PartnerManagementScreen extends ConsumerWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
+      builder: (context) => Center(
+        child: CircularProgressIndicator(color: AppColors.primaryTeal),
       ),
     );
 
@@ -374,9 +444,9 @@ class PartnerManagementScreen extends ConsumerWidget {
       // Show success message
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Partner unlinked successfully'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Partner unlinked successfully'),
+            backgroundColor: AppColors.success,
           ),
         );
 
@@ -394,7 +464,7 @@ class PartnerManagementScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to unlink partner: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }

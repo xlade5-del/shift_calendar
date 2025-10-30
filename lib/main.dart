@@ -5,10 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/auth/welcome_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/notification_service.dart';
-import 'app_router_new.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -28,13 +27,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Deb ShiftSync',
+    return MaterialApp(
+      title: 'Shift Calendar',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light, // TODO: Make this user-configurable in settings
-      routerConfig: AppRouter.router,
+      home: const AuthWrapper(),
     );
   }
 }
@@ -92,8 +91,8 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
         if (user != null) {
           return const HomeScreen();
         }
-        // If user is not logged in, show login screen
-        return const LoginScreen();
+        // If user is not logged in, show welcome screen
+        return const WelcomeScreen();
       },
       loading: () => const Scaffold(
         body: Center(

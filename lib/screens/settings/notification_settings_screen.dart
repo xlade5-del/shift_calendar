@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/app_colors.dart';
 
 /// Screen for managing notification preferences
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -86,14 +87,20 @@ class _NotificationSettingsScreenState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Settings saved successfully!')),
+          SnackBar(
+            content: const Text('Settings saved successfully!'),
+            backgroundColor: AppColors.primaryTeal,
+          ),
         );
       }
     } catch (e) {
       print('Error saving notification settings: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save settings: $e')),
+          SnackBar(
+            content: Text('Failed to save settings: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     } finally {
@@ -107,34 +114,67 @@ class _NotificationSettingsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     if (_isLoading) {
       return Scaffold(
+        backgroundColor: AppColors.cream,
         appBar: AppBar(
-          title: const Text('Notification Settings'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'Notification Settings',
+            style: TextStyle(color: AppColors.textDark),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primaryTeal),
+        ),
       );
     }
 
     return Scaffold(
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Notification Settings'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Notification Settings',
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           if (_isSaving)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primaryTeal,
+                ),
               ),
             )
           else
             TextButton(
               onPressed: _saveSettings,
-              child: const Text('SAVE'),
+              child: Text(
+                'SAVE',
+                style: TextStyle(
+                  color: AppColors.primaryTeal,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
         ],
       ),
@@ -142,174 +182,299 @@ class _NotificationSettingsScreenState
         padding: const EdgeInsets.all(16.0),
         children: [
           // Header card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.notifications_active,
-                        color: theme.colorScheme.primary,
-                        size: 28,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Manage Notifications',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Choose what notifications you want to receive about your schedule and your partner\'s schedule.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.notifications_active,
+                      color: AppColors.primaryTeal,
+                      size: 28,
                     ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Manage Notifications',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Choose what notifications you want to receive about your schedule and your partner\'s schedule.',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: AppColors.textGrey,
+                    height: 1.4,
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Schedule Updates Section
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'Schedule Updates',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDark,
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: SwitchListTile(
+              title: Text(
+                'Partner Schedule Changes',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textDark,
+                ),
+              ),
+              subtitle: Text(
+                'Get notified when your partner adds, edits, or deletes shifts',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textGrey,
+                ),
+              ),
+              secondary: Icon(Icons.people, color: AppColors.primaryTeal),
+              value: _partnerChanges,
+              activeColor: AppColors.primaryTeal,
+              onChanged: (value) {
+                setState(() {
+                  _partnerChanges = value;
+                });
+              },
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 8,
               ),
             ),
           ),
           const SizedBox(height: 24),
 
-          // Partner Changes Section
-          Text(
-            'Schedule Updates',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+          // Conflict Alerts Section
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'Conflict Alerts',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDark,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          Card(
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: const Text('Partner Schedule Changes'),
-                  subtitle: const Text(
-                    'Get notified when your partner adds, edits, or deletes shifts',
-                  ),
-                  secondary: const Icon(Icons.people),
-                  value: _partnerChanges,
-                  onChanged: (value) {
-                    setState(() {
-                      _partnerChanges = value;
-                    });
-                  },
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-
-          // Conflicts Section
-          Text(
-            'Conflict Alerts',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: const Text('Schedule Conflicts'),
-                  subtitle: const Text(
-                    'Get alerted when you and your partner are both working at the same time',
-                  ),
-                  secondary: const Icon(Icons.warning),
-                  value: _conflicts,
-                  onChanged: (value) {
-                    setState(() {
-                      _conflicts = value;
-                    });
-                  },
+            child: SwitchListTile(
+              title: Text(
+                'Schedule Conflicts',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textDark,
                 ),
-              ],
+              ),
+              subtitle: Text(
+                'Get alerted when you and your partner are both working at the same time',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textGrey,
+                ),
+              ),
+              secondary: Icon(Icons.warning_amber, color: AppColors.warning),
+              value: _conflicts,
+              activeColor: AppColors.primaryTeal,
+              onChanged: (value) {
+                setState(() {
+                  _conflicts = value;
+                });
+              },
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 8,
+              ),
             ),
           ),
           const SizedBox(height: 24),
 
           // Free Time Section
-          Text(
-            'Free Time Alerts',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'Free Time Alerts',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDark,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          Card(
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: const Text('Mutual Free Time'),
-                  subtitle: const Text(
-                    'Get notified when you and your partner have overlapping free time',
-                  ),
-                  secondary: const Icon(Icons.favorite),
-                  value: _freeTime,
-                  onChanged: (value) {
-                    setState(() {
-                      _freeTime = value;
-                    });
-                  },
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
+            ),
+            child: SwitchListTile(
+              title: Text(
+                'Mutual Free Time',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textDark,
+                ),
+              ),
+              subtitle: Text(
+                'Get notified when you and your partner have overlapping free time',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textGrey,
+                ),
+              ),
+              secondary: Icon(Icons.favorite, color: Colors.pink[400]),
+              value: _freeTime,
+              activeColor: AppColors.primaryTeal,
+              onChanged: (value) {
+                setState(() {
+                  _freeTime = value;
+                });
+              },
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 8,
+              ),
             ),
           ),
           const SizedBox(height: 32),
 
           // Save button
-          FilledButton.icon(
+          ElevatedButton(
             onPressed: _isSaving ? null : _saveSettings,
-            icon: _isSaving
-                ? const SizedBox(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryTeal,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 0,
+              disabledBackgroundColor: AppColors.primaryTeal.withOpacity(0.5),
+            ),
+            child: _isSaving
+                ? SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: AppColors.white,
                     ),
                   )
-                : const Icon(Icons.save),
-            label: Text(_isSaving ? 'Saving...' : 'Save Settings'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.save, color: AppColors.white),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Save Settings',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
           const SizedBox(height: 16),
 
           // Info card
-          Card(
-            color: theme.colorScheme.surfaceContainerHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: theme.colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'You can change these settings at any time. Notifications help you stay coordinated with your partner.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  color: AppColors.primaryTeal,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'You can change these settings at any time. Notifications help you stay coordinated with your partner.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textGrey,
+                      height: 1.4,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+          const SizedBox(height: 24),
         ],
       ),
     );

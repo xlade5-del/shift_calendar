@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/event_model.dart';
 import '../../providers/event_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/app_colors.dart';
 
 /// Screen for finding mutual free time between partners
 class FreeTimeFinderScreen extends ConsumerStatefulWidget {
@@ -93,7 +94,6 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final currentUser = ref.watch(currentFirebaseUserProvider);
     final currentUserData = ref.watch(currentUserDataProvider);
 
@@ -102,8 +102,22 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
 
     if (!hasPartner) {
       return Scaffold(
+        backgroundColor: AppColors.cream,
         appBar: AppBar(
-          title: const Text('Free Time Finder'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'Free Time Finder',
+            style: TextStyle(
+              color: AppColors.textDark,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
         body: Center(
           child: Padding(
@@ -114,20 +128,24 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
                 Icon(
                   Icons.people_outline,
                   size: 80,
-                  color: theme.colorScheme.primary.withOpacity(0.5),
+                  color: AppColors.textGrey.withOpacity(0.5),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   'No Partner Linked',
-                  style: theme.textTheme.headlineSmall?.copyWith(
+                  style: TextStyle(
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Link with your partner to find mutual free time.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.textGrey,
+                    height: 1.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -142,11 +160,25 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
     final eventsAsync = ref.watch(eventsStreamProvider(_selectedDate));
 
     return Scaffold(
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Free Time Finder'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Free Time Finder',
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline),
+            icon: Icon(Icons.help_outline, color: AppColors.textDark),
             onPressed: () {
               _showHelpDialog();
             },
@@ -178,27 +210,42 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
           return Column(
             children: [
               // Controls card
-              Card(
+              Container(
                 margin: const EdgeInsets.all(16),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Search Settings',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Search Settings',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
                       ),
-                      const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 16),
                       // Days to check
                       Row(
                         children: [
                           Expanded(
                             child: Text(
                               'Days to check: $_daysToCheck',
-                              style: theme.textTheme.bodyMedium,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textDark,
+                              ),
                             ),
                           ),
                           SegmentedButton<int>(
@@ -224,7 +271,10 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
                           Expanded(
                             child: Text(
                               'Minimum free time: $_minimumHours hours',
-                              style: theme.textTheme.bodyMedium,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textDark,
+                              ),
                             ),
                           ),
                           SegmentedButton<int>(
@@ -246,7 +296,6 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
                     ],
                   ),
                 ),
-              ),
 
               // Results
               Expanded(
@@ -260,20 +309,24 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
                               Icon(
                                 Icons.event_busy,
                                 size: 80,
-                                color: theme.colorScheme.primary.withOpacity(0.5),
+                                color: AppColors.textGrey.withOpacity(0.5),
                               ),
                               const SizedBox(height: 24),
                               Text(
                                 'No Free Time Found',
-                                style: theme.textTheme.headlineSmall?.copyWith(
+                                style: TextStyle(
+                                  fontSize: 24,
                                   fontWeight: FontWeight.bold,
+                                  color: AppColors.textDark,
                                 ),
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 'Try adjusting the search settings or checking a different date range.',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: AppColors.textGrey,
+                                  height: 1.5,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -286,42 +339,65 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
                         itemCount: freeSlots.length,
                         itemBuilder: (context, index) {
                           final slot = freeSlots[index];
-                          return _buildFreeTimeCard(slot, theme);
+                          return _buildFreeTimeCard(slot);
                         },
                       ),
               ),
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: AppColors.primaryTeal),
+        ),
         error: (error, stack) => Center(
-          child: Text('Error loading events: $error'),
+          child: Text(
+            'Error loading events: $error',
+            style: TextStyle(color: AppColors.error),
+          ),
         ),
       ),
     );
   }
 
   /// Build a card for a free time slot
-  Widget _buildFreeTimeCard(FreeTimeSlot slot, ThemeData theme) {
+  Widget _buildFreeTimeCard(FreeTimeSlot slot) {
     final dateFormat = DateFormat('EEE, MMM d');
     final timeFormat = DateFormat('h:mm a');
     final duration = slot.duration;
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: theme.colorScheme.primaryContainer,
+          radius: 24,
+          backgroundColor: Colors.pink.withOpacity(0.15),
           child: Icon(
             Icons.favorite,
-            color: theme.colorScheme.onPrimaryContainer,
+            color: Colors.pink[400],
+            size: 24,
           ),
         ),
         title: Text(
           dateFormat.format(slot.startTime),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: AppColors.textDark,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,13 +405,18 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
             const SizedBox(height: 4),
             Text(
               '${timeFormat.format(slot.startTime)} - ${timeFormat.format(slot.endTime)}',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textGrey,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               'Duration: ${hours}h ${minutes}m',
               style: TextStyle(
-                color: theme.colorScheme.primary,
+                color: AppColors.primaryTeal,
                 fontWeight: FontWeight.w500,
+                fontSize: 14,
               ),
             ),
           ],
@@ -343,7 +424,7 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
         trailing: Icon(
           Icons.arrow_forward_ios,
           size: 16,
-          color: theme.colorScheme.onSurfaceVariant,
+          color: AppColors.textGrey,
         ),
       ),
     );

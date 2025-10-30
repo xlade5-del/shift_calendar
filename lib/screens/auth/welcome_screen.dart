@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/app_colors.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 
@@ -36,7 +37,7 @@ class WelcomeScreen extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7), // Light gray background
+      backgroundColor: AppColors.cream, // VelloShift brand cream background
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -47,28 +48,25 @@ class WelcomeScreen extends ConsumerWidget {
               // Hero Section
               Column(
                 children: [
-                  // App Icon
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Icon(
-                      Icons.calendar_month_rounded,
-                      size: 64,
-                      color: Colors.white,
+                  // App Logo
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.asset(
+                      'assets/images/velloshift_logo.png',
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // Title
                   Text(
-                    'Shift Calendar',
+                    'VelloShift',
                     style: theme.textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 40,
-                      color: const Color(0xFF1C1C1E),
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -77,7 +75,7 @@ class WelcomeScreen extends ConsumerWidget {
                   Text(
                     'Sync your shifts with your partner\nand find more time together',
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: const Color(0xFF6E6E73),
+                      color: AppColors.textGrey,
                       fontSize: 17,
                       height: 1.4,
                     ),
@@ -97,7 +95,7 @@ class WelcomeScreen extends ConsumerWidget {
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 28,
-                      color: const Color(0xFF1C1C1E),
+                      color: AppColors.textDark,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -105,7 +103,7 @@ class WelcomeScreen extends ConsumerWidget {
                   Text(
                     'Sign in to manage your shifts and\nconnect with your partner',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF6E6E73),
+                      color: AppColors.textGrey,
                       fontSize: 15,
                       height: 1.4,
                     ),
@@ -127,7 +125,7 @@ class WelcomeScreen extends ConsumerWidget {
                     ),
                     label: const Text('Continue with Google'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2C2C2E), // Dark button
+                      backgroundColor: AppColors.primaryTeal,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
@@ -148,9 +146,9 @@ class WelcomeScreen extends ConsumerWidget {
                     icon: const Icon(Icons.apple, color: Colors.white),
                     label: const Text('Continue with Apple'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2C2C2E),
+                      backgroundColor: AppColors.textDark,
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: const Color(0xFF2C2C2E).withOpacity(0.5),
+                      disabledBackgroundColor: AppColors.textDark.withOpacity(0.5),
                       disabledForegroundColor: Colors.white.withOpacity(0.5),
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
@@ -176,14 +174,15 @@ class WelcomeScreen extends ConsumerWidget {
                               ),
                             );
                           },
-                    icon: const Icon(Icons.email_outlined, color: Color(0xFF2C2C2E)),
+                    icon: Icon(Icons.email_outlined, color: AppColors.primaryTeal),
                     label: const Text('Continue with email'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE5E5EA), // Light button
-                      foregroundColor: const Color(0xFF2C2C2E),
+                      backgroundColor: AppColors.white,
+                      foregroundColor: AppColors.primaryTeal,
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: AppColors.primaryTeal, width: 2),
                       ),
                       elevation: 0,
                       textStyle: const TextStyle(
@@ -201,7 +200,7 @@ class WelcomeScreen extends ConsumerWidget {
               Text(
                 'By continuing, you agree to our Terms of Service\nand Privacy Policy',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: const Color(0xFF6E6E73),
+                  color: AppColors.textLight,
                   fontSize: 13,
                   height: 1.4,
                 ),

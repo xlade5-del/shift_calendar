@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Implementation Status
 
-**Phase:** Week 13-16 (Notifications & Conflict Detection) - COMPLETE ✅
+**Phase:** Homepage UI/UX Enhancement - COMPLETE ✅
 **Last Updated:** October 28, 2025
 
 ### ✅ Completed (Weeks 1-12)
@@ -105,6 +105,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **APNs Configuration:** iOS files configured, requires Xcode for completion
 - ✅ **All Week 13-16 Objectives Met:** Ready for Week 17-20 (Offline Mode & iCal)
 
+**Homepage UI/UX Enhancement (October 28, 2025 - COMPLETE ✅)**
+- Complete home screen redesign from profile hub to calendar-centric month view
+- HomeScreen rewrite: ConsumerWidget → ConsumerStatefulWidget (317 → 1,099 lines)
+- Month calendar grid with accurate date calculation and week alignment
+- Interactive features:
+  - Top header with workplace selector dropdown
+  - Tab navigation (Month/Year/Summary)
+  - Bottom navigation bar (Paint/Edit/Shifts)
+  - Day selection with event listing modal (DraggableScrollableSheet)
+- Applied "airy" design aesthetic:
+  - Background: Color(0xFFF5F5F7) (light grey)
+  - White cards with shadows (blurRadius: 8)
+  - 16px border radius on all components
+  - Generous spacing (16-24px margins)
+- **Critical Bug Fix:** Sign-in/signup navigation
+  - Issue: Auth button stuck/grey after clicking, no navigation
+  - Solution: Added `context.go('/home')` after successful authentication
+  - Files: login_screen.dart (lines 43, 80), signup_screen.dart (lines 47, 84)
+- Real-time event integration with Firestore streams
+- State management: _selectedDate, _selectedTabIndex, _selectedBottomIndex, _selectedWorkplace
+- Commit: ee12e6c (24 files, +3,513, -702 lines)
+
 ### ⏳ Next Phase: Week 17-20 (Offline Mode & iCal Integration)
 **Planned:**
 - Cloud Functions for notification delivery (partner event changes, conflicts)
@@ -179,8 +201,8 @@ lib/
 │   └── notification_provider.dart # ✅ Notification service provider
 ├── screens/
 │   ├── auth/
-│   │   ├── login_screen.dart    # ✅ Email sign-in UI
-│   │   └── signup_screen.dart   # ✅ Email sign-up UI
+│   │   ├── login_screen.dart    # ✅ Email sign-in UI (navigation fix Oct 28)
+│   │   └── signup_screen.dart   # ✅ Email sign-up UI (navigation fix Oct 28)
 │   ├── partner/
 │   │   ├── partner_invite_screen.dart       # ✅ Generate partner codes
 │   │   ├── partner_accept_screen.dart       # ✅ Accept partner codes
@@ -193,7 +215,7 @@ lib/
 │   │   └── edit_event_screen.dart # ✅ Edit/delete existing events
 │   ├── settings/
 │   │   └── notification_settings_screen.dart # ✅ Notification preferences
-│   └── home_screen.dart         # ✅ Main navigation hub with settings icon
+│   └── home_screen.dart         # ✅ Calendar-centric month view (1,099 lines, redesigned Oct 28)
 ├── services/
 │   ├── auth_service.dart        # ✅ Firebase Auth wrapper
 │   ├── firestore_service.dart   # ✅ User, partner & event CRUD
@@ -697,3 +719,4 @@ Since this is a solo development project:
 - Measure everything (Firebase Analytics + custom events)
 - Cut scope, not quality (defer features, not testing)
 - Real users > perfect code (ship MVP, iterate based on feedback)
+- use the color palette from & 'c:\Users\me_yo\Yoseph Vibe Coding\shift_calendar\lib\utils\app_colors.dart' for every screen and component you generate

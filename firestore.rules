@@ -60,6 +60,24 @@ service cloud.firestore {
     }
 
     // ============================================================================
+    // SHIFT TEMPLATES COLLECTION
+    // ============================================================================
+    match /shiftTemplates/{templateId} {
+      // Users can read their own shift templates
+      allow read: if isSignedIn() && isOwner(resource.data.userId);
+
+      // Users can only create shift templates for themselves
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid;
+
+      // Users can only update/delete their own shift templates
+      allow update: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================================================
     // PARTNER CODES COLLECTION
     // ============================================================================
     match /partnerCodes/{code} {

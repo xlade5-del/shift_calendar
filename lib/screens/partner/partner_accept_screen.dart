@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/firestore_service.dart';
+import '../../utils/app_colors.dart';
 
 class PartnerAcceptScreen extends ConsumerStatefulWidget {
   const PartnerAcceptScreen({super.key});
@@ -101,7 +102,7 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -114,8 +115,22 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
     final partnerAsync = ref.watch(partnerDataProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Link with Partner'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Link with Partner',
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: SafeArea(
         child: partnerAsync.when(
@@ -131,26 +146,40 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
                       Icon(
                         Icons.check_circle,
                         size: 80,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: AppColors.success,
                       ),
                       const SizedBox(height: 24),
                       Text(
                         'Already Linked!',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        style: TextStyle(
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'You are already linked with ${partner.displayName ?? partner.email}',
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: AppColors.textGrey,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      FilledButton.icon(
+                      ElevatedButton.icon(
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.arrow_back),
                         label: const Text('Go Back'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryTeal,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
                     ],
                   ),
@@ -170,21 +199,25 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
                     Icon(
                       Icons.person_add,
                       size: 80,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: AppColors.primaryTeal,
                     ),
                     const SizedBox(height: 24),
                     Text(
                       'Enter Partner Code',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: TextStyle(
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Enter the 6-digit code your partner shared with you to link your accounts.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColors.textGrey,
+                        height: 1.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -196,22 +229,39 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
                       keyboardType: TextInputType.number,
                       maxLength: 6,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      style: TextStyle(
+                        fontSize: 32,
                         letterSpacing: 16,
                         fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
                       ),
                       decoration: InputDecoration(
                         hintText: '000000',
                         hintStyle: TextStyle(
-                          color: Colors.grey[400],
+                          color: AppColors.textGrey.withOpacity(0.4),
                           letterSpacing: 16,
+                          fontSize: 32,
                         ),
                         counterText: '',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: AppColors.textGrey.withOpacity(0.3)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: AppColors.textGrey.withOpacity(0.3)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: AppColors.error, width: 2),
                         ),
                         filled: true,
-                        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        fillColor: AppColors.white,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 20),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -229,67 +279,85 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
                     const SizedBox(height: 32),
 
                     // Link Button
-                    FilledButton.icon(
+                    ElevatedButton.icon(
                       onPressed: _isLinking ? null : _linkWithPartner,
                       icon: _isLinking
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: AppColors.white,
                               ),
                             )
                           : const Icon(Icons.link),
                       label: Text(_isLinking ? 'Linking...' : 'Link with Partner'),
-                      style: FilledButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryTeal,
+                        foregroundColor: AppColors.white,
+                        disabledBackgroundColor: AppColors.primaryTeal.withOpacity(0.5),
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
                       ),
                     ),
                     const SizedBox(height: 32),
 
                     // Info Card
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 20,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: AppColors.primaryTeal,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'What Happens Next?',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textDark,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'What Happens Next?',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            _buildInfoItem(
-                              Icons.sync,
-                              'Your calendars will sync in real-time',
-                            ),
-                            _buildInfoItem(
-                              Icons.visibility,
-                              'You\'ll see each other\'s schedules',
-                            ),
-                            _buildInfoItem(
-                              Icons.notifications,
-                              'Get notified of partner\'s changes',
-                            ),
-                            _buildInfoItem(
-                              Icons.schedule,
-                              'Find mutual free time together',
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _buildInfoItem(
+                            Icons.sync,
+                            'Your calendars will sync in real-time',
+                          ),
+                          _buildInfoItem(
+                            Icons.visibility,
+                            'You\'ll see each other\'s schedules',
+                          ),
+                          _buildInfoItem(
+                            Icons.notifications,
+                            'Get notified of partner\'s changes',
+                          ),
+                          _buildInfoItem(
+                            Icons.schedule,
+                            'Find mutual free time together',
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -315,7 +383,12 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
                       icon: const Icon(Icons.arrow_back),
                       label: const Text('Don\'t have a code?'),
                       style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primaryTeal,
+                        side: BorderSide(color: AppColors.primaryTeal),
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                   ],
@@ -323,9 +396,14 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => Center(
+            child: CircularProgressIndicator(color: AppColors.primaryTeal),
+          ),
           error: (error, _) => Center(
-            child: Text('Error: $error'),
+            child: Text(
+              'Error: $error',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ),
       ),
@@ -337,12 +415,15 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
+          Icon(icon, size: 20, color: AppColors.textGrey),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: 15,
+                color: AppColors.textDark,
+              ),
             ),
           ),
         ],

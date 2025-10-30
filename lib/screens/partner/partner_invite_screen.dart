@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/firestore_service.dart';
+import '../../utils/app_colors.dart';
 
 class PartnerInviteScreen extends ConsumerStatefulWidget {
   const PartnerInviteScreen({super.key});
@@ -38,9 +39,9 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Partner code generated successfully!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Partner code generated successfully!'),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -53,7 +54,7 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -66,9 +67,10 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
     Clipboard.setData(ClipboardData(text: _partnerCode!));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Partner code copied to clipboard'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: const Text('Partner code copied to clipboard'),
+        backgroundColor: AppColors.primaryTeal,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -93,8 +95,22 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
     final partnerAsync = ref.watch(partnerDataProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Invite Partner'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Invite Partner',
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.textDark),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: SafeArea(
         child: partnerAsync.when(
@@ -110,26 +126,40 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
                       Icon(
                         Icons.check_circle,
                         size: 80,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: AppColors.success,
                       ),
                       const SizedBox(height: 24),
                       Text(
                         'Already Linked!',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        style: TextStyle(
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'You are already linked with ${partner.displayName ?? partner.email}',
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: AppColors.textGrey,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      FilledButton.icon(
+                      ElevatedButton.icon(
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.arrow_back),
                         label: const Text('Go Back'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryTeal,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
                     ],
                   ),
@@ -147,21 +177,25 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
                   Icon(
                     Icons.link,
                     size: 80,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: AppColors.primaryTeal,
                   ),
                   const SizedBox(height: 24),
                   Text(
                     'Invite Your Partner',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: TextStyle(
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Generate a unique code to share with your partner. They can use this code to link their account with yours.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.textGrey,
+                      height: 1.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -169,160 +203,206 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
 
                   // Partner Code Display
                   if (_partnerCode != null) ...[
-                    Card(
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              'Your Partner Code',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Colors.grey[600],
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Your Partner Code',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textGrey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Code Display
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryTeal.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _partnerCode!,
+                              style: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 8,
+                                color: AppColors.primaryTeal,
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            // Code Display
-                            Container(
+                          ),
+                          const SizedBox(height: 16),
+                          // Expiry Info
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 16,
+                                color: AppColors.textGrey,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                _formatExpiryTime(),
+                                style: TextStyle(
+                                  color: AppColors.textGrey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // Copy Button
+                          ElevatedButton.icon(
+                            onPressed: _copyCodeToClipboard,
+                            icon: const Icon(Icons.copy),
+                            label: const Text('Copy Code'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryTeal,
+                              foregroundColor: AppColors.white,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
+                                horizontal: 32,
                                 vertical: 16,
                               ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primaryContainer,
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                _partnerCode!,
-                                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 8,
-                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                ),
-                              ),
+                              elevation: 0,
                             ),
-                            const SizedBox(height: 16),
-                            // Expiry Info
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  size: 16,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _formatExpiryTime(),
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            // Copy Button
-                            FilledButton.icon(
-                              onPressed: _copyCodeToClipboard,
-                              icon: const Icon(Icons.copy),
-                              label: const Text('Copy Code'),
-                              style: FilledButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 16,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 24),
 
                     // Instructions
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 20,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: AppColors.primaryTeal,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Instructions',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textDark,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Instructions',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            _buildInstructionItem('1', 'Copy the code above'),
-                            _buildInstructionItem('2', 'Share it with your partner'),
-                            _buildInstructionItem('3', 'They enter it in the app to link'),
-                            _buildInstructionItem('4', 'Code expires in 24 hours'),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _buildInstructionItem('1', 'Copy the code above'),
+                          _buildInstructionItem('2', 'Share it with your partner'),
+                          _buildInstructionItem('3', 'They enter it in the app to link'),
+                          _buildInstructionItem('4', 'Code expires in 24 hours'),
+                        ],
                       ),
                     ),
                   ] else ...[
                     // Generate Button
-                    FilledButton.icon(
+                    ElevatedButton.icon(
                       onPressed: _isGenerating ? null : _generatePartnerCode,
                       icon: _isGenerating
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: AppColors.white,
                               ),
                             )
                           : const Icon(Icons.add_link),
                       label: Text(_isGenerating ? 'Generating...' : 'Generate Partner Code'),
-                      style: FilledButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryTeal,
+                        foregroundColor: AppColors.white,
+                        disabledBackgroundColor: AppColors.primaryTeal.withOpacity(0.5),
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
                       ),
                     ),
                     const SizedBox(height: 24),
 
                     // Info Card
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.security,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 20,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.security,
+                                color: AppColors.primaryTeal,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'How It Works',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textDark,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'How It Works',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            _buildInfoItem(Icons.numbers, 'Unique 6-digit code'),
-                            _buildInfoItem(Icons.timer, 'Expires in 24 hours'),
-                            _buildInfoItem(Icons.lock, 'Can only be used once'),
-                            _buildInfoItem(Icons.sync, 'Instant synchronization'),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _buildInfoItem(Icons.numbers, 'Unique 6-digit code'),
+                          _buildInfoItem(Icons.timer, 'Expires in 24 hours'),
+                          _buildInfoItem(Icons.lock, 'Can only be used once'),
+                          _buildInfoItem(Icons.sync, 'Instant synchronization'),
+                        ],
                       ),
                     ),
                   ],
@@ -330,9 +410,14 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => Center(
+            child: CircularProgressIndicator(color: AppColors.primaryTeal),
+          ),
           error: (error, _) => Center(
-            child: Text('Error: $error'),
+            child: Text(
+              'Error: $error',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ),
       ),
@@ -348,14 +433,14 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+              color: AppColors.primaryTeal,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 number,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: AppColors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -366,7 +451,10 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
           Expanded(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: 15,
+                color: AppColors.textDark,
+              ),
             ),
           ),
         ],
@@ -379,12 +467,15 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
+          Icon(icon, size: 20, color: AppColors.textGrey),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: 15,
+                color: AppColors.textDark,
+              ),
             ),
           ),
         ],

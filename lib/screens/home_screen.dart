@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../providers/event_provider.dart';
 import '../models/event_model.dart';
+import '../utils/app_colors.dart';
 import 'partner/partner_invite_screen.dart';
 import 'partner/partner_accept_screen.dart';
 import 'partner/partner_management_screen.dart';
@@ -11,6 +12,9 @@ import 'calendar/calendar_screen.dart';
 import 'settings/notification_settings_screen.dart';
 import 'event/add_event_screen.dart';
 import 'event/edit_event_screen.dart';
+import 'shifts/available_shifts_screen.dart';
+import 'shifts/shift_configuration_screen.dart';
+import '../models/shift_template_model.dart';
 
 /// Redesigned home screen with month calendar view
 class HomeScreen extends ConsumerStatefulWidget {
@@ -78,7 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final eventsAsync = ref.watch(eventsStreamProvider(_monthStart));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
+      backgroundColor: AppColors.cream,
       body: SafeArea(
         child: Column(
           children: [
@@ -124,7 +128,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF007AFF),
+              color: AppColors.primaryTeal,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -142,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F7),
+                  color: AppColors.cream,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -153,13 +157,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2C2C2E),
+                          color: AppColors.textDark,
                         ),
                       ),
                     ),
                     const Icon(
                       Icons.keyboard_arrow_down,
-                      color: Color(0xFF6E6E73),
+                      color: AppColors.textGrey,
                     ),
                   ],
                 ),
@@ -170,13 +174,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           // Share Button
           IconButton(
-            icon: const Icon(Icons.share, color: Color(0xFF007AFF)),
+            icon: Icon(Icons.share, color: AppColors.primaryTeal),
             onPressed: () {},
           ),
 
           // Settings Button
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF2C2C2E)),
+            icon: Icon(Icons.more_vert, color: AppColors.textDark),
             onPressed: _showSettingsMenu,
           ),
         ],
@@ -226,7 +230,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF007AFF) : Colors.transparent,
+            color: isSelected ? AppColors.primaryTeal : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -235,7 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : const Color(0xFF6E6E73),
+              color: isSelected ? Colors.white : AppColors.textGrey,
             ),
           ),
         ),
@@ -265,7 +269,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.chevron_left, color: Color(0xFF2C2C2E)),
+                icon: Icon(Icons.chevron_left, color: AppColors.textDark),
                 onPressed: _previousMonth,
                 padding: const EdgeInsets.all(8),
                 constraints: const BoxConstraints(),
@@ -275,11 +279,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1C1C1E),
+                  color: AppColors.textDark,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.chevron_right, color: Color(0xFF2C2C2E)),
+                icon: Icon(Icons.chevron_right, color: AppColors.textDark),
                 onPressed: _nextMonth,
                 padding: const EdgeInsets.all(8),
                 constraints: const BoxConstraints(),
@@ -298,7 +302,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF6E6E73),
+                          color: AppColors.textGrey,
                         ),
                       ),
                     ))
@@ -342,8 +346,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Container(
                     margin: const EdgeInsets.all(1),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F7),
-                      border: Border.all(color: const Color(0xFFE5E5E7), width: 1),
+                      color: AppColors.cream,
+                      border: Border.all(color: AppColors.divider, width: 1),
                     ),
                   ),
                 );
@@ -375,80 +379,62 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return GestureDetector(
       onTap: () => _showDayEvents(day, events),
       child: Container(
-        margin: const EdgeInsets.all(1),
+        margin: const EdgeInsets.all(0.5),
         decoration: BoxDecoration(
-          color: isWeekend ? const Color(0xFFFF6B6B).withOpacity(0.15) : Colors.white,
+          color: isWeekend ? AppColors.lightPeach.withOpacity(0.3) : Colors.white,
           border: Border.all(
-            color: isToday ? const Color(0xFF007AFF) : const Color(0xFFE5E5E7),
-            width: isToday ? 2 : 1,
+            color: isToday ? AppColors.primaryTeal : AppColors.divider,
+            width: isToday ? 1.5 : 0.5,
           ),
+          borderRadius: BorderRadius.circular(4),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Day number header
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-              color: isWeekend
-                  ? const Color(0xFFFF6B6B).withOpacity(0.2)
-                  : const Color(0xFFF5F5F7),
+            // Day number - smaller, cleaner
+            Padding(
+              padding: const EdgeInsets.only(top: 3, left: 4, right: 4),
               child: Text(
                 '${day.day}',
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isToday ? FontWeight.bold : FontWeight.w600,
-                  color: isWeekend ? const Color(0xFFFF6B6B) : const Color(0xFF1C1C1E),
+                  fontSize: 11,
+                  fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
+                  color: isWeekend ? AppColors.peach : AppColors.textDark,
                 ),
               ),
             ),
             // Events section - fills remaining space
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(2),
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                 child: events.isEmpty
                     ? const SizedBox()
                     : ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.zero,
-                        itemCount: events.length > 3 ? 3 : events.length,
+                        itemCount: events.length > 2 ? 2 : events.length,
                         itemBuilder: (context, index) {
                           final event = events[index];
                           final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
                           final eventColor = Color(0xFF000000 | colorValue);
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 2),
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            margin: const EdgeInsets.only(bottom: 1.5),
+                            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
                             decoration: BoxDecoration(
                               color: eventColor,
                               borderRadius: BorderRadius.circular(2),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  event.title,
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    height: 1.2,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  DateFormat('h:mm a').format(event.startTime),
-                                  style: const TextStyle(
-                                    fontSize: 8,
-                                    color: Colors.white,
-                                    height: 1.1,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                            child: Text(
+                              event.title,
+                              style: const TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                height: 1.1,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           );
                         },
@@ -456,16 +442,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             // Show overflow indicator
-            if (events.length > 3)
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 2),
+            if (events.length > 2)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
-                  '+${events.length - 3} more',
+                  '+${events.length - 2}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 7,
-                    color: Color(0xFF6E6E73),
-                    fontWeight: FontWeight.w600,
+                    color: AppColors.textLight,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -506,12 +492,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           // 12 Months Grid
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.85,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 0.95, // More compact, slightly rectangular
               ),
               itemCount: 12,
               itemBuilder: (context, index) {
@@ -541,7 +527,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFE5E5EA), width: 1.5),
+          border: Border.all(color: AppColors.divider, width: 1.5),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -580,8 +566,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2E), // Dark background like in reference
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,9 +583,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Text(
             DateFormat('MMMM').format(monthDate).toUpperCase(),
             style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1C1C1E),
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 4),
@@ -605,24 +599,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         day,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 7,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF8E8E93),
+                          color: AppColors.textLight,
                         ),
                       ),
                     ))
                 .toList(),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 3),
 
-          // Calendar Days Grid
+          // Calendar Days Grid - more compact, rectangular boxes
           Expanded(
             child: GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
-                crossAxisSpacing: 2,
-                mainAxisSpacing: 2,
+                crossAxisSpacing: 1.5,
+                mainAxisSpacing: 1.5,
+                childAspectRatio: 1.2, // Slightly wider than tall for rectangular look
               ),
               itemCount: days.length,
               itemBuilder: (context, index) {
@@ -637,26 +632,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 }).toList();
 
                 // Determine color based on events
-                Color bgColor = Colors.transparent;
+                Color bgColor = AppColors.lightCream; // Very light cream for empty days
+                Color textColor = AppColors.textDark;
+
                 if (dayEvents.isNotEmpty) {
                   // Use the first event's color
-                  bgColor = Color(int.parse(dayEvents.first.color.replaceFirst('#', '0xFF')));
+                  final eventColor = Color(int.parse(dayEvents.first.color.replaceFirst('#', '0xFF')));
+                  bgColor = eventColor.withOpacity(0.9);
+                  textColor = Colors.white;
                 }
 
                 return Container(
                   decoration: BoxDecoration(
                     color: bgColor,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(2),
+                    border: Border.all(
+                      color: dayEvents.isEmpty
+                        ? AppColors.divider.withOpacity(0.3)
+                        : Colors.transparent,
+                      width: 0.5,
+                    ),
                   ),
                   child: Center(
                     child: Text(
                       '${day.day}',
                       style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: bgColor == Colors.transparent
-                            ? const Color(0xFF8E8E93)
-                            : Colors.white,
+                        fontSize: 8,
+                        fontWeight: dayEvents.isNotEmpty ? FontWeight.w600 : FontWeight.w500,
+                        color: textColor,
                       ),
                     ),
                   ),
@@ -693,7 +696,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: const Color(0xFF007AFF).withOpacity(0.2),
+                  backgroundColor: AppColors.primaryTeal.withOpacity(0.2),
                   backgroundImage: user?.photoURL != null
                       ? NetworkImage(user!.photoURL!)
                       : null,
@@ -714,7 +717,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1C1C1E),
+                          color: AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -722,7 +725,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         userData?.email ?? user?.email ?? '',
                         style: const TextStyle(
                           fontSize: 15,
-                          color: Color(0xFF6E6E73),
+                          color: AppColors.textGrey,
                         ),
                       ),
                     ],
@@ -758,7 +761,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1C1C1E),
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -774,7 +777,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       icon: const Icon(Icons.manage_accounts),
                       label: const Text('Manage Partner'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007AFF),
+                        backgroundColor: AppColors.primaryTeal,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -794,7 +797,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       icon: const Icon(Icons.person_add),
                       label: const Text('Invite Partner'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007AFF),
+                        backgroundColor: AppColors.primaryTeal,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -814,7 +817,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       icon: const Icon(Icons.link),
                       label: const Text('Enter Partner Code'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF007AFF),
+                        foregroundColor: AppColors.primaryTeal,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -852,7 +855,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1C1C1E),
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -928,7 +931,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFF007AFF)),
+            Icon(icon, color: AppColors.primaryTeal),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -936,11 +939,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF1C1C1E),
+                  color: AppColors.textDark,
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFF6E6E73)),
+            Icon(Icons.chevron_right, color: AppColors.textGrey),
           ],
         ),
       ),
@@ -975,8 +978,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isSelected = _selectedBottomIndex == index;
 
     return Expanded(
-      child: InkWell(
-        onTap: () {
+      child: GestureDetector(
+        onTap: () async {
           setState(() => _selectedBottomIndex = index);
 
           // Handle navigation based on button
@@ -988,8 +991,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             );
           } else if (index == 2) { // Shifts
-            // Already on home, just change tab to month view
-            setState(() => _selectedTabIndex = 0);
+            // Show available shifts bottom sheet
+            final result = await showModalBottomSheet<Map<String, dynamic>?>(
+              context: context,
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              builder: (context) => DraggableScrollableSheet(
+                initialChildSize: 0.9,
+                minChildSize: 0.5,
+                maxChildSize: 0.95,
+                builder: (context, scrollController) => AvailableShiftsScreen(
+                  scrollController: scrollController,
+                ),
+              ),
+            );
+
+            print('Modal closed with result: $result');
+            print('Mounted: $mounted');
+
+            // Handle navigation based on result
+            if (result != null && mounted) {
+              print('Processing result action: ${result['action']}');
+              if (result['action'] == 'create') {
+                print('Navigating to create shift screen');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ShiftConfigurationScreen(),
+                  ),
+                );
+              } else if (result['action'] == 'edit') {
+                print('Navigating to edit shift screen');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ShiftConfigurationScreen(
+                      template: result['template'] as ShiftTemplate,
+                    ),
+                  ),
+                );
+              }
+            } else {
+              print('Result is null or not mounted. Result: $result, Mounted: $mounted');
+            }
           }
         },
         child: Column(
@@ -997,7 +1039,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF6E6E73),
+              color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
             ),
             const SizedBox(height: 4),
             Text(
@@ -1005,7 +1047,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF6E6E73),
+                color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
               ),
             ),
           ],
@@ -1033,7 +1075,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1C1C1E),
+                  color: AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 20),
@@ -1060,15 +1102,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         padding: const EdgeInsets.all(16),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF007AFF).withOpacity(0.1) : const Color(0xFFF5F5F7),
+          color: isSelected ? AppColors.primaryTeal.withOpacity(0.1) : AppColors.cream,
           borderRadius: BorderRadius.circular(12),
-          border: isSelected ? Border.all(color: const Color(0xFF007AFF), width: 2) : null,
+          border: isSelected ? Border.all(color: AppColors.primaryTeal, width: 2) : null,
         ),
         child: Row(
           children: [
             Icon(
               Icons.business,
-              color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF6E6E73),
+              color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1077,12 +1119,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF1C1C1E),
+                  color: isSelected ? AppColors.primaryTeal : AppColors.textDark,
                 ),
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF007AFF)),
+              Icon(Icons.check_circle, color: AppColors.primaryTeal),
           ],
         ),
       ),
@@ -1108,7 +1150,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1C1C1E),
+                  color: AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 20),
@@ -1155,7 +1197,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFF007AFF)),
+            Icon(icon, color: AppColors.primaryTeal),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -1163,11 +1205,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF1C1C1E),
+                  color: AppColors.textDark,
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFF6E6E73)),
+            Icon(Icons.chevron_right, color: AppColors.textGrey),
           ],
         ),
       ),
@@ -1199,7 +1241,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1C1C1E),
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -1209,13 +1251,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.event_busy, size: 48, color: Color(0xFF6E6E73)),
+                            Icon(Icons.event_busy, size: 48, color: AppColors.textGrey),
                             SizedBox(height: 16),
                             Text(
                               'No events scheduled',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF6E6E73),
+                                color: AppColors.textGrey,
                               ),
                             ),
                           ],
@@ -1269,7 +1311,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
-                                            color: Color(0xFF1C1C1E),
+                                            color: AppColors.textDark,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -1277,7 +1319,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           '${DateFormat('h:mm a').format(event.startTime)} - ${DateFormat('h:mm a').format(event.endTime)}',
                                           style: const TextStyle(
                                             fontSize: 14,
-                                            color: Color(0xFF6E6E73),
+                                            color: AppColors.textGrey,
                                           ),
                                         ),
                                         if (event.notes != null && event.notes!.isNotEmpty) ...[
@@ -1286,7 +1328,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             event.notes!,
                                             style: const TextStyle(
                                               fontSize: 13,
-                                              color: Color(0xFF6E6E73),
+                                              color: AppColors.textGrey,
                                             ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
