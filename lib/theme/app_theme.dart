@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_colors.dart';
 
 /// Centralized theme configuration for the app
 ///
@@ -11,9 +12,9 @@ class AppTheme {
   // Private constructor to prevent instantiation
   AppTheme._();
 
-  // Brand colors
-  static const Color primaryColor = Colors.deepPurple;
-  static const Color secondaryColor = Colors.purpleAccent;
+  // Brand colors from AppColors
+  static const Color primaryColor = AppColors.primaryTeal;
+  static const Color secondaryColor = AppColors.peach;
 
   // Light theme
   static ThemeData get lightTheme {
@@ -150,6 +151,77 @@ class AppTheme {
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(20),
           ),
+        ),
+      ),
+
+      // Date picker theme
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: AppColors.white,
+        headerBackgroundColor: AppColors.primaryTeal,
+        headerForegroundColor: AppColors.white,
+        dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.white;
+          }
+          return AppColors.textDark;
+        }),
+        dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primaryTeal;
+          }
+          return Colors.transparent;
+        }),
+        todayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primaryTeal;
+          }
+          return AppColors.lightMint;
+        }),
+        todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.white;
+          }
+          return AppColors.primaryTeal;
+        }),
+        yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.white;
+          }
+          return AppColors.textDark;
+        }),
+        yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primaryTeal;
+          }
+          return Colors.transparent;
+        }),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+
+      // Time picker theme
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: AppColors.white,
+        hourMinuteTextColor: AppColors.textDark,
+        hourMinuteColor: AppColors.lightMint,
+        dayPeriodTextColor: AppColors.textDark,
+        dayPeriodColor: AppColors.lightMint,
+        dialHandColor: AppColors.primaryTeal,
+        dialBackgroundColor: AppColors.lightMint,
+        dialTextColor: WidgetStateColor.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.white;
+          }
+          return AppColors.textDark;
+        }),
+        entryModeIconColor: AppColors.primaryTeal,
+        hourMinuteTextStyle: const TextStyle(
+          fontSize: 56,
+          fontWeight: FontWeight.w400,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );
