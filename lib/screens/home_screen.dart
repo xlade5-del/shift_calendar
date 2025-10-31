@@ -15,10 +15,13 @@ import 'event/edit_event_screen.dart';
 import 'shifts/available_shifts_screen.dart';
 import 'shifts/shift_configuration_screen.dart';
 import '../models/shift_template_model.dart';
+import '../providers/shift_template_provider.dart';
+import '../services/firestore_service.dart';
 
 /// Redesigned home screen with month calendar view
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -30,6 +33,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedBottomIndex = 2; // 0: Paint, 1: Edit, 2: Shifts
   String _selectedWorkplace = 'My Workplace';
 
+  // Paint mode state
+  bool _isPaintMode = false;
+  ShiftTemplate? _selectedPaintTemplate;
+  bool _isEraseMode = false;
+
   /// Get the first day of the month
   DateTime get _monthStart {
     return DateTime(_selectedDate.year, _selectedDate.month, 1);
@@ -40,24 +48,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
   }
 
-  /// Get all days to display in the month view (including padding days)
-  List<DateTime?> get _calendarDays {
+  /// Get all days to display in the month view (including days from prev/next months)
+  List<DateTime> get _calendarDays {
     final firstWeekday = _monthStart.weekday; // 1 = Monday, 7 = Sunday
     final daysInMonth = _monthEnd.day;
 
     // Start from Monday (1)
     final leadingEmptyDays = firstWeekday - 1;
 
-    final days = <DateTime?>[];
+    final days = <DateTime>[];
 
-    // Add empty days for padding
-    for (int i = 0; i < leadingEmptyDays; i++) {
-      days.add(null);
+    // Add days from previous month
+    if (leadingEmptyDays > 0) {
+      final previousMonthEnd = DateTime(_selectedDate.year, _selectedDate.month, 0);
+      final previousMonthLastDay = previousMonthEnd.day;
+
+      for (int i = leadingEmptyDays - 1; i >= 0; i--) {
+        days.add(DateTime(
+          previousMonthEnd.year,
+          previousMonthEnd.month,
+          previousMonthLastDay - i,
+        ));
+      }
     }
 
-    // Add actual days of the month
+    // Add actual days of the current month
     for (int day = 1; day <= daysInMonth; day++) {
       days.add(DateTime(_selectedDate.year, _selectedDate.month, day));
+    }
+
+    // Add days from next month to complete the grid
+    final totalCells = days.length;
+    final remainingCells = (7 - (totalCells % 7)) % 7;
+
+    for (int i = 1; i <= remainingCells; i++) {
+      days.add(DateTime(_selectedDate.year, _selectedDate.month + 1, i));
     }
 
     return days;
@@ -101,8 +126,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       : _buildSummaryView(userAsync, user),
             ),
 
-            // Bottom Navigation
-            _buildBottomNavigation(),
+            // Bottom Navigation or Paint Toolbar
+            _isPaintMode ? _buildPaintToolbar() : _buildBottomNavigation(),
           ],
         ),
       ),
@@ -341,17 +366,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               if (dayIndex >= days.length) return const Expanded(child: SizedBox());
 
               final day = days[dayIndex];
-              if (day == null) {
-                return Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      color: AppColors.cream,
-                      border: Border.all(color: AppColors.divider, width: 1),
-                    ),
-                  ),
-                );
-              }
 
               // Filter events for this day
               final dayEvents = events.where((event) {
@@ -375,16 +389,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         DateTime.now().month == day.month &&
         DateTime.now().day == day.day;
     final isWeekend = day.weekday == 6 || day.weekday == 7;
+    final isCurrentMonth = day.month == _selectedDate.month;
+    final isOverflowDate = !isCurrentMonth;
+
+    // Creamy shadowy colors for overflow dates
+    Color backgroundColor;
+    Color textColor;
+    Color borderColor;
+
+    if (isOverflowDate) {
+      // Creamy, faded appearance for dates from other months
+      backgroundColor = const Color(0xFFFAF9F7); // Very light cream
+      textColor = const Color(0xFFB8B5B2); // Soft grey-beige
+      borderColor = const Color(0xFFEAE8E6); // Light border
+    } else {
+      // Normal styling for current month
+      backgroundColor = isWeekend ? AppColors.lightPeach.withOpacity(0.3) : Colors.white;
+      textColor = isWeekend ? AppColors.peach : AppColors.textDark;
+      borderColor = isToday ? AppColors.primaryTeal : AppColors.divider;
+    }
 
     return GestureDetector(
-      onTap: () => _showDayEvents(day, events),
+      onTap: () {
+        if (_isPaintMode) {
+          _handlePaintModeTap(day, events);
+        } else {
+          _showDayEvents(day, events);
+        }
+      },
       child: Container(
         margin: const EdgeInsets.all(0.5),
         decoration: BoxDecoration(
-          color: isWeekend ? AppColors.lightPeach.withOpacity(0.3) : AppColors.white,
+          color: backgroundColor,
           border: Border.all(
-            color: isToday ? AppColors.primaryTeal : AppColors.divider,
-            width: isToday ? 1.5 : 0.5,
+            color: borderColor,
+            width: isToday && isCurrentMonth ? 1.5 : 0.5,
           ),
           borderRadius: BorderRadius.circular(4),
         ),
@@ -398,8 +437,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 '${day.day}',
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
-                  color: isWeekend ? AppColors.peach : AppColors.textDark,
+                  fontWeight: isToday && isCurrentMonth ? FontWeight.bold : FontWeight.w500,
+                  color: textColor,
                 ),
               ),
             ),
@@ -409,36 +448,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                 child: events.isEmpty
                     ? const SizedBox()
-                    : ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        itemCount: events.length > 2 ? 2 : events.length,
-                        itemBuilder: (context, index) {
-                          final event = events[index];
-                          final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
-                          final eventColor = Color(0xFF000000 | colorValue);
-
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 1.5),
-                            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: eventColor,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            child: Text(
-                              event.title,
-                              style: const TextStyle(
-                                fontSize: 8,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.white,
-                                height: 1.1,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        },
-                      ),
+                    : _buildEventsList(events),
               ),
             ),
             // Show overflow indicator
@@ -458,6 +468,117 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEventsList(List<EventModel> events) {
+    // If there's a painted shift template event, show it prominently
+    final userAsync = ref.watch(currentUserDataProvider);
+
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: events.length > 2 ? 2 : events.length,
+      itemBuilder: (context, index) {
+        final event = events[index];
+        final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
+        final eventColor = Color(0xFF000000 | colorValue);
+
+        // Check if this is a painted template event
+        final isPaintedTemplate = event.notes?.contains('Painted from template:') ?? false;
+        String? templateAbbreviation;
+        if (isPaintedTemplate && event.notes != null) {
+          final match = RegExp(r'Painted from template: (.+)').firstMatch(event.notes!);
+          templateAbbreviation = match?.group(1);
+        }
+
+        // Format time
+        final startTime = DateFormat('HH:mm').format(event.startTime);
+        final endTime = DateFormat('HH:mm').format(event.endTime);
+        final timeRange = '$startTime-$endTime';
+
+        // Build display based on whether it's a painted template or regular event
+        if (isPaintedTemplate && templateAbbreviation != null) {
+          // Painted shift template - show template name, time, and owner
+          return Container(
+            margin: const EdgeInsets.only(bottom: 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+            decoration: BoxDecoration(
+              color: eventColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Template abbreviation (prominent)
+                Text(
+                  templateAbbreviation,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 1),
+                // Time range
+                Text(
+                  timeRange,
+                  style: const TextStyle(
+                    fontSize: 7,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.white,
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
+                ),
+                // Owner name
+                userAsync.when(
+                  data: (userData) => userData != null
+                      ? Text(
+                          userData.displayName ?? 'Me',
+                          style: TextStyle(
+                            fontSize: 6,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.white.withOpacity(0.9),
+                            height: 1.1,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : const SizedBox(),
+                  loading: () => const SizedBox(),
+                  error: (_, __) => const SizedBox(),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // Regular event - show title only
+          return Container(
+            margin: const EdgeInsets.only(bottom: 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
+            decoration: BoxDecoration(
+              color: eventColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: Text(
+              event.title,
+              style: const TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.w600,
+                color: AppColors.white,
+                height: 1.1,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -975,15 +1096,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildBottomNavButton(String label, int index, IconData icon) {
-    final isSelected = _selectedBottomIndex == index;
+    final isSelected = _selectedBottomIndex == index || (_isPaintMode && index == 0);
 
     return Expanded(
-      child: GestureDetector(
+      child: InkWell(
         onTap: () async {
-          setState(() => _selectedBottomIndex = index);
-
           // Handle navigation based on button
-          if (index == 1) { // Edit
+          if (index == 0) { // Paint
+            // Enter paint mode
+            setState(() {
+              _isPaintMode = true;
+              _selectedBottomIndex = 0;
+            });
+          } else if (index == 1) { // Edit
+            setState(() => _selectedBottomIndex = index);
             // Navigate to add event screen
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -991,6 +1117,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             );
           } else if (index == 2) { // Shifts
+            setState(() => _selectedBottomIndex = index);
             // Show available shifts bottom sheet
             final result = await showModalBottomSheet<Map<String, dynamic>?>(
               context: context,
@@ -1034,23 +1161,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             }
           }
         },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
                 color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1373,5 +1503,258 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       },
     );
+  }
+
+  Widget _buildPaintToolbar() {
+    final templatesAsync = ref.watch(userShiftTemplatesProvider);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColors.darkTeal,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Close/Exit Paint Mode button
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isPaintMode = false;
+                _selectedPaintTemplate = null;
+                _isEraseMode = false;
+                _selectedBottomIndex = 2;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.cream.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.close,
+                color: AppColors.darkTeal,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Scrollable template buttons
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  // Erase button
+                  _buildEraseButton(),
+                  const SizedBox(width: 8),
+
+                  // Template buttons
+                  templatesAsync.when(
+                    data: (templates) {
+                      if (templates.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'No shift templates. Create one in Shifts tab.',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 12,
+                            ),
+                          ),
+                        );
+                      }
+                      return Row(
+                        children: templates
+                            .map((template) => Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: _buildTemplateButton(template),
+                                ))
+                            .toList(),
+                      );
+                    },
+                    loading: () => const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                    error: (error, _) => Text(
+                      'Error loading templates',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEraseButton() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isEraseMode = !_isEraseMode;
+          if (_isEraseMode) {
+            _selectedPaintTemplate = null;
+          }
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: _isEraseMode ? AppColors.cream : AppColors.cream.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(8),
+          border: _isEraseMode ? Border.all(color: AppColors.peach, width: 2) : null,
+        ),
+        child: Text(
+          'Erase',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: _isEraseMode ? FontWeight.bold : FontWeight.w600,
+            color: AppColors.darkTeal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTemplateButton(ShiftTemplate template) {
+    final isSelected = _selectedPaintTemplate?.id == template.id;
+    final backgroundColor = Color(int.parse(template.backgroundColor.replaceFirst('#', '0xFF')));
+    final textColor = Color(int.parse(template.textColor.replaceFirst('#', '0xFF')));
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPaintTemplate = template;
+          _isEraseMode = false;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(8),
+          border: isSelected ? Border.all(color: AppColors.peach, width: 2) : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              template.abbreviation,
+              style: TextStyle(
+                fontSize: template.textSize,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+            if (template.schedule != null && template.schedule!.isNotEmpty)
+              Text(
+                template.schedule!,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: textColor.withOpacity(0.9),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handlePaintModeTap(DateTime day, List<EventModel> existingEvents) async {
+    if (_isEraseMode) {
+      // Erase all events on this day
+      if (existingEvents.isEmpty) {
+        return;
+      }
+
+      // Delete all events on this day
+      final firestoreService = ref.read(firestoreServiceProvider);
+      for (final event in existingEvents) {
+        await firestoreService.deleteEvent(event.eventId);
+      }
+    } else if (_selectedPaintTemplate != null) {
+      // Paint the selected template on this day
+      final template = _selectedPaintTemplate!;
+      final user = ref.read(authStateChangesProvider).value;
+
+      if (user == null) {
+        return;
+      }
+
+      // Parse schedule time if available, otherwise use default 9am-5pm
+      DateTime startTime;
+      DateTime endTime;
+
+      if (template.schedule != null && template.schedule!.contains('-')) {
+        // Try to parse schedule like "14:30-21:00" or "14.30-21.00"
+        try {
+          final parts = template.schedule!.split('-');
+          final startParts = parts[0].trim().replaceAll('.', ':').split(':');
+          final endParts = parts[1].trim().replaceAll('.', ':').split(':');
+
+          startTime = DateTime(
+            day.year,
+            day.month,
+            day.day,
+            int.parse(startParts[0]),
+            startParts.length > 1 ? int.parse(startParts[1]) : 0,
+          );
+
+          endTime = DateTime(
+            day.year,
+            day.month,
+            day.day,
+            int.parse(endParts[0]),
+            endParts.length > 1 ? int.parse(endParts[1]) : 0,
+          );
+        } catch (e) {
+          // If parsing fails, use default times
+          startTime = DateTime(day.year, day.month, day.day, 9, 0);
+          endTime = DateTime(day.year, day.month, day.day, 17, 0);
+        }
+      } else {
+        // Default times: 9am to 5pm
+        startTime = DateTime(day.year, day.month, day.day, 9, 0);
+        endTime = DateTime(day.year, day.month, day.day, 17, 0);
+      }
+
+      // Create event from template
+      final event = EventModel(
+        eventId: '', // Will be generated by Firestore
+        userId: user.uid,
+        title: template.name,
+        startTime: startTime,
+        endTime: endTime,
+        color: template.backgroundColor,
+        notes: 'Painted from template: ${template.abbreviation}',
+        source: EventSource.manual,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        version: 1,
+      );
+
+      final firestoreService = ref.read(firestoreServiceProvider);
+      await firestoreService.createEvent(event);
+    }
   }
 }
