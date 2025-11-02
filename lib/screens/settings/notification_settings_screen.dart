@@ -188,7 +188,7 @@ class _NotificationSettingsScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppColors.shadowLight,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -248,7 +248,7 @@ class _NotificationSettingsScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppColors.shadowLight,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -304,7 +304,7 @@ class _NotificationSettingsScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppColors.shadowLight,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -360,7 +360,7 @@ class _NotificationSettingsScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppColors.shadowLight,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -445,7 +445,7 @@ class _NotificationSettingsScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppColors.shadowLight,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),

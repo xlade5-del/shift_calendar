@@ -113,10 +113,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -133,7 +133,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             child: const Icon(
               Icons.calendar_today,
-              color: Colors.white,
+              color: AppColors.white,
               size: 24,
             ),
           ),
@@ -197,7 +197,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -239,7 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : AppColors.textGrey,
+              color: isSelected ? AppColors.white : AppColors.textGrey,
             ),
           ),
         ),
@@ -256,7 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -381,7 +381,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Container(
         margin: const EdgeInsets.all(0.5),
         decoration: BoxDecoration(
-          color: isWeekend ? AppColors.lightPeach.withOpacity(0.3) : Colors.white,
+          color: isWeekend ? AppColors.lightPeach.withOpacity(0.3) : AppColors.white,
           border: Border.all(
             color: isToday ? AppColors.primaryTeal : AppColors.divider,
             width: isToday ? 1.5 : 0.5,
@@ -430,7 +430,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               style: const TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: AppColors.white,
                                 height: 1.1,
                               ),
                               maxLines: 1,
@@ -530,7 +530,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           border: Border.all(color: AppColors.divider, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: AppColors.shadowLight,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -570,7 +570,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: AppColors.shadowLight,
             blurRadius: 6,
             offset: const Offset(0, 1),
           ),
@@ -639,7 +639,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   // Use the first event's color
                   final eventColor = Color(int.parse(dayEvents.first.color.replaceFirst('#', '0xFF')));
                   bgColor = eventColor.withOpacity(0.9);
-                  textColor = Colors.white;
+                  textColor = AppColors.white;
                 }
 
                 return Container(
@@ -686,7 +686,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppColors.shadowLight,
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -747,7 +747,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: AppColors.shadowLight,
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -778,7 +778,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       label: const Text('Manage Partner'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -798,7 +798,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       label: const Text('Invite Partner'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -841,7 +841,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: AppColors.shadowLight,
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -954,10 +954,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -1059,7 +1059,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _showWorkplaceSelector() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -1134,7 +1134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _showSettingsMenu() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -1219,7 +1219,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _showDayEvents(DateTime day, List<EventModel> events) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

@@ -205,7 +205,7 @@ class _ShiftConfigurationScreenState
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: AppColors.shadowLight,
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

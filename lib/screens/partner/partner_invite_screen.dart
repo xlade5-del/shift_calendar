@@ -209,7 +209,7 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: AppColors.shadow,
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -298,7 +298,7 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: AppColors.shadowLight,
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -369,7 +369,7 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: AppColors.shadowLight,
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),

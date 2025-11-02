@@ -22,7 +22,7 @@ class WelcomeScreen extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(error.toString()),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
             ),
           );
         }
@@ -116,17 +116,11 @@ class WelcomeScreen extends ConsumerWidget {
                     onPressed: authState.isLoading
                         ? null
                         : () => _handleGoogleSignIn(context, ref),
-                    icon: Image.asset(
-                      'assets/google_logo.png',
-                      height: 24,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.g_mobiledata, size: 24, color: Colors.white);
-                      },
-                    ),
+                    icon: const Icon(Icons.g_mobiledata, size: 24, color: AppColors.white),
                     label: const Text('Continue with Google'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryTeal,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -143,13 +137,13 @@ class WelcomeScreen extends ConsumerWidget {
                   // Apple Sign In Button (Placeholder - not implemented yet)
                   ElevatedButton.icon(
                     onPressed: null, // TODO: Implement Apple Sign In
-                    icon: const Icon(Icons.apple, color: Colors.white),
+                    icon: const Icon(Icons.apple, color: AppColors.white),
                     label: const Text('Continue with Apple'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.textDark,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.white,
                       disabledBackgroundColor: AppColors.textDark.withOpacity(0.5),
-                      disabledForegroundColor: Colors.white.withOpacity(0.5),
+                      disabledForegroundColor: AppColors.white.withOpacity(0.5),
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),

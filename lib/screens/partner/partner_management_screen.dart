@@ -149,7 +149,7 @@ class PartnerManagementScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: AppColors.shadowLight,
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -338,7 +338,7 @@ class PartnerManagementScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: AppColors.shadowLight,
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),

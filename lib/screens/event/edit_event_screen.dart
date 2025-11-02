@@ -31,7 +31,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     Colors.blue,
     Colors.green,
     Colors.orange,
-    Colors.red,
+    AppColors.error,
     Colors.purple,
     Colors.teal,
     Colors.pink,
@@ -467,7 +467,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                                 : null,
                           ),
                           child: isSelected
-                              ? const Icon(Icons.check, color: Colors.white)
+                              ? const Icon(Icons.check, color: AppColors.white)
                               : null,
                         ),
                       );

@@ -27,13 +27,21 @@ class AppColors {
   // Semantic Colors
   static const Color success = Color(0xFF2B7A78); // Using brand teal
   static const Color error = Color(0xFFD63031);
+  static const Color errorDark = Color(0xFFB71C1C); // Darker red for text on light backgrounds
+  static const Color errorLight = Color(0xFFFFEBEE); // Light red background for warnings
+  static const Color errorBorder = Color(0xFFEF5350); // Medium red for borders
   static const Color warning = Color(0xFFF4C49A); // Using brand peach
   static const Color info = Color(0xFFA8DADC); // Using brand mint
 
   // UI Element Colors
   static const Color cardBackground = Color(0xFFFFFFFF);
   static const Color divider = Color(0xFFDFE6E9);
-  static const Color shadow = Color(0x1A000000);
+  static const Color shadow = Color(0x1A000000); // 10% opacity - standard shadow
+  static const Color shadowLight = Color(0x0D000000); // 5% opacity - subtle shadow
+  static const Color shadowDark = Color(0x26000000); // 15% opacity - prominent shadow
+
+  // Overlay Colors
+  static const Color overlayLight = Color(0xB3FFFFFF); // 70% white overlay
 
   // Calendar Event Colors (keeping existing palette but adjusting to match theme)
   static const Color eventBlue = Color(0xFF4A90E2);

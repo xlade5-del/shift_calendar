@@ -32,7 +32,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
     Colors.blue,
     Colors.green,
     Colors.orange,
-    Colors.red,
+    AppColors.error,
     Colors.purple,
     Colors.teal,
     Colors.pink,
@@ -374,7 +374,7 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, color: Colors.white)
+                        ? const Icon(Icons.check, color: AppColors.white)
                         : null,
                   ),
                 );
