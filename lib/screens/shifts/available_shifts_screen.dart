@@ -59,11 +59,22 @@ class AvailableShiftsScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(top: 12, bottom: 8),
       child: Column(
         children: [
-          // Down chevron icon
-          const Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.white,
-            size: 32,
+          // Down chevron icon - tappable to auto-scroll
+          GestureDetector(
+            onTap: () {
+              if (scrollController != null && scrollController!.hasClients) {
+                scrollController!.animateTo(
+                  scrollController!.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              }
+            },
+            child: const Icon(
+              Icons.keyboard_arrow_down,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
           const SizedBox(height: 8),
 
@@ -163,17 +174,20 @@ class AvailableShiftsScreen extends ConsumerWidget {
       );
     }
 
-    return ListView.builder(
-      controller: scrollController,
+    return ReorderableListView.builder(
+      scrollController: scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: shifts.length + 1, // +1 for bottom spacing
+      itemCount: shifts.length,
+      onReorder: (int oldIndex, int newIndex) {
+        // Handle reordering logic here
+        // Note: Actual reordering would require provider methods to update the order
+        print('Reordered from $oldIndex to $newIndex');
+      },
       itemBuilder: (context, index) {
-        if (index == shifts.length) {
-          return const SizedBox(height: 80);
-        }
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _ShiftTemplateCard(shift: shifts[index]),
+        return _ShiftTemplateCard(
+          key: ValueKey(shifts[index].id),
+          shift: shifts[index],
+          index: index,
         );
       },
     );
@@ -182,8 +196,13 @@ class AvailableShiftsScreen extends ConsumerWidget {
 
 class _ShiftTemplateCard extends ConsumerWidget {
   final ShiftTemplate shift;
+  final int index;
 
-  const _ShiftTemplateCard({required this.shift});
+  const _ShiftTemplateCard({
+    super.key,
+    required this.shift,
+    required this.index,
+  });
 
   Color _parseColor(String hexColor) {
     try {
@@ -200,83 +219,89 @@ class _ShiftTemplateCard extends ConsumerWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
+      child: Material(
         color: AppColors.textDark,
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          // Colored badge
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                shift.abbreviation,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: shift.textSize,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                  height: 1.2,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          // Shift info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: InkWell(
+          onTap: () {
+            print('Card tapped for shift: ${shift.name}');
+            _showOptionsMenu(context, ref);
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            child: Row(
               children: [
-                Text(
-                  shift.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                // Colored badge
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                if (shift.schedule != null && shift.schedule!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    shift.schedule!,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textLight,
+                  child: Center(
+                    child: Text(
+                      shift.abbreviation,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: shift.textSize,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                        height: 1.2,
+                      ),
                     ),
                   ),
-                ],
+                ),
+                const SizedBox(width: 16),
+
+                // Shift info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        shift.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (shift.schedule != null && shift.schedule!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          shift.schedule!,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                // Drag handle - wrapped with ReorderableDragStartListener
+                // GestureDetector absorbs taps to prevent triggering card onTap
+                GestureDetector(
+                  onTap: () {}, // Absorb tap events
+                  child: ReorderableDragStartListener(
+                    index: index,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: const Icon(
+                        Icons.drag_handle,
+                        color: AppColors.textLight,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-
-          // Menu icon button
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                print('Menu button tapped for shift: ${shift.name}');
-                _showOptionsMenu(context, ref);
-              },
-              borderRadius: BorderRadius.circular(20),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.menu,
-                  color: AppColors.textLight,
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
