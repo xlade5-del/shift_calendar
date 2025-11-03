@@ -184,23 +184,11 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
 
     if (mounted) {
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Event deleted successfully!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
         Navigator.of(context).pop(true); // Return true to indicate change
       } else {
         setState(() {
           _isDeleting = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Failed to delete event. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
-        );
       }
     }
   }
@@ -217,14 +205,6 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
 
     // Validate times
     if (endDateTime.isBefore(startDateTime) || endDateTime.isAtSameMomentAs(startDateTime)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('End time must be after start time'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
       return;
     }
 
@@ -248,23 +228,8 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     final eventNotifier = ref.read(eventStateNotifierProvider.notifier);
     final success = await eventNotifier.updateEvent(updatedEvent);
 
-    if (mounted) {
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Event updated successfully!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        Navigator.of(context).pop(true); // Return true to indicate success
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Failed to update event. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+    if (mounted && success) {
+      Navigator.of(context).pop(true); // Return true to indicate success
     }
   }
 

@@ -119,14 +119,6 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
 
     final user = ref.read(currentFirebaseUserProvider);
     if (user == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Error: User not authenticated'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
       return;
     }
 
@@ -136,14 +128,6 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
 
     // Validate times
     if (endDateTime.isBefore(startDateTime) || endDateTime.isAtSameMomentAs(startDateTime)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('End time must be after start time'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
       return;
     }
 
@@ -165,23 +149,8 @@ class _AddEventScreenState extends ConsumerState<AddEventScreen> {
     final eventNotifier = ref.read(eventStateNotifierProvider.notifier);
     final eventId = await eventNotifier.createEvent(event);
 
-    if (mounted) {
-      if (eventId != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Event created successfully!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        Navigator.of(context).pop(true); // Return true to indicate success
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Failed to create event. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+    if (mounted && eventId != null) {
+      Navigator.of(context).pop(true); // Return true to indicate success
     }
   }
 

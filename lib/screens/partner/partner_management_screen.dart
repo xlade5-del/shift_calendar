@@ -441,32 +441,14 @@ class PartnerManagementScreen extends ConsumerWidget {
         Navigator.of(context).pop();
       }
 
-      // Show success message
+      // Navigate back to home
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Partner unlinked successfully'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-
-        // Navigate back to home
         Navigator.of(context).pop();
       }
     } catch (e) {
       // Close loading dialog
       if (context.mounted) {
         Navigator.of(context).pop();
-      }
-
-      // Show error message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to unlink partner: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
       }
     }
   }

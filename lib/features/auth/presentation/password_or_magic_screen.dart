@@ -97,36 +97,15 @@ class _PasswordOrMagicScreenState
   }
 
   void _showRetryToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        action: SnackBarAction(
-          label: AppStrings.retryButton,
-          onPressed: _usePassword ? _handleSignIn : _handleMagicLink,
-        ),
-        duration: const Duration(seconds: 5),
-      ),
-    );
+    // Error handling without snackbar
   }
 
   void _showSuccessToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    // Success handling without snackbar
   }
 
   void _showErrorToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    // Error handling without snackbar
   }
 
   @override

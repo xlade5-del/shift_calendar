@@ -149,14 +149,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ),
           );
 
-          // If event was created successfully, show success message
+          // If event was created successfully
           if (result == true && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Event added to calendar!'),
-                backgroundColor: AppColors.success,
-              ),
-            );
+            // Calendar will auto-update via stream
           }
         },
         child: const Icon(Icons.add, color: AppColors.white),

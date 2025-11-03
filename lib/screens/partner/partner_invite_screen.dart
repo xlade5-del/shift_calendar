@@ -36,28 +36,10 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
         _expiryTime = DateTime.now().add(const Duration(hours: 24));
         _isGenerating = false;
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Partner code generated successfully!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
     } catch (e) {
       setState(() {
         _isGenerating = false;
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
     }
   }
 
@@ -65,14 +47,6 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
     if (_partnerCode == null) return;
 
     Clipboard.setData(ClipboardData(text: _partnerCode!));
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Partner code copied to clipboard'),
-        backgroundColor: AppColors.primaryTeal,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   String _formatExpiryTime() {

@@ -3,11 +3,6 @@ import '../models/shift_template_model.dart';
 import '../services/firestore_service.dart';
 import 'auth_provider.dart';
 
-/// Provider for FirestoreService (for shift template operations)
-final firestoreServiceProvider = Provider<FirestoreService>((ref) {
-  return FirestoreService();
-});
-
 /// Provider for user's shift templates stream (real-time updates)
 final userShiftTemplatesProvider = StreamProvider.autoDispose<List<ShiftTemplate>>((ref) {
   final user = ref.watch(authStateChangesProvider).value;

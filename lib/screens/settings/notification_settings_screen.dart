@@ -84,25 +84,8 @@ class _NotificationSettingsScreenState
           'freeTime': _freeTime,
         },
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Settings saved successfully!'),
-            backgroundColor: AppColors.primaryTeal,
-          ),
-        );
-      }
     } catch (e) {
       print('Error saving notification settings: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save settings: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
     } finally {
       if (mounted) {
         setState(() {

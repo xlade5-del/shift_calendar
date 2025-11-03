@@ -118,12 +118,7 @@ class AvailableShiftsScreen extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       print('IMPORT SHIFTS button pressed');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Import shifts feature coming soon!'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                      // Import shifts feature coming soon
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryTeal,
@@ -322,17 +317,8 @@ class _ShiftTemplateCard extends ConsumerWidget {
                   try {
                     final deleteShiftTemplate = ref.read(deleteShiftTemplateProvider);
                     await deleteShiftTemplate(shift.id);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${shift.name} deleted')),
-                      );
-                    }
                   } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error deleting shift: $e')),
-                      );
-                    }
+                    // Handle error silently
                   }
                 }
               },
