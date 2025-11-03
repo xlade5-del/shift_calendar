@@ -8,6 +8,7 @@ import 'auth_provider.dart';
 // ============================================================================
 
 /// Provider for events stream (includes user and partner events)
+/// Takes a start date and loads 7 days of events
 final eventsStreamProvider = StreamProvider.family<List<EventModel>, DateTime>((ref, weekStart) {
   final user = ref.watch(currentFirebaseUserProvider);
 
@@ -19,6 +20,28 @@ final eventsStreamProvider = StreamProvider.family<List<EventModel>, DateTime>((
   final weekEnd = weekStart.add(const Duration(days: 7));
 
   return firestoreService.eventsForDateRangeStream(user.uid, weekStart, weekEnd);
+});
+
+/// Provider for month events stream (includes user and partner events for full month)
+/// Takes a month start date and loads the entire month plus overflow dates
+final monthEventsStreamProvider = StreamProvider.family<List<EventModel>, DateTime>((ref, monthStart) {
+  final user = ref.watch(currentFirebaseUserProvider);
+
+  if (user == null) {
+    return Stream.value([]);
+  }
+
+  final firestoreService = ref.watch(firestoreServiceProvider);
+
+  // Calculate the last day of the month
+  final monthEnd = DateTime(monthStart.year, monthStart.month + 1, 0, 23, 59, 59);
+
+  // Add extra days to cover overflow dates from previous/next month
+  // (usually up to 6 days before and 6 days after)
+  final rangeStart = monthStart.subtract(const Duration(days: 7));
+  final rangeEnd = monthEnd.add(const Duration(days: 7));
+
+  return firestoreService.eventsForDateRangeStream(user.uid, rangeStart, rangeEnd);
 });
 
 /// Provider for events for a specific week (one-time fetch)

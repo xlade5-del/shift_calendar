@@ -104,7 +104,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserDataProvider);
     final user = ref.watch(currentFirebaseUserProvider);
-    final eventsAsync = ref.watch(eventsStreamProvider(_monthStart));
+    final eventsAsync = ref.watch(monthEventsStreamProvider(_monthStart));
 
     return Scaffold(
       backgroundColor: AppColors.cream,
@@ -1347,6 +1347,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showDayEvents(DateTime day, List<EventModel> events) {
+    final currentUserData = ref.read(currentUserDataProvider);
+    final partnerData = ref.read(partnerDataProvider);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,
@@ -1404,6 +1407,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           final colorValue = int.parse(event.color.replaceFirst('#', ''), radix: 16);
                           final eventColor = Color(0xFF000000 | colorValue);
 
+                          // Check if this is a painted template event
+                          final isPaintedTemplate = event.notes?.contains('Painted from template:') ?? false;
+
+                          // Get owner name
+                          String? ownerName;
+                          if (isPaintedTemplate) {
+                            // Check current user data
+                            final currentUserValue = currentUserData.value;
+                            if (currentUserValue != null && event.userId == currentUserValue.uid) {
+                              ownerName = (currentUserValue.displayName ?? 'User').toUpperCase();
+                            } else {
+                              // Check partner data
+                              final partnerValue = partnerData.value;
+                              if (partnerValue != null && event.userId == partnerValue.uid) {
+                                ownerName = (partnerValue.displayName ?? 'Partner').toUpperCase();
+                              }
+                            }
+                          }
+
                           return InkWell(
                             onTap: () {
                               Navigator.pop(context);
@@ -1452,7 +1474,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             color: AppColors.textGrey,
                                           ),
                                         ),
-                                        if (event.notes != null && event.notes!.isNotEmpty) ...[
+                                        // Show owner name for painted templates, otherwise show notes
+                                        if (isPaintedTemplate && ownerName != null) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            ownerName!,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.textGrey,
+                                              letterSpacing: 0.5,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ] else if (event.notes != null && event.notes!.isNotEmpty && !isPaintedTemplate) ...[
                                           const SizedBox(height: 4),
                                           Text(
                                             event.notes!,
