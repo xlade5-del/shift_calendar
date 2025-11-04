@@ -10,8 +10,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
-    'shift_calendar_high_importance', // id
-    'Shift Calendar Notifications', // name
+    'velloshift_high_importance', // id
+    'VelloShift Notifications', // name
     description: 'This channel is used for important shift notifications.',
     importance: Importance.high,
   );

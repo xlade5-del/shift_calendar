@@ -32,3 +32,9 @@ final deleteShiftTemplateProvider = Provider<Future<void> Function(String)>((ref
   final firestoreService = ref.read(firestoreServiceProvider);
   return (templateId) => firestoreService.deleteShiftTemplate(templateId);
 });
+
+/// Provider for reordering shift templates
+final reorderShiftTemplatesProvider = Provider<Future<void> Function(List<ShiftTemplate>)>((ref) {
+  final firestoreService = ref.read(firestoreServiceProvider);
+  return (templates) => firestoreService.reorderShiftTemplates(templates);
+});

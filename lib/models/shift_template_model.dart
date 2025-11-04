@@ -9,6 +9,7 @@ class ShiftTemplate {
   final String textColor; // Hex color string
   final double textSize;
   final String? schedule; // Optional schedule info (e.g., "14:30-21:00")
+  final int sortOrder; // Order for displaying shifts (lower = first)
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -21,6 +22,7 @@ class ShiftTemplate {
     required this.textColor,
     required this.textSize,
     this.schedule,
+    required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -37,6 +39,7 @@ class ShiftTemplate {
       textColor: data['textColor'] as String,
       textSize: (data['textSize'] as num).toDouble(),
       schedule: data['schedule'] as String?,
+      sortOrder: (data['sortOrder'] as int?) ?? 0, // Default to 0 for backwards compatibility
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
     );
@@ -52,6 +55,7 @@ class ShiftTemplate {
       'textColor': textColor,
       'textSize': textSize,
       'schedule': schedule,
+      'sortOrder': sortOrder,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -67,6 +71,7 @@ class ShiftTemplate {
     String? textColor,
     double? textSize,
     String? schedule,
+    int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -79,6 +84,7 @@ class ShiftTemplate {
       textColor: textColor ?? this.textColor,
       textSize: textSize ?? this.textSize,
       schedule: schedule ?? this.schedule,
+      sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

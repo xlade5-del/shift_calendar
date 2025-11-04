@@ -515,12 +515,36 @@ class FirestoreService {
     }
   }
 
+  /// Batch update the sort order of multiple shift templates
+  Future<void> reorderShiftTemplates(List<ShiftTemplate> templates) async {
+    try {
+      final batch = _firestore.batch();
+
+      for (int i = 0; i < templates.length; i++) {
+        final updatedTemplate = templates[i].copyWith(
+          sortOrder: i,
+          updatedAt: DateTime.now(),
+        );
+
+        final docRef = _firestore
+            .collection(shiftTemplatesCollection)
+            .doc(updatedTemplate.id);
+
+        batch.update(docRef, updatedTemplate.toFirestore());
+      }
+
+      await batch.commit();
+    } catch (e) {
+      throw 'Error reordering shift templates: $e';
+    }
+  }
+
   /// Stream of shift templates for a specific user (real-time updates)
   Stream<List<ShiftTemplate>> userShiftTemplatesStream(String userId) {
     return _firestore
         .collection(shiftTemplatesCollection)
         .where('userId', isEqualTo: userId)
-        .orderBy('name')
+        .orderBy('sortOrder')
         .snapshots()
         .map((snapshot) {
       return snapshot.docs

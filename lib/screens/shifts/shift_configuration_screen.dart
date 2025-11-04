@@ -106,6 +106,19 @@ class _ShiftConfigurationScreenState
       if (user == null) throw 'User not authenticated';
 
       final now = DateTime.now();
+
+      // Determine sortOrder: preserve existing for updates, get next available for new
+      int sortOrder;
+      if (widget.template != null) {
+        // Updating existing template - preserve sortOrder
+        sortOrder = widget.template!.sortOrder;
+      } else {
+        // Creating new template - get count of existing templates for next sortOrder
+        final existingTemplates = await ref.read(firestoreServiceProvider)
+            .getUserShiftTemplates(user.uid);
+        sortOrder = existingTemplates.length;
+      }
+
       final template = ShiftTemplate(
         id: widget.template?.id ?? '',
         userId: user.uid,
@@ -115,6 +128,7 @@ class _ShiftConfigurationScreenState
         textColor: _colorToHex(_textColor),
         textSize: _textSize,
         schedule: null, // TODO: Implement schedule tab
+        sortOrder: sortOrder,
         createdAt: widget.template?.createdAt ?? now,
         updatedAt: now,
       );

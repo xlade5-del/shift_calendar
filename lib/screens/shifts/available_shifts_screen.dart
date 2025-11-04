@@ -178,10 +178,25 @@ class AvailableShiftsScreen extends ConsumerWidget {
       scrollController: scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: shifts.length,
-      onReorder: (int oldIndex, int newIndex) {
-        // Handle reordering logic here
-        // Note: Actual reordering would require provider methods to update the order
-        print('Reordered from $oldIndex to $newIndex');
+      onReorder: (int oldIndex, int newIndex) async {
+        // Adjust newIndex if moving down (ReorderableListView behavior)
+        if (oldIndex < newIndex) {
+          newIndex -= 1;
+        }
+
+        // Create a new list with reordered items
+        final reorderedShifts = List<ShiftTemplate>.from(shifts);
+        final item = reorderedShifts.removeAt(oldIndex);
+        reorderedShifts.insert(newIndex, item);
+
+        // Update the sort order in Firestore
+        try {
+          final reorderShiftTemplates = ref.read(reorderShiftTemplatesProvider);
+          await reorderShiftTemplates(reorderedShifts);
+        } catch (e) {
+          print('Error reordering shifts: $e');
+          // The UI will revert automatically since the stream hasn't updated
+        }
       },
       itemBuilder: (context, index) {
         return _ShiftTemplateCard(

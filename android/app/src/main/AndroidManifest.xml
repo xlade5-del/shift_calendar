@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
-        android:label="shift_calendar"
+        android:label="VelloShift"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -56,7 +56,7 @@
         <!-- Notification channel for Android 8.0+ -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="shift_calendar_high_importance" />
+            android:value="velloshift_high_importance" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
