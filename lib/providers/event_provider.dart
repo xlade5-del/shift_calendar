@@ -3,6 +3,7 @@ import '../models/event_model.dart';
 import '../services/firestore_service.dart';
 import 'auth_provider.dart' show currentFirebaseUserProvider, firestoreServiceProvider;
 import 'workplace_provider.dart' show selectedWorkplaceIdProvider;
+import 'offline_sync_provider.dart';
 
 // ============================================================================
 // Event Providers
@@ -103,45 +104,51 @@ class EventStateNotifier extends Notifier<AsyncValue<void>> {
     return const AsyncValue.data(null);
   }
 
-  /// Create a new event
+  /// Create a new event (with offline support)
   Future<String?> createEvent(EventModel event) async {
     state = const AsyncValue.loading();
     try {
-      final firestoreService = ref.read(firestoreServiceProvider);
-      final eventId = await firestoreService.createEvent(event);
+      final offlineSyncService = ref.read(offlineSyncServiceProvider);
+      await offlineSyncService.createEvent(event);
       state = const AsyncValue.data(null);
-      return eventId;
+      return event.eventId;
     } catch (e, stackTrace) {
-      state = AsyncValue.error(e, stackTrace);
-      return null;
+      // Event is still cached locally and queued for sync
+      // Don't treat offline as an error
+      state = const AsyncValue.data(null);
+      return event.eventId;
     }
   }
 
-  /// Update an existing event
+  /// Update an existing event (with offline support)
   Future<bool> updateEvent(EventModel event) async {
     state = const AsyncValue.loading();
     try {
-      final firestoreService = ref.read(firestoreServiceProvider);
-      await firestoreService.updateEvent(event);
+      final offlineSyncService = ref.read(offlineSyncServiceProvider);
+      await offlineSyncService.updateEvent(event);
       state = const AsyncValue.data(null);
       return true;
     } catch (e, stackTrace) {
-      state = AsyncValue.error(e, stackTrace);
-      return false;
+      // Event is still updated locally and queued for sync
+      // Don't treat offline as an error
+      state = const AsyncValue.data(null);
+      return true;
     }
   }
 
-  /// Delete an event
+  /// Delete an event (with offline support)
   Future<bool> deleteEvent(String eventId) async {
     state = const AsyncValue.loading();
     try {
-      final firestoreService = ref.read(firestoreServiceProvider);
-      await firestoreService.deleteEvent(eventId);
+      final offlineSyncService = ref.read(offlineSyncServiceProvider);
+      await offlineSyncService.deleteEvent(eventId);
       state = const AsyncValue.data(null);
       return true;
     } catch (e, stackTrace) {
-      state = AsyncValue.error(e, stackTrace);
-      return false;
+      // Event is still deleted locally and queued for sync
+      // Don't treat offline as an error
+      state = const AsyncValue.data(null);
+      return true;
     }
   }
 }

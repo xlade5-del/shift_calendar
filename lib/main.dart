@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/offline_sync_provider.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/notification_service.dart';
@@ -50,11 +51,20 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    // Initialize notification service when app starts
-    _initializeNotifications();
+    // Initialize services when app starts
+    _initializeServices();
   }
 
-  Future<void> _initializeNotifications() async {
+  Future<void> _initializeServices() async {
+    // Initialize offline sync service (auto-starts monitoring)
+    try {
+      ref.read(offlineSyncServiceProvider);
+      print('Offline sync service initialized successfully');
+    } catch (e) {
+      print('Error initializing offline sync: $e');
+    }
+
+    // Initialize notification service
     try {
       final notificationService = ref.read(notificationServiceProvider);
       await notificationService.initialize();
