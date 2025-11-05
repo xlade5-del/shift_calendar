@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/event_model.dart';
 import '../services/firestore_service.dart';
-import 'auth_provider.dart';
+import 'auth_provider.dart' show currentFirebaseUserProvider, firestoreServiceProvider;
+import 'workplace_provider.dart' show selectedWorkplaceIdProvider;
 
 // ============================================================================
 // Event Providers
@@ -72,6 +73,24 @@ final combinedEventsProvider = FutureProvider<List<EventModel>>((ref) async {
 
   final firestoreService = ref.watch(firestoreServiceProvider);
   return await firestoreService.getCombinedEvents(user.uid);
+});
+
+/// Provider for month events filtered by selected workplace
+final filteredMonthEventsProvider = Provider.family<List<EventModel>, DateTime>((ref, monthStart) {
+  final monthEvents = ref.watch(monthEventsStreamProvider(monthStart));
+  final selectedWorkplaceId = ref.watch(selectedWorkplaceIdProvider);
+
+  return monthEvents.when(
+    data: (events) {
+      // If no workplace selected, show all events
+      if (selectedWorkplaceId == null) return events;
+
+      // Filter events by workplace
+      return events.where((event) => event.workplaceId == selectedWorkplaceId).toList();
+    },
+    loading: () => [],
+    error: (_, __) => [],
+  );
 });
 
 // ============================================================================

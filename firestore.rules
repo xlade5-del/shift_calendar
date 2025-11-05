@@ -99,6 +99,24 @@ service cloud.firestore {
     }
 
     // ============================================================================
+    // WORKPLACES COLLECTION
+    // ============================================================================
+    match /workplaces/{workplaceId} {
+      // Users can read their own workplaces
+      allow read: if isSignedIn() && isOwner(resource.data.userId);
+
+      // Users can only create workplaces for themselves
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid;
+
+      // Users can only update/delete their own workplaces
+      allow update: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================================================
     // DEFAULT DENY
     // ============================================================================
     // Deny all other access by default

@@ -3,6 +3,7 @@ import 'dart:math';
 import '../models/user_model.dart';
 import '../models/event_model.dart';
 import '../models/shift_template_model.dart';
+import '../models/workplace_model.dart';
 
 /// Service for managing Firestore database operations
 /// Handles user data, partner linking, and partner code generation
@@ -14,6 +15,7 @@ class FirestoreService {
   static const String partnerCodesCollection = 'partnerCodes';
   static const String eventsCollection = 'events';
   static const String shiftTemplatesCollection = 'shiftTemplates';
+  static const String workplacesCollection = 'workplaces';
 
   /// Get user data by user ID
   Future<UserModel?> getUserData(String uid) async {
@@ -551,5 +553,137 @@ class FirestoreService {
           .map((doc) => ShiftTemplate.fromFirestore(doc))
           .toList();
     });
+  }
+
+  // ============================================================================
+  // WORKPLACE METHODS
+  // ============================================================================
+
+  /// Create a new workplace for the user
+  Future<WorkplaceModel> createWorkplace({
+    required String userId,
+    required String name,
+    required int order,
+  }) async {
+    try {
+      final now = DateTime.now();
+      final docRef = _firestore.collection(workplacesCollection).doc();
+
+      final workplace = WorkplaceModel(
+        workplaceId: docRef.id,
+        userId: userId,
+        name: name,
+        order: order,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      await docRef.set(workplace.toFirestore());
+      return workplace;
+    } catch (e) {
+      throw 'Error creating workplace: $e';
+    }
+  }
+
+  /// Update an existing workplace
+  Future<void> updateWorkplace(String workplaceId, {String? name, int? order}) async {
+    try {
+      final updates = <String, dynamic>{
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      };
+
+      if (name != null) updates['name'] = name;
+      if (order != null) updates['order'] = order;
+
+      await _firestore
+          .collection(workplacesCollection)
+          .doc(workplaceId)
+          .update(updates);
+    } catch (e) {
+      throw 'Error updating workplace: $e';
+    }
+  }
+
+  /// Delete a workplace
+  Future<void> deleteWorkplace(String workplaceId) async {
+    try {
+      await _firestore.collection(workplacesCollection).doc(workplaceId).delete();
+    } catch (e) {
+      throw 'Error deleting workplace: $e';
+    }
+  }
+
+  /// Get all workplaces for a specific user
+  Future<List<WorkplaceModel>> getUserWorkplaces(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection(workplacesCollection)
+          .where('userId', isEqualTo: userId)
+          .orderBy('order')
+          .get();
+
+      return snapshot.docs
+          .map((doc) => WorkplaceModel.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      throw 'Error fetching user workplaces: $e';
+    }
+  }
+
+  /// Stream of workplaces for a specific user (real-time updates)
+  Stream<List<WorkplaceModel>> userWorkplacesStream(String userId) {
+    return _firestore
+        .collection(workplacesCollection)
+        .where('userId', isEqualTo: userId)
+        .orderBy('order')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => WorkplaceModel.fromFirestore(doc))
+          .toList();
+    });
+  }
+
+  /// Batch update the order of multiple workplaces
+  Future<void> reorderWorkplaces(List<WorkplaceModel> workplaces) async {
+    try {
+      final batch = _firestore.batch();
+
+      for (int i = 0; i < workplaces.length; i++) {
+        final updatedWorkplace = workplaces[i].copyWith(
+          order: i,
+          updatedAt: DateTime.now(),
+        );
+
+        final docRef = _firestore
+            .collection(workplacesCollection)
+            .doc(updatedWorkplace.workplaceId);
+
+        batch.update(docRef, updatedWorkplace.toFirestore());
+      }
+
+      await batch.commit();
+    } catch (e) {
+      throw 'Error reordering workplaces: $e';
+    }
+  }
+
+  /// Initialize default workplaces for a new user
+  Future<List<WorkplaceModel>> initializeDefaultWorkplaces(String userId) async {
+    try {
+      final workplaces = <WorkplaceModel>[];
+
+      // Create first default workplace
+      final defaultWorkplace = await createWorkplace(
+        userId: userId,
+        name: 'My Workplace',
+        order: 0,
+      );
+      workplaces.add(defaultWorkplace);
+
+      return workplaces;
+    } catch (e) {
+      throw 'Error initializing default workplaces: $e';
+    }
   }
 }

@@ -54,12 +54,14 @@ class ConflictDetector {
 
   /// Get a list of all conflict pairs (avoiding duplicates)
   /// Returns list of [userEvent, partnerEvent] pairs
+  /// Only includes conflicts where at least one event hasn't ended yet (future conflicts)
   static List<ConflictPair> getConflictPairs(
     List<EventModel> allEvents,
     String currentUserId,
   ) {
     final pairs = <ConflictPair>[];
     final processedPairs = <String>{};
+    final now = DateTime.now();
 
     final userEvents = allEvents.where((e) => e.userId == currentUserId).toList();
     final partnerEvents = allEvents.where((e) => e.userId != currentUserId).toList();
@@ -67,6 +69,17 @@ class ConflictDetector {
     for (final userEvent in userEvents) {
       for (final partnerEvent in partnerEvents) {
         if (eventsOverlap(userEvent, partnerEvent)) {
+          // Only include conflicts where the conflict hasn't ended yet
+          // Get the later end time of the two events (when the conflict ends)
+          final conflictEndTime = userEvent.endTime.isAfter(partnerEvent.endTime)
+              ? userEvent.endTime
+              : partnerEvent.endTime;
+
+          // Skip if the conflict has already ended (is in the past)
+          if (conflictEndTime.isBefore(now)) {
+            continue;
+          }
+
           // Create a unique key to avoid duplicates
           final pairKey = '${userEvent.eventId}_${partnerEvent.eventId}';
 

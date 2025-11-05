@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../providers/event_provider.dart';
+import '../providers/workplace_provider.dart';
 import '../models/event_model.dart';
+import '../models/workplace_model.dart';
 import '../utils/app_colors.dart';
+import '../utils/conflict_detector.dart';
 import 'partner/partner_invite_screen.dart';
 import 'partner/partner_accept_screen.dart';
 import 'partner/partner_management_screen.dart';
@@ -31,7 +34,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   DateTime _selectedDate = DateTime.now();
   int _selectedTabIndex = 0; // 0: Month, 1: Year, 2: Summary
   int _selectedBottomIndex = 2; // 0: Paint, 1: Edit, 2: Shifts
-  String _selectedWorkplace = 'My Workplace';
 
   // Paint mode state
   bool _isPaintMode = false;
@@ -104,7 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserDataProvider);
     final user = ref.watch(currentFirebaseUserProvider);
-    final eventsAsync = ref.watch(monthEventsStreamProvider(_monthStart));
+    final filteredEvents = ref.watch(filteredMonthEventsProvider(_monthStart));
 
     return Scaffold(
       backgroundColor: AppColors.cream,
@@ -120,7 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // Calendar Content
             Expanded(
               child: _selectedTabIndex == 0
-                  ? _buildMonthCalendarView(eventsAsync)
+                  ? _buildMonthCalendarView(filteredEvents)
                   : _selectedTabIndex == 1
                       ? _buildYearView()
                       : _buildSummaryView(userAsync, user),
@@ -177,13 +179,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        _selectedWorkplace,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark,
-                        ),
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          final selectedWorkplace = ref.watch(selectedWorkplaceProvider);
+                          return Text(
+                            selectedWorkplace?.name ?? 'My Workplace',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textDark,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const Icon(
@@ -272,7 +279,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildMonthCalendarView(AsyncValue<List<EventModel>> eventsAsync) {
+  Widget _buildMonthCalendarView(List<EventModel> events) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.all(12),
@@ -337,15 +344,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           // Calendar Grid - expands to fill available space
           Expanded(
-            child: eventsAsync.when(
-              data: (events) => _buildCalendarGrid(events),
-              loading: () => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              error: (error, _) => Center(
-                child: Text('Error loading events: $error'),
-              ),
-            ),
+            child: _buildCalendarGrid(events),
           ),
         ],
       ),
@@ -477,6 +476,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       padding: EdgeInsets.zero,
       itemCount: events.length > 2 ? 2 : events.length,
       itemBuilder: (context, index) {
@@ -1072,6 +1072,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildBottomNavigation() {
+    final filteredEvents = ref.watch(filteredMonthEventsProvider(_monthStart));
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
@@ -1087,16 +1089,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildBottomNavButton('PAINT', 0, Icons.brush),
-          _buildBottomNavButton('EDIT', 1, Icons.edit),
-          _buildBottomNavButton('SHIFTS', 2, Icons.event),
+          _buildBottomNavButton('PAINT', 0, Icons.brush, events: filteredEvents),
+          _buildBottomNavButton('CONFLICTS', 1, Icons.warning_amber_rounded, events: filteredEvents),
+          _buildBottomNavButton('SHIFTS', 2, Icons.event, events: filteredEvents),
         ],
       ),
     );
   }
 
-  Widget _buildBottomNavButton(String label, int index, IconData icon) {
+  Widget _buildBottomNavButton(String label, int index, IconData icon, {required List<EventModel> events}) {
     final isSelected = _selectedBottomIndex == index || (_isPaintMode && index == 0);
+
+    // Calculate conflicts if this is the conflicts button
+    int conflictCount = 0;
+    if (index == 1 && label == 'CONFLICTS') {
+      final user = ref.read(authStateChangesProvider).value;
+      if (user != null) {
+        final conflicts = ConflictDetector.getConflictPairs(events, user.uid);
+        conflictCount = conflicts.length;
+      }
+    }
 
     return Expanded(
       child: InkWell(
@@ -1108,14 +1120,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _isPaintMode = true;
               _selectedBottomIndex = 0;
             });
-          } else if (index == 1) { // Edit
+          } else if (index == 1) { // Conflicts
             setState(() => _selectedBottomIndex = index);
-            // Navigate to add event screen
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AddEventScreen(initialDate: _selectedDate),
-              ),
-            );
+            // Show conflicts dialog
+            _showConflictsDialog();
           } else if (index == 2) { // Shifts
             setState(() => _selectedBottomIndex = index);
             // Show available shifts bottom sheet
@@ -1166,9 +1174,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
+              // Show badge for conflicts button if there are conflicts
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    icon,
+                    color: index == 1 && conflictCount > 0
+                        ? AppColors.error
+                        : (isSelected ? AppColors.primaryTeal : AppColors.textGrey),
+                  ),
+                  if (index == 1 && conflictCount > 0)
+                    Positioned(
+                      right: -8,
+                      top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Text(
+                          '$conflictCount',
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 4),
               Text(
@@ -1176,7 +1217,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? AppColors.primaryTeal : AppColors.textGrey,
+                  color: index == 1 && conflictCount > 0
+                      ? AppColors.error
+                      : (isSelected ? AppColors.primaryTeal : AppColors.textGrey),
                 ),
               ),
             ],
@@ -1187,45 +1230,105 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showWorkplaceSelector() {
+    final workplacesAsync = ref.read(workplacesStreamProvider);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Select Workplace',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                ),
+        return Consumer(
+          builder: (context, ref, child) {
+            final workplacesAsync = ref.watch(workplacesStreamProvider);
+            final selectedWorkplaceId = ref.watch(selectedWorkplaceIdProvider);
+
+            return workplacesAsync.when(
+              data: (workplaces) {
+                return Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Select Workplace',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          if (workplaces.length < 5)
+                            IconButton(
+                              icon: const Icon(Icons.add_circle, color: AppColors.primaryTeal),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                _showAddWorkplaceDialog();
+                              },
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      if (workplaces.isEmpty)
+                        Center(
+                          child: Column(
+                            children: [
+                              const Icon(Icons.business, size: 48, color: AppColors.textGrey),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No workplaces yet',
+                                style: TextStyle(color: AppColors.textGrey),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _showAddWorkplaceDialog();
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text('Add Workplace'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryTeal,
+                                  foregroundColor: AppColors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...workplaces.map((workplace) =>
+                          _buildWorkplaceOption(workplace, selectedWorkplaceId)),
+                    ],
+                  ),
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.all(48.0),
+                child: Center(child: CircularProgressIndicator()),
               ),
-              const SizedBox(height: 20),
-              _buildWorkplaceOption('My Workplace'),
-              _buildWorkplaceOption('Hospital A'),
-              _buildWorkplaceOption('Hospital B'),
-              _buildWorkplaceOption('Clinic C'),
-            ],
-          ),
+              error: (error, _) => Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text('Error: $error'),
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildWorkplaceOption(String name) {
-    final isSelected = _selectedWorkplace == name;
+  Widget _buildWorkplaceOption(WorkplaceModel workplace, String? selectedId) {
+    final isSelected = selectedId == workplace.workplaceId;
 
     return InkWell(
       onTap: () {
-        setState(() => _selectedWorkplace = name);
+        ref.read(selectedWorkplaceIdProvider.notifier).select(workplace.workplaceId);
         Navigator.pop(context);
       },
       child: Container(
@@ -1245,7 +1348,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                name,
+                workplace.name,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -1253,10 +1356,144 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
+            IconButton(
+              icon: const Icon(Icons.edit, size: 20),
+              color: AppColors.textGrey,
+              onPressed: () {
+                Navigator.pop(context);
+                _showEditWorkplaceDialog(workplace);
+              },
+            ),
             if (isSelected)
-              Icon(Icons.check_circle, color: AppColors.primaryTeal),
+              const Icon(Icons.check_circle, color: AppColors.primaryTeal),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showAddWorkplaceDialog() async {
+    final workplacesAsync = ref.read(workplacesStreamProvider);
+    final workplaces = workplacesAsync.value ?? [];
+
+    if (workplaces.length >= 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Maximum 5 workplaces allowed')),
+      );
+      return;
+    }
+
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Workplace'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Workplace name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.trim().isEmpty) return;
+
+              try {
+                final operations = ref.read(workplaceOperationsProvider);
+                await operations.createWorkplace(
+                  controller.text.trim(),
+                  workplaces.length,
+                );
+                if (mounted) Navigator.pop(context);
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryTeal,
+              foregroundColor: AppColors.white,
+            ),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditWorkplaceDialog(WorkplaceModel workplace) {
+    final controller = TextEditingController(text: workplace.name);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Workplace'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Workplace name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              try {
+                final operations = ref.read(workplaceOperationsProvider);
+                await operations.deleteWorkplace(workplace.workplaceId);
+                if (mounted) Navigator.pop(context);
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.trim().isEmpty) return;
+
+              try {
+                final operations = ref.read(workplaceOperationsProvider);
+                await operations.updateWorkplaceName(
+                  workplace.workplaceId,
+                  controller.text.trim(),
+                );
+                if (mounted) Navigator.pop(context);
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryTeal,
+              foregroundColor: AppColors.white,
+            ),
+            child: const Text('Save'),
+          ),
+        ],
       ),
     );
   }
@@ -1539,6 +1776,197 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       },
     );
+  }
+
+  void _showConflictsDialog() {
+    final filteredEvents = ref.read(filteredMonthEventsProvider(_monthStart));
+    final user = ref.read(authStateChangesProvider).value;
+    final currentUserData = ref.read(currentUserDataProvider);
+    final partnerData = ref.read(partnerDataProvider);
+
+    if (user == null) return;
+
+    final conflicts = ConflictDetector.getConflictPairs(filteredEvents, user.uid);
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: AppColors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: conflicts.isEmpty ? AppColors.primaryTeal : AppColors.error,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    conflicts.isEmpty ? 'No Conflicts' : 'Schedule Conflicts',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: conflicts.isEmpty
+                  ? const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 64,
+                          color: AppColors.primaryTeal,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'No scheduling conflicts found for this month.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textGrey,
+                          ),
+                        ),
+                      ],
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: conflicts.length,
+                      itemBuilder: (context, index) {
+                        final conflict = conflicts[index];
+
+                        // Get owner names
+                        String userName = 'You';
+                        String partnerName = 'Partner';
+
+                        currentUserData.whenData((userData) {
+                          if (userData != null) {
+                            userName = userData.displayName ?? 'You';
+                          }
+                        });
+
+                        partnerData.whenData((partner) {
+                          if (partner != null) {
+                            partnerName = partner.displayName ?? 'Partner';
+                          }
+                        });
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.errorLight,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.error, width: 1.5),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Date
+                              Text(
+                                DateFormat('EEEE, MMM d').format(conflict.userEvent.startTime),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              // Your event
+                              Row(
+                                children: [
+                                  Icon(Icons.person, size: 16, color: AppColors.error),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$userName: ',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${conflict.userEvent.title} (${DateFormat('h:mm a').format(conflict.userEvent.startTime)} - ${DateFormat('h:mm a').format(conflict.userEvent.endTime)})',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textDark,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              // Partner event
+                              Row(
+                                children: [
+                                  Icon(Icons.people, size: 16, color: AppColors.error),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$partnerName: ',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${conflict.partnerEvent.title} (${DateFormat('h:mm a').format(conflict.partnerEvent.startTime)} - ${DateFormat('h:mm a').format(conflict.partnerEvent.endTime)})',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textDark,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              // Overlap info
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.error,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Overlap: ${conflict.overlapTimeRange}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryTeal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
   }
 
   Widget _buildPaintToolbar() {

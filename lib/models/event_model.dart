@@ -12,6 +12,7 @@ class EventModel {
   final EventSource source;
   final String? icalUid; // For iCal synced events
   final int version; // For conflict resolution
+  final String? workplaceId; // Optional workplace association
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -26,6 +27,7 @@ class EventModel {
     required this.source,
     this.icalUid,
     this.version = 1,
+    this.workplaceId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -45,6 +47,7 @@ class EventModel {
       source: EventSource.fromString(data['source'] as String),
       icalUid: data['icalUid'] as String?,
       version: data['version'] as int? ?? 1,
+      workplaceId: data['workplaceId'] as String?,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
     );
@@ -62,6 +65,7 @@ class EventModel {
       'source': source.toString().split('.').last,
       'icalUid': icalUid,
       'version': version,
+      'workplaceId': workplaceId,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -79,6 +83,7 @@ class EventModel {
     EventSource? source,
     String? icalUid,
     int? version,
+    String? workplaceId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -93,6 +98,7 @@ class EventModel {
       source: source ?? this.source,
       icalUid: icalUid ?? this.icalUid,
       version: version ?? this.version,
+      workplaceId: workplaceId ?? this.workplaceId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -46,7 +46,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
 
     // Pre-populate fields with existing event data
     _titleController = TextEditingController(text: widget.event.title);
-    _notesController = TextEditingController(text: widget.event.notes ?? '');
+    _notesController = TextEditingController(text: _getEditableNotes(widget.event.notes));
 
     _startDate = DateTime(
       widget.event.startTime.year,
@@ -64,6 +64,39 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
 
     // Parse color from hex string
     _selectedColor = _parseColor(widget.event.color);
+  }
+
+  /// Check if this is a painted template event
+  bool get _isPaintedTemplate {
+    final notes = widget.event.notes ?? '';
+    return notes.contains('Painted from template:');
+  }
+
+  /// Get editable notes (filter out internal metadata)
+  String _getEditableNotes(String? notes) {
+    if (notes == null || notes.isEmpty) {
+      return '';
+    }
+
+    // If notes contain "Painted from template:", extract only user notes
+    if (notes.contains('Painted from template:')) {
+      final lines = notes.split('\n');
+      // Find the first line that starts with "Painted from template:"
+      final templateLineIndex = lines.indexWhere((line) => line.startsWith('Painted from template:'));
+
+      if (templateLineIndex == -1) {
+        return notes; // Shouldn't happen, but return as-is
+      }
+
+      // Get all lines after the template line (skipping empty lines)
+      final userNotesLines = lines.skip(templateLineIndex + 1)
+          .where((line) => line.trim().isNotEmpty)
+          .toList();
+
+      return userNotesLines.join('\n');
+    }
+
+    return notes;
   }
 
   @override
@@ -208,6 +241,27 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
       return;
     }
 
+    // Preserve "Painted from template:" prefix if it exists
+    String? finalNotes;
+    final originalNotes = widget.event.notes ?? '';
+    final userNotes = _notesController.text.trim();
+
+    if (originalNotes.startsWith('Painted from template:')) {
+      // Extract the template prefix (e.g., "Painted from template: WD 3")
+      final templatePrefix = originalNotes.split('\n').first;
+
+      if (userNotes.isEmpty) {
+        // No custom notes, keep template prefix only
+        finalNotes = templatePrefix;
+      } else {
+        // Combine template prefix with user notes
+        finalNotes = '$templatePrefix\n\n$userNotes';
+      }
+    } else {
+      // Not a template event, use user notes as-is
+      finalNotes = userNotes.isEmpty ? null : userNotes;
+    }
+
     // Create updated event model
     final updatedEvent = EventModel(
       eventId: widget.event.eventId,
@@ -215,7 +269,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
       title: _titleController.text.trim(),
       startTime: startDateTime,
       endTime: endDateTime,
-      notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+      notes: finalNotes,
       color: '#${_selectedColor.value.toRadixString(16).substring(2)}',
       source: widget.event.source,
       icalUid: widget.event.icalUid,
@@ -403,42 +457,44 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Color picker
-                  Text('Color', style: TextStyle(
-                    color: AppColors.textDark,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  )),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: _colorOptions.map((color) {
-                      final isSelected = _selectedColor == color;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedColor = color;
-                          });
-                        },
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: isSelected
-                                ? Border.all(color: AppColors.textDark, width: 3)
+                  // Color picker - hidden for painted template events
+                  if (!_isPaintedTemplate) ...[
+                    Text('Color', style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    )),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: _colorOptions.map((color) {
+                        final isSelected = _selectedColor == color;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedColor = color;
+                            });
+                          },
+                          child: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                              border: isSelected
+                                  ? Border.all(color: AppColors.textDark, width: 3)
+                                  : null,
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check, color: AppColors.white)
                                 : null,
                           ),
-                          child: isSelected
-                              ? const Icon(Icons.check, color: AppColors.white)
-                              : null,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Notes field
                   TextFormField(
