@@ -131,9 +131,12 @@ class OfflineSyncService {
   }) async {
     if (await hasConnectivity()) {
       try {
-        // Get from Firestore
+        // Calculate month end
+        final monthEnd = DateTime(monthStart.year, monthStart.month + 1, 0, 23, 59, 59);
+
+        // Get from Firestore using date range
         final events =
-            await _firestoreService.getMonthEvents(userId, monthStart);
+            await _firestoreService.getEventsForDateRange(userId, monthStart, monthEnd);
 
         // Update cache
         await _dbHelper.cacheEvents(events);
@@ -301,8 +304,12 @@ class OfflineSyncService {
     }
 
     try {
+      // Calculate month end
+      final monthEnd = DateTime(monthStart.year, monthStart.month + 1, 0, 23, 59, 59);
+
+      // Get from Firestore using date range
       final events =
-          await _firestoreService.getMonthEvents(userId, monthStart);
+          await _firestoreService.getEventsForDateRange(userId, monthStart, monthEnd);
       await _dbHelper.cacheEvents(events);
     } catch (e) {
       rethrow;

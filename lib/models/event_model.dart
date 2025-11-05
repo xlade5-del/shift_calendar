@@ -71,6 +71,44 @@ class EventModel {
     };
   }
 
+  /// Convert EventModel to JSON (for SQLite storage)
+  Map<String, dynamic> toJson() {
+    return {
+      'eventId': eventId,
+      'userId': userId,
+      'title': title,
+      'startTime': startTime.millisecondsSinceEpoch,
+      'endTime': endTime.millisecondsSinceEpoch,
+      'notes': notes,
+      'color': color,
+      'source': source.toString().split('.').last,
+      'icalUid': icalUid,
+      'version': version,
+      'workplaceId': workplaceId,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'updatedAt': updatedAt.millisecondsSinceEpoch,
+    };
+  }
+
+  /// Create EventModel from JSON (for SQLite retrieval)
+  factory EventModel.fromJson(Map<String, dynamic> json) {
+    return EventModel(
+      eventId: json['eventId'] as String,
+      userId: json['userId'] as String,
+      title: json['title'] as String,
+      startTime: DateTime.fromMillisecondsSinceEpoch(json['startTime'] as int),
+      endTime: DateTime.fromMillisecondsSinceEpoch(json['endTime'] as int),
+      notes: json['notes'] as String?,
+      color: json['color'] as String,
+      source: EventSource.fromString(json['source'] as String),
+      icalUid: json['icalUid'] as String?,
+      version: json['version'] as int? ?? 1,
+      workplaceId: json['workplaceId'] as String?,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int),
+    );
+  }
+
   /// Create a copy of this event with updated fields
   EventModel copyWith({
     String? eventId,
