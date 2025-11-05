@@ -13,6 +13,7 @@ import 'partner/partner_accept_screen.dart';
 import 'partner/partner_management_screen.dart';
 import 'calendar/calendar_screen.dart';
 import 'settings/notification_settings_screen.dart';
+import 'settings/ical_import_screen.dart';
 import 'event/add_event_screen.dart';
 import 'event/edit_event_screen.dart';
 import 'shifts/available_shifts_screen.dart';
@@ -1519,6 +1520,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const PartnerManagementScreen(),
+                  ),
+                );
+              }),
+              _buildSettingsOption('iCal Import', Icons.cloud_download, () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const IcalImportScreen(),
                   ),
                 );
               }),
