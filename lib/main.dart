@@ -9,7 +9,9 @@ import 'providers/offline_sync_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/onboarding/onboarding_screen.dart';
 import 'services/notification_service.dart';
+import 'services/onboarding_service.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -100,12 +102,34 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
 
     return authState.when(
       data: (user) {
-        // If user is logged in, show home screen
-        if (user != null) {
-          return const HomeScreen();
-        }
         // If user is not logged in, show welcome screen
-        return const WelcomeScreen();
+        if (user == null) {
+          return const WelcomeScreen();
+        }
+
+        // If user is logged in, check onboarding status
+        return FutureBuilder<bool>(
+          future: OnboardingService().hasCompletedOnboarding(),
+          builder: (context, snapshot) {
+            // Show loading while checking onboarding status
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            // If onboarding not complete, show onboarding screen
+            final hasCompletedOnboarding = snapshot.data ?? false;
+            if (!hasCompletedOnboarding) {
+              return const OnboardingScreen();
+            }
+
+            // If onboarding complete, show home screen
+            return const HomeScreen();
+          },
+        );
       },
       loading: () => const Scaffold(
         body: Center(

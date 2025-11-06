@@ -73,6 +73,9 @@ dependencies:
   # Image Picker
   image_picker: ^1.1.2
 
+  # Page Indicator
+  smooth_page_indicator: ^1.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
