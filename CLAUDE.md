@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Shift Calendar for Couples** is a cross-platform Flutter mobile application designed to eliminate scheduling friction for couples managing complex, rotating work schedules. The app provides real-time calendar synchronization across iOS and Android with automatic conflict detection and iCal integration.
+**VelloShift** (formerly "Shift Calendar for Couples") is a cross-platform Flutter mobile application designed to eliminate scheduling friction for couples managing complex, rotating work schedules. The app provides real-time calendar synchronization across iOS and Android with automatic conflict detection and iCal integration.
 
 **Mission:** Helping couples find more time together — not just sync their shifts.
 
@@ -12,8 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Implementation Status
 
-**Phase:** Homepage UI/UX Enhancement - COMPLETE ✅
-**Last Updated:** October 28, 2025
+**Phase:** Week 17-20: Offline Mode & iCal Integration - IN PROGRESS ⏳
+**Last Updated:** November 6, 2025
 
 ### ✅ Completed (Weeks 1-12)
 
@@ -159,15 +159,83 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Time: 2.5 hours (under 3-hour estimate)
 - Status: Ready for Week 17-20
 
-### ⏳ Next Phase: Week 17-20 (Offline Mode & iCal Integration)
-**Planned:**
+**Week 17-20: Offline Mode & iCal Integration (November 3-6, 2025 - IN PROGRESS ⏳)**
+
+✅ **Completed:**
+- **Offline Mode Implementation (COMPLETE ✅)**
+  - SQLite database setup with database_helper.dart
+    - Events table for offline event caching
+    - Sync queue table for pending operations
+    - Database version management with migration support
+  - Sync queue model (sync_queue_model.dart) with operation tracking
+  - Offline sync service (offline_sync_service.dart) with:
+    - Connectivity monitoring using connectivity_plus package
+    - Auto-sync on connectivity restoration
+    - Periodic sync timer (every 30 seconds)
+    - Exponential backoff retry logic
+  - Dependencies added: sqflite ^2.4.1, connectivity_plus ^6.1.4
+
+- **iCal Import UI (COMPLETE ✅)**
+  - IcalImportScreen with comprehensive feed management
+  - UI for adding/removing/managing iCal feeds
+  - Feed loading and saving to Firestore
+  - User-friendly feed list with last sync timestamps
+
+- **Shift Management System (COMPLETE ✅)**
+  - ShiftTemplate model with full customization:
+    - Name, abbreviation, schedule info
+    - Custom background and text colors
+    - Adjustable text size
+    - Sort order for display priority
+  - WorkplaceModel for multi-workplace management (up to 5 workplaces)
+  - ShiftConfigurationScreen for template management
+  - AvailableShiftsScreen with interactive shift browsing
+  - Shift template reordering functionality
+
+- **Calendar Enhancements (COMPLETE ✅)**
+  - Paint mode for quick shift assignment
+  - Continuous date display across calendar
+  - Event cards now display owner names (user/partner)
+  - Paint mode date range fixes
+
+- **App Rebrand (COMPLETE ✅)**
+  - Full rebrand from "Shift Calendar for Couples" to "VelloShift"
+  - Updated app description in pubspec.yaml
+  - Consistent branding across all documentation
+
+**Bug Fixes (November 3-6, 2025):**
+- Fixed provider import conflicts in workplace filtering system
+- Resolved compilation errors in offline mode implementation
+- Fixed paint mode date range calculation issues
+- Removed redundant SnackBar notifications across multiple screens
+
+- **General Settings Screen (COMPLETE ✅ - November 6, 2025)**
+  - Comprehensive settings hub with sections:
+    - Account: Profile, Partner Management
+    - Appearance: Light/Dark/System theme selector
+    - App Settings: Notifications, iCal Import
+    - About: Version info, Help, Privacy Policy, Terms
+    - Danger Zone: Sign Out, Delete Account
+  - Theme management with ThemeModeNotifier provider
+  - Persistent theme preferences using shared_preferences
+  - Package info for version display (package_info_plus ^9.0.0)
+  - URL launcher for external links (url_launcher ^6.3.2)
+  - Integrated navigation from home screen
+  - Clean, "airy" UI with AppColors palette
+
+⏳ **Remaining (Week 17-20):**
 - Cloud Functions for notification delivery (partner event changes, conflicts)
-- SQLite cache for offline mode
-- Sync queue for offline changes
-- iCal import Cloud Functions with 15-minute polling
-- General settings screen (theme, account management)
-- Onboarding flow for new users
-- Profile editing functionality
+- iCal import Cloud Functions with 15-minute polling backend
+- Onboarding flow for new users (first-time setup wizard)
+- Profile editing functionality (update name, email, avatar)
+
+### ⏳ Next Phase: Week 21-24 (Testing & Polish)
+**Planned:**
+- Complete any remaining Week 17-20 items
+- Comprehensive offline mode testing (airplane mode, slow networks)
+- Integration testing across all features
+- Performance optimization and profiling
+- Prepare for beta testing recruitment
 
 **Deferred to Post-MVP:**
 - Google Sign-In for mobile (API compatibility issue with current package version)
@@ -191,11 +259,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Android manifest permissions and service configured
   - Background message handler registered
 - ✅ APNs configuration files ready for iOS (requires Xcode setup)
+- ✅ SQLite database for offline mode (shift_calendar.db)
 
 **Not Yet Configured:**
 - ⏳ Cloud Functions directory (needed for notification triggers)
 - ⏳ FCM notification delivery via Cloud Functions
-- ⏳ Firebase Scheduler for iCal polling (Week 17-20)
+- ⏳ Firebase Scheduler for iCal polling (backend implementation)
 - ⏳ APNs final setup in Xcode (requires macOS)
 
 **Firebase Project:** deb-shiftsync-7984c
@@ -225,16 +294,21 @@ await authService.signOut();
 ```
 lib/
 ├── models/
-│   ├── user_model.dart          # ✅ User model with FCM token fields
-│   └── event_model.dart         # ✅ Event/shift model with version control
+│   ├── user_model.dart            # ✅ User model with FCM token & partner fields
+│   ├── event_model.dart           # ✅ Event/shift model with version control & workplace
+│   ├── shift_template_model.dart  # ✅ Shift template with colors, schedule (Nov 3)
+│   ├── workplace_model.dart       # ✅ Workplace/calendar management (Nov 3)
+│   └── sync_queue_model.dart      # ✅ Offline sync queue model (Nov 3)
 ├── providers/
-│   ├── auth_provider.dart       # ✅ Auth & Firestore providers
-│   ├── event_provider.dart      # ✅ Event CRUD & streams
-│   └── notification_provider.dart # ✅ Notification service provider
+│   ├── auth_provider.dart         # ✅ Auth & Firestore providers
+│   ├── event_provider.dart        # ✅ Event CRUD & streams
+│   ├── notification_provider.dart # ✅ Notification service provider
+│   └── theme_provider.dart        # ✅ Theme mode management (Nov 6)
 ├── screens/
 │   ├── auth/
-│   │   ├── login_screen.dart    # ✅ Email sign-in UI (navigation fix Oct 28)
-│   │   └── signup_screen.dart   # ✅ Email sign-up UI (navigation fix Oct 28)
+│   │   ├── welcome_screen.dart    # ✅ Landing/welcome screen
+│   │   ├── login_screen.dart      # ✅ Email sign-in UI (navigation fix Oct 28)
+│   │   └── signup_screen.dart     # ✅ Email sign-up UI (navigation fix Oct 28)
 │   ├── partner/
 │   │   ├── partner_invite_screen.dart       # ✅ Generate partner codes
 │   │   ├── partner_accept_screen.dart       # ✅ Accept partner codes
@@ -246,15 +320,23 @@ lib/
 │   │   ├── add_event_screen.dart  # ✅ Create events with form
 │   │   └── edit_event_screen.dart # ✅ Edit/delete existing events
 │   ├── settings/
-│   │   └── notification_settings_screen.dart # ✅ Notification preferences
+│   │   ├── general_settings_screen.dart      # ✅ Main settings hub (Nov 6)
+│   │   ├── notification_settings_screen.dart # ✅ Notification preferences
+│   │   └── ical_import_screen.dart           # ✅ iCal feed management (Nov 3)
+│   ├── shifts/
+│   │   ├── shift_configuration_screen.dart   # ✅ Shift template management (Nov 3)
+│   │   └── available_shifts_screen.dart      # ✅ Browse shifts library (Nov 3)
 │   └── home_screen.dart         # ✅ Calendar-centric month view (1,099 lines, redesigned Oct 28)
 ├── services/
-│   ├── auth_service.dart        # ✅ Firebase Auth wrapper
-│   ├── firestore_service.dart   # ✅ User, partner & event CRUD
-│   └── notification_service.dart # ✅ FCM/APNs notification management
+│   ├── auth_service.dart          # ✅ Firebase Auth wrapper
+│   ├── firestore_service.dart     # ✅ User, partner & event CRUD
+│   ├── notification_service.dart  # ✅ FCM/APNs notification management
+│   ├── database_helper.dart       # ✅ SQLite database helper (Nov 3)
+│   └── offline_sync_service.dart  # ✅ Offline sync & connectivity (Nov 3)
 ├── utils/
-│   └── conflict_detector.dart   # ✅ Conflict detection logic & utilities
-├── widgets/                     # ⏳ Empty (reusable components)
+│   ├── app_colors.dart            # ✅ Centralized color palette (Nov 2)
+│   └── conflict_detector.dart     # ✅ Conflict detection logic & utilities
+├── widgets/                       # ⏳ Empty (reusable components)
 
 test/
 ├── unit/
@@ -270,23 +352,38 @@ main.dart                        # ✅ App entry point with AuthWrapper
 ### Week 13-16 (Notifications & Conflict Detection) - ✅ COMPLETE
 All objectives completed successfully. See `docs/week_13-16_completion_summary.md` for details.
 
-### Week 17-20 (Offline Mode & iCal Integration) - NEXT
-1. Set up SQLite for local event cache
-2. Implement sync queue for offline changes
-3. Build version-based conflict resolution UI
-4. Create iCal import Cloud Functions (15min polling)
-5. Add settings screen (notifications, iCal feeds, account)
-6. Implement onboarding flow for new users
-7. Add profile editing functionality
+### Week 17-20 (Offline Mode & iCal Integration) - ⏳ IN PROGRESS (75% Complete)
+**Completed:**
+1. ✅ Set up SQLite for local event cache (database_helper.dart)
+2. ✅ Implement sync queue for offline changes (offline_sync_service.dart)
+3. ✅ Add iCal import UI screen (ical_import_screen.dart)
+4. ✅ Shift management system (ShiftTemplate, WorkplaceModel, screens)
+5. ✅ Calendar paint mode and enhancements
+6. ✅ App rebrand to VelloShift
 
-### Week 21-24 (Beta Testing & Launch)
-1. Recruit 50 couples for beta testing
-2. Collect and triage feedback
-3. Fix critical bugs
-4. Optimize sync reliability (target ≥95%)
-5. Write privacy policy and terms of service
-6. Prepare App Store and Google Play submissions
-7. Launch MVP!
+**Remaining:**
+7. ⏳ Create iCal import Cloud Functions (15min polling backend)
+8. ⏳ Add general settings screen (theme, account management, app info)
+9. ⏳ Implement onboarding flow for new users
+10. ⏳ Add profile editing functionality (name, email, avatar)
+11. ⏳ Cloud Functions for notification delivery (partner changes, conflicts)
+
+**Priority Order:**
+1. ✅ **General Settings Screen** - COMPLETE (November 6, 2025)
+2. **Profile Editing** - Allow users to update their profile information (NEXT)
+3. **Onboarding Flow** - First-time user experience and setup wizard
+4. **Cloud Functions** - Backend for iCal polling and notifications (requires Node.js setup)
+
+### Week 21-24 (Testing & Beta Launch) - NEXT
+1. Comprehensive offline mode testing (airplane mode, slow networks)
+2. Integration testing across all features
+3. Performance optimization and profiling
+4. Recruit 50 couples for beta testing
+5. Collect and triage feedback
+6. Fix critical bugs
+7. Write privacy policy and terms of service
+8. Prepare App Store and Google Play submissions
+9. Launch MVP!
 
 See **docs/quick_mvp_checklist.md** for detailed week-by-week breakdown.
 

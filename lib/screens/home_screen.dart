@@ -12,8 +12,8 @@ import 'partner/partner_invite_screen.dart';
 import 'partner/partner_accept_screen.dart';
 import 'partner/partner_management_screen.dart';
 import 'calendar/calendar_screen.dart';
+import 'settings/general_settings_screen.dart';
 import 'settings/notification_settings_screen.dart';
-import 'settings/ical_import_screen.dart';
 import 'event/add_event_screen.dart';
 import 'event/edit_event_screen.dart';
 import 'shifts/available_shifts_screen.dart';
@@ -110,7 +110,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final filteredEvents = ref.watch(filteredMonthEventsProvider(_monthStart));
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -984,7 +984,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const NotificationSettingsScreen(),
+                        builder: (context) => NotificationSettingsScreen(),
                       ),
                     );
                   },
@@ -1485,64 +1485,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showSettingsMenu() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const GeneralSettingsScreen(),
       ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Settings',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 20),
-              _buildSettingsOption('Notification Settings', Icons.notifications, () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationSettingsScreen(),
-                  ),
-                );
-              }),
-              _buildSettingsOption('Partner Management', Icons.people, () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const PartnerManagementScreen(),
-                  ),
-                );
-              }),
-              _buildSettingsOption('iCal Import', Icons.cloud_download, () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const IcalImportScreen(),
-                  ),
-                );
-              }),
-              _buildSettingsOption('Week Calendar View', Icons.calendar_view_week, () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const CalendarScreen(),
-                  ),
-                );
-              }),
-            ],
-          ),
-        );
-      },
     );
   }
 

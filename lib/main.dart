@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/offline_sync_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/notification_service.dart';
@@ -23,17 +24,19 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
-      title: 'Shift Calendar',
+      title: 'VelloShift',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light, // TODO: Make this user-configurable in settings
+      themeMode: themeMode,
       home: const AuthWrapper(),
     );
   }
