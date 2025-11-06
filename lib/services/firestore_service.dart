@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:math';
+import 'dart:io';
 import '../models/user_model.dart';
 import '../models/event_model.dart';
 import '../models/shift_template_model.dart';
@@ -9,6 +11,7 @@ import '../models/workplace_model.dart';
 /// Handles user data, partner linking, and partner code generation
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // Collection references
   static const String usersCollection = 'users';
@@ -684,6 +687,78 @@ class FirestoreService {
       return workplaces;
     } catch (e) {
       throw 'Error initializing default workplaces: $e';
+    }
+  }
+
+  // ============================================================================
+  // PROFILE & AVATAR METHODS
+  // ============================================================================
+
+  /// Upload user avatar to Firebase Storage and return the download URL
+  /// This method handles uploading a profile picture and returns the URL
+  Future<String> uploadUserAvatar(String userId, File imageFile) async {
+    try {
+      // Create a reference to the storage location
+      final storageRef = _storage.ref().child('user_avatars/$userId.jpg');
+
+      // Upload the file
+      final uploadTask = storageRef.putFile(
+        imageFile,
+        SettableMetadata(
+          contentType: 'image/jpeg',
+          customMetadata: {'userId': userId},
+        ),
+      );
+
+      // Wait for upload to complete
+      final snapshot = await uploadTask;
+
+      // Get the download URL
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      return downloadUrl;
+    } catch (e) {
+      throw 'Error uploading avatar: $e';
+    }
+  }
+
+  /// Delete user avatar from Firebase Storage
+  /// This method removes the user's profile picture from storage
+  Future<void> deleteUserAvatar(String userId) async {
+    try {
+      final storageRef = _storage.ref().child('user_avatars/$userId.jpg');
+      await storageRef.delete();
+    } catch (e) {
+      // Silently fail if file doesn't exist
+      if (!e.toString().contains('object-not-found')) {
+        throw 'Error deleting avatar: $e';
+      }
+    }
+  }
+
+  /// Update user profile information
+  /// This is a convenience method that updates common profile fields
+  Future<void> updateUserProfile({
+    required String userId,
+    String? displayName,
+    String? photoUrl,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (displayName != null) {
+        updates['name'] = displayName;
+      }
+
+      if (photoUrl != null) {
+        updates['photoUrl'] = photoUrl;
+      }
+
+      await updateUser(userId, updates);
+    } catch (e) {
+      throw 'Error updating user profile: $e';
     }
   }
 }

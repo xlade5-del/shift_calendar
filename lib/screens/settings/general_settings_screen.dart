@@ -9,6 +9,7 @@ import '../../services/auth_service.dart';
 import 'notification_settings_screen.dart';
 import 'ical_import_screen.dart';
 import '../partner/partner_management_screen.dart';
+import '../profile/profile_edit_screen.dart';
 
 /// General Settings Screen - Main hub for all app settings
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
@@ -164,10 +165,10 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     title: 'Profile',
                     subtitle: user?.email ?? 'Not signed in',
                     onTap: () {
-                      // TODO: Navigate to profile edit screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Profile editing coming soon!'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileEditScreen(),
                         ),
                       );
                     },
