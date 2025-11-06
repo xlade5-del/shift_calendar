@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Implementation Status
 
-**Phase:** Week 17-20: Offline Mode & iCal Integration - IN PROGRESS ⏳
+**Phase:** Week 17-20: Offline Mode & iCal Integration - COMPLETE ✅
 **Last Updated:** November 6, 2025
 
 ### ✅ Completed (Weeks 1-12)
@@ -159,9 +159,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Time: 2.5 hours (under 3-hour estimate)
 - Status: Ready for Week 17-20
 
-**Week 17-20: Offline Mode & iCal Integration (November 3-6, 2025 - IN PROGRESS ⏳)**
-
-✅ **Completed:**
+**Week 17-20: Offline Mode & iCal Integration (November 3-6, 2025 - COMPLETE ✅)**
 - **Offline Mode Implementation (COMPLETE ✅)**
   - SQLite database setup with database_helper.dart
     - Events table for offline event caching
@@ -223,19 +221,58 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Integrated navigation from home screen
   - Clean, "airy" UI with AppColors palette
 
-⏳ **Remaining (Week 17-20):**
-- Cloud Functions for notification delivery (partner event changes, conflicts)
-- iCal import Cloud Functions with 15-minute polling backend
-- Onboarding flow for new users (first-time setup wizard)
-- Profile editing functionality (update name, email, avatar)
+- **Profile Editing (COMPLETE ✅ - November 6, 2025)**
+  - Full profile edit screen with comprehensive form
+  - Avatar upload with image picker (gallery/camera/remove)
+  - Display name editing with validation (min 2 characters)
+  - Email display (read-only for security)
+  - Firebase Storage integration for avatar images
+  - Real-time UI updates after profile changes
+  - Unsaved changes detection with warning dialog
+  - Integrated with Firestore service methods
 
-### ⏳ Next Phase: Week 21-24 (Testing & Polish)
+- **Onboarding Flow (COMPLETE ✅ - November 6, 2025)**
+  - 5-step post-authentication wizard with PageView
+  - OnboardingService tracks completion with shared_preferences
+  - Screens: Welcome, Profile Setup, Partner Setup, Notifications, Complete
+  - Smooth page indicator using smooth_page_indicator ^1.2.1
+  - Skip functionality for optional steps
+  - Back navigation support
+  - Integrated into AuthWrapper flow
+  - Appears once after first signup/login
+  - All screens follow AppColors design system
+
+- **Cloud Functions (COMPLETE ✅ - November 6, 2025)**
+  - functions/index.js with 4 Firebase Cloud Functions
+  - pollIcalFeeds: Scheduled every 15 minutes for iCal imports
+  - onEventCreated: Notifies partner when events are created
+  - onEventUpdated: Notifies partner when events are modified
+  - onEventDeleted: Notifies partner when events are deleted
+  - FCM notification delivery with user preference checks
+  - ICAL.js integration for parsing external calendars
+  - Ready for deployment with npm deploy script
+
+**Week 17-20 Checkpoint (November 6, 2025):**
+- ✅ **All Week 17-20 Objectives Met:** Ready for Week 21-24 (Testing & Beta Launch)
+- ✅ **Offline Mode:** SQLite + sync queue fully operational
+- ✅ **iCal Integration:** UI complete, Cloud Functions ready for deployment
+- ✅ **Shift Management:** Complete template system with customization
+- ✅ **Settings:** Comprehensive settings hub with theme management
+- ✅ **Profile Editing:** Full profile customization with avatar upload
+- ✅ **Onboarding:** 5-step first-time user experience wizard
+- ✅ **Cloud Functions:** Notification triggers + iCal polling ready
+
+### ⏳ Next Phase: Week 21-24 (Testing & Beta Launch)
 **Planned:**
-- Complete any remaining Week 17-20 items
 - Comprehensive offline mode testing (airplane mode, slow networks)
 - Integration testing across all features
 - Performance optimization and profiling
-- Prepare for beta testing recruitment
+- Deploy Cloud Functions to Firebase
+- Recruit 50 couples for beta testing
+- Set up feedback collection system
+- Bug tracking and triage
+- Write privacy policy and terms of service
+- Prepare App Store and Google Play submissions
 
 **Deferred to Post-MVP:**
 - Google Sign-In for mobile (API compatibility issue with current package version)
@@ -260,11 +297,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Background message handler registered
 - ✅ APNs configuration files ready for iOS (requires Xcode setup)
 - ✅ SQLite database for offline mode (shift_calendar.db)
+- ✅ Cloud Functions configured (functions/index.js)
+  - pollIcalFeeds: Scheduled iCal import every 15 minutes
+  - onEventCreated/Updated/Deleted: Partner notification triggers
+  - Dependencies: firebase-admin, firebase-functions, ical.js, node-fetch
+  - Ready for deployment (await: firebase deploy --only functions)
 
-**Not Yet Configured:**
-- ⏳ Cloud Functions directory (needed for notification triggers)
-- ⏳ FCM notification delivery via Cloud Functions
-- ⏳ Firebase Scheduler for iCal polling (backend implementation)
+**Not Yet Deployed:**
+- ⏳ Cloud Functions deployment to Firebase (Week 21-24)
 - ⏳ APNs final setup in Xcode (requires macOS)
 
 **Firebase Project:** deb-shiftsync-7984c
