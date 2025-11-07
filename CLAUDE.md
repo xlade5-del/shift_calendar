@@ -242,7 +242,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Appears once after first signup/login
   - All screens follow AppColors design system
 
-- **Cloud Functions (COMPLETE ✅ - November 6, 2025)**
+- **Cloud Functions (COMPLETE ✅ - November 7, 2025)**
   - functions/index.js with 4 Firebase Cloud Functions
   - pollIcalFeeds: Scheduled every 15 minutes for iCal imports
   - onEventCreated: Notifies partner when events are created
@@ -250,24 +250,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - onEventDeleted: Notifies partner when events are deleted
   - FCM notification delivery with user preference checks
   - ICAL.js integration for parsing external calendars
-  - Ready for deployment with npm deploy script
+  - **Deployed to Firebase (November 7, 2025)** - All 4 functions active in production
+  - Node.js 20 runtime on Cloud Functions v2 (2nd Gen)
+  - Cleanup policy configured for container image management
 
 **Week 17-20 Checkpoint (November 6, 2025):**
 - ✅ **All Week 17-20 Objectives Met:** Ready for Week 21-24 (Testing & Beta Launch)
 - ✅ **Offline Mode:** SQLite + sync queue fully operational
-- ✅ **iCal Integration:** UI complete, Cloud Functions ready for deployment
+- ✅ **iCal Integration:** UI complete, Cloud Functions deployed and active
 - ✅ **Shift Management:** Complete template system with customization
 - ✅ **Settings:** Comprehensive settings hub with theme management
 - ✅ **Profile Editing:** Full profile customization with avatar upload
 - ✅ **Onboarding:** 5-step first-time user experience wizard
-- ✅ **Cloud Functions:** Notification triggers + iCal polling ready
+- ✅ **Cloud Functions:** Notification triggers + iCal polling deployed and running
 
 ### ⏳ Next Phase: Week 21-24 (Testing & Beta Launch)
 **Planned:**
 - Comprehensive offline mode testing (airplane mode, slow networks)
 - Integration testing across all features
 - Performance optimization and profiling
-- Deploy Cloud Functions to Firebase
+- ✅ Deploy Cloud Functions to Firebase (COMPLETE - November 7, 2025)
 - Recruit 50 couples for beta testing
 - Set up feedback collection system
 - Bug tracking and triage
@@ -297,14 +299,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Background message handler registered
 - ✅ APNs configuration files ready for iOS (requires Xcode setup)
 - ✅ SQLite database for offline mode (shift_calendar.db)
-- ✅ Cloud Functions configured (functions/index.js)
-  - pollIcalFeeds: Scheduled iCal import every 15 minutes
-  - onEventCreated/Updated/Deleted: Partner notification triggers
+- ✅ Cloud Functions deployed to production (November 7, 2025)
+  - pollIcalFeeds: Scheduled iCal import every 15 minutes ✅ Active
+  - onEventCreated/Updated/Deleted: Partner notification triggers ✅ Active
   - Dependencies: firebase-admin, firebase-functions, ical.js, node-fetch
-  - Ready for deployment (await: firebase deploy --only functions)
+  - Runtime: Node.js 20 on Cloud Functions v2 (2nd Gen)
+  - Region: us-central1
+  - All 4 functions successfully deployed and running
 
 **Not Yet Deployed:**
-- ⏳ Cloud Functions deployment to Firebase (Week 21-24)
 - ⏳ APNs final setup in Xcode (requires macOS)
 
 **Firebase Project:** deb-shiftsync-7984c

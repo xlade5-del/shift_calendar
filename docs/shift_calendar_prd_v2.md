@@ -1,9 +1,9 @@
-# Shift Calendar for Couples - Product Requirements Document v2.0
+# VelloShift - Product Requirements Document v2.1
 
-**Version:** 2.0 - MVP Focused  
-**Last Updated:** October 2025  
-**Status:** Pre-Development  
-**Target Launch:** Q2 2026 (20 weeks development + testing)
+**Version:** 2.1 - MVP Focused
+**Last Updated:** November 2025
+**Status:** Week 17-20 Complete, Ready for Beta Testing (Week 21-24)
+**Target Launch:** Q1 2026 (24 weeks development + testing)
 
 ---
 
@@ -30,7 +30,7 @@
 
 **Mission:** Helping couples find more time together — not just sync their shifts.
 
-The Shift Calendar for Couples is a cross-platform mobile application designed to eliminate the friction couples experience when managing complex, rotating work schedules across iOS and Android devices. Built specifically for shift workers in healthcare, emergency services, retail, and hospitality, the app provides seamless, real-time calendar synchronization with automatic conflict detection and free time identification.
+VelloShift is a cross-platform mobile application designed to eliminate the friction couples experience when managing complex, rotating work schedules across iOS and Android devices. Built specifically for shift workers in healthcare, emergency services, retail, and hospitality, the app provides seamless, real-time calendar synchronization with automatic conflict detection and free time identification.
 
 ### 1.2 At-a-Glance
 
@@ -41,7 +41,7 @@ The Shift Calendar for Couples is a cross-platform mobile application designed t
 | **Market** | 5-8M US couples in shift work industries, $300-400M TAM |
 | **MVP Scope** | Auth, partner linking, manual events, 1 iCal feed, week view, real-time sync, offline mode, conflict alerts |
 | **Tech Stack** | Flutter + Firebase (Firestore, Auth, Functions) + SQLite + FCM/APNs |
-| **Timeline** | 16 weeks development + 4 weeks beta testing = 20 weeks to launch |
+| **Timeline** | 20 weeks development + 4 weeks beta testing = 24 weeks to launch |
 | **Pricing** | Free (core features) + $4.99/month premium (unlimited feeds, exports, priority support) |
 | **Target Metrics** | 1k DAU at 6 months, 60% D90 retention, 4.5+ store rating, 95% sync reliability |
 
@@ -607,14 +607,14 @@ Non-functional requirements define system performance, reliability, and quality 
 
 ### 9.1 Development Timeline Overview
 
-**Total Duration:** 20 weeks (16 weeks development + 4 weeks beta testing)
+**Total Duration:** 24 weeks (20 weeks development + 4 weeks beta testing)
 
-- **Phase 1:** Core MVP (Weeks 1-8) - Auth, partner linking, basic calendar
-- **Phase 2:** Sync Engine (Weeks 9-12) - Real-time sync, iCal, offline mode
-- **Phase 3:** UX Polish (Weeks 13-16) - Notifications, conflicts, settings
-- **Phase 4:** Beta & Launch (Weeks 17-20) - Testing, store submission
+- **Phase 1:** Core MVP (Weeks 1-12) - Auth, partner linking, calendar, real-time sync ✅ COMPLETE
+- **Phase 2:** UX Polish (Weeks 13-16) - Notifications, conflicts, settings ✅ COMPLETE
+- **Phase 3:** Advanced Features (Weeks 17-20) - Offline mode, iCal, shift management, onboarding ✅ COMPLETE
+- **Phase 4:** Beta & Launch (Weeks 21-24) - Testing, Cloud Functions deployment, store submission 🔄 IN PROGRESS
 
-**Effort Estimate:** 600 hours total (~30 hours/week for solo developer)
+**Effort Estimate:** 720 hours total (~30 hours/week for solo developer)
 
 ### 9.2 Detailed Sprint Breakdown
 
@@ -908,6 +908,7 @@ Non-functional requirements define system performance, reliability, and quality 
 |---------|------|--------|---------|
 | 1.0 | October 2025 | Product Team | Initial comprehensive PRD |
 | 2.0 | October 2025 | Product Team | MVP-focused revision: realistic timeline (20 weeks), simplified scope, added NFRs, defined monetization, specified conflict resolution |
+| 2.1 | November 2025 | Product Team | Updated with VelloShift rebrand, adjusted timeline to 24 weeks (actual), updated status to reflect Week 17-20 completion |
 
 ---
 
