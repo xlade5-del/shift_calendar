@@ -274,6 +274,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
       source: widget.event.source,
       icalUid: widget.event.icalUid,
       version: widget.event.version,
+      workplaceId: widget.event.workplaceId, // Preserve workplace association
       createdAt: widget.event.createdAt,
       updatedAt: DateTime.now(),
     );
