@@ -1,0 +1,160 @@
+VELLOSHIFT TERMS OF SERVICE
+
+Last Updated: November 8, 2025
+Effective Date: November 8, 2025
+
+1. AGREEMENT TO TERMS
+
+By using VelloShift, you agree to be bound by these Terms of Service. If you do not agree, you may not use the app.
+
+2. ELIGIBILITY
+
+You must be at least 13 years old (16 in the EU) to use VelloShift. Users between 13-18 must have parental consent.
+
+You agree to provide accurate registration information and keep your password secure.
+
+3. SERVICE DESCRIPTION
+
+VelloShift provides:
+• Real-time calendar synchronization between partners
+• Manual event creation and management
+• iCal feed import for external calendars
+• Offline mode with automatic sync
+• Push notifications for schedule changes
+• Conflict detection and free time finder
+
+We strive for 99.5% uptime but do not guarantee uninterrupted access.
+
+4. PARTNER LINKING
+
+When you link with a partner:
+• Both parties must approve the connection
+• You grant your partner access to view all your events
+• Your partner can see all events you create or import
+• You are responsible for choosing who you link with
+
+Either partner can unlink at any time, which immediately stops data sharing.
+
+5. USER CONTENT AND CONDUCT
+
+You own all calendar data you create. By using the service, you grant us a limited license to:
+• Store and display your content
+• Share your content with your linked partner
+• Backup your content for disaster recovery
+
+You agree NOT to:
+• Use VelloShift for illegal purposes
+• Reverse engineer or decompile the app
+• Create multiple accounts
+• Attempt unauthorized access to our systems
+• Share your account credentials
+
+We may suspend or terminate accounts that violate these Terms.
+
+6. SUBSCRIPTION AND PAYMENTS
+
+FREE TIER includes:
+• Unlimited manual events
+• 1 partner link
+• 1 iCal feed
+• Week calendar view
+• Real-time sync
+
+PREMIUM TIER ($4.99/month or $49.99/year) includes:
+• All free features
+• Unlimited iCal feeds
+• Month and day views
+• Free time finder
+• PDF and iCal export
+• Priority support
+
+Payments are processed through Apple App Store or Google Play Store. Subscriptions auto-renew unless canceled 24 hours before renewal.
+
+Refunds are subject to Apple's and Google's policies. For direct billing, refunds may be granted within 7 days for unused service.
+
+7. PRIVACY
+
+Your use of VelloShift is governed by our Privacy Policy. We collect and use your information as described in that policy.
+
+8. DISCLAIMERS AND LIMITATIONS
+
+VELLOSHIFT IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND.
+
+We do not guarantee:
+• Perfect real-time synchronization
+• Zero data loss
+• 100% uptime
+• Compatibility with all devices
+
+OUR TOTAL LIABILITY IS LIMITED TO THE GREATER OF $100 OR THE AMOUNT YOU PAID IN THE PAST 12 MONTHS.
+
+WE ARE NOT LIABLE FOR:
+• Missed appointments or scheduling conflicts
+• Partner misuse of shared information
+• Third-party service failures
+• Lost or corrupted calendar data
+• Relationship issues arising from app use
+
+Use VelloShift as a convenience tool, not as the sole source of critical scheduling information.
+
+9. INDEMNIFICATION
+
+You agree to indemnify and hold harmless VelloShift from any claims arising from:
+• Your use of the Service
+• Your violation of these Terms
+• Your User Content
+• Any activity under your account
+
+10. TERMINATION
+
+You may delete your account anytime in Settings.
+
+We may suspend or terminate your account if you:
+• Violate these Terms
+• Engage in fraudulent activity
+• Have an inactive account for 2+ years
+
+Upon termination:
+• Your right to use the Service ceases
+• Partner links are immediately severed
+• Your data becomes inaccessible
+• No refunds for partial billing periods
+
+11. DISPUTE RESOLUTION
+
+Before filing a claim, contact support@velloshift.com for informal resolution.
+
+If informal resolution fails, disputes will be resolved through binding arbitration (American Arbitration Association), not in court.
+
+YOU WAIVE THE RIGHT TO PARTICIPATE IN CLASS ACTIONS.
+
+You may opt out of arbitration within 30 days by emailing support@velloshift.com with subject "Arbitration Opt-Out".
+
+12. GOVERNING LAW
+
+These Terms are governed by California and United States law.
+
+Disputes not subject to arbitration will be resolved in courts in San Francisco County, California.
+
+13. CHANGES TO TERMS
+
+We may update these Terms. You will be notified via in-app notification or email. Continued use after changes means you accept the updated Terms.
+
+14. CONTACT INFORMATION
+
+Email: support@velloshift.com
+Response Time: Within 48 hours (24 hours for premium)
+
+Subject Line Guidelines:
+• For privacy requests: Use subject "Privacy Rights Request"
+• For legal notices: Use subject "Legal Notice"
+• For arbitration opt-out: Use subject "Arbitration Opt-Out"
+• For general support: Any subject line
+
+All inquiries go to the same email for faster response and simplified communication.
+
+15. ACKNOWLEDGMENT
+
+BY CREATING AN ACCOUNT, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS OF SERVICE.
+
+© 2025 VelloShift. All rights reserved.

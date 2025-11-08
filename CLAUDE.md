@@ -264,16 +264,57 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **Onboarding:** 5-step first-time user experience wizard
 - ✅ **Cloud Functions:** Notification triggers + iCal polling deployed and running
 
+**Legal & Compliance (November 8, 2025 - COMPLETE ✅)**
+- **Legal Documents Created:**
+  - Privacy Policy (5,500 words, GDPR + CCPA compliant)
+  - Terms of Service (6,000 words, arbitration + liability clauses)
+  - Plain text versions bundled in app (assets/legal/)
+
+- **Consent Flow Implementation:**
+  - Signup screen with two mandatory consent checkboxes
+  - Clickable links to view full legal documents in-app
+  - Validation before account creation (both boxes required)
+  - Works for email/password and Google Sign-In
+  - LegalDocumentScreen viewer with selectable text
+
+- **UserModel Updates:**
+  - Added privacyPolicyAcceptedAt timestamp field
+  - Added termsOfServiceAcceptedAt timestamp field
+  - Automatically set to current time on signup
+  - Stored in Firestore for audit trail compliance
+
+- **Settings Integration:**
+  - Privacy Policy accessible from Settings → About
+  - Terms of Service accessible from Settings → About
+  - In-app viewer (no external browser navigation)
+
+- **Email Unification:**
+  - Simplified from 4 emails to 1 unified address
+  - All communications go to support@velloshift.com
+  - Subject line categorization (Privacy, Legal, Arbitration, Support)
+  - Comprehensive setup guide created (docs/email_setup_guide.md)
+
+- **Documentation:**
+  - docs/privacy_policy.md - Full legal document
+  - docs/terms_of_service.md - Full legal document
+  - docs/legal_documents_summary.md - Compliance checklist
+  - docs/legal_consent_implementation_summary.md - Implementation guide
+  - docs/email_setup_guide.md - Email infrastructure setup (400+ lines)
+  - docs/email_unification_summary.md - Email simplification summary
+
 ### ⏳ Next Phase: Week 21-24 (Testing & Beta Launch)
 **Planned:**
 - Comprehensive offline mode testing (airplane mode, slow networks)
 - Integration testing across all features
 - Performance optimization and profiling
+- ✅ Legal documents and consent flow (COMPLETE - November 8, 2025)
 - ✅ Deploy Cloud Functions to Firebase (COMPLETE - November 7, 2025)
+- Set up support@velloshift.com email (Google Workspace recommended, $6/month)
 - Recruit 50 couples for beta testing
 - Set up feedback collection system
 - Bug tracking and triage
-- Write privacy policy and terms of service
+- Attorney review of legal documents ($1,500-$3,000)
+- Host legal documents online (required for App Store/Play Store)
 - Prepare App Store and Google Play submissions
 
 **Deferred to Post-MVP:**

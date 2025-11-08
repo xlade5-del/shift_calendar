@@ -1,0 +1,143 @@
+VELLOSHIFT PRIVACY POLICY
+
+Last Updated: November 8, 2025
+Effective Date: November 8, 2025
+
+1. INTRODUCTION
+
+Welcome to VelloShift. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.
+
+By using VelloShift, you agree to the collection and use of information in accordance with this Privacy Policy.
+
+2. INFORMATION WE COLLECT
+
+2.1 Personal Information You Provide
+• Email address
+• Display name
+• Password (encrypted via Firebase Authentication)
+• Profile picture/avatar (optional)
+• Calendar event data (titles, dates, times, notes)
+• iCal feed URLs
+• Workplace names and shift templates
+• Partner linking information
+• Notification preferences
+
+2.2 Information Collected Automatically
+• Device type, model, and operating system
+• Unique device identifiers
+• App usage data (features used, session duration)
+• Error logs and crash reports
+• Time zone (for accurate event display)
+
+2.3 Information from Third-Party Services
+• Google Sign-In: name, email, profile picture
+• Apple Sign-In: name and email
+
+We do NOT access your Google Calendar or Apple Calendar data unless you provide an iCal feed URL.
+
+3. HOW WE USE YOUR INFORMATION
+
+We use your information to:
+• Create and manage your account
+• Synchronize calendar events with your partner
+• Import events from iCal feeds
+• Detect schedule conflicts automatically
+• Send push notifications about schedule changes
+• Enable offline access to your calendar
+• Monitor app performance and fix bugs
+• Provide customer support
+
+WE WILL NEVER:
+• Sell your personal information
+• Use your calendar data for advertising
+• Share your schedule with anyone except your linked partner
+• Train AI models on your data without consent
+
+4. HOW WE SHARE YOUR INFORMATION
+
+4.1 With Your Partner
+When you link accounts, your partner can view all your events in real-time. You can unlink at any time to stop sharing.
+
+4.2 With Service Providers
+• Firebase (Google Cloud): database, authentication, analytics
+• APNs/FCM: push notifications
+
+4.3 For Legal Reasons
+We may disclose information to comply with legal processes or protect user safety.
+
+5. DATA STORAGE AND SECURITY
+
+• Data is stored in Firebase Firestore (US and EU regions)
+• Encrypted in transit (TLS 1.3) and at rest (AES-256)
+• Passwords are hashed using bcrypt
+• Local cache stored in SQLite on your device
+
+6. YOUR PRIVACY RIGHTS
+
+6.1 Access and Portability
+• Access all personal data we hold
+• Export calendar data in iCal format
+• Request complete data download
+
+6.2 Correction and Update
+• Update your profile information anytime
+• Modify or delete calendar events
+
+6.3 Deletion
+• Delete your account and all data
+• Data removed within 30 days
+• Backups purged within 90 days
+
+6.4 California Residents (CCPA)
+• Right to know what data we collect
+• Right to delete your data
+• We do NOT sell personal information
+
+To exercise your rights, contact privacy@velloshift.com
+
+7. CHILDREN'S PRIVACY
+
+VelloShift is not intended for users under 13 years old (16 in the EU). We do not knowingly collect information from children.
+
+8. INTERNATIONAL DATA TRANSFERS
+
+If you are outside the US, your data will be transferred to US servers. We use Firebase's EU-US Data Privacy Framework certification and Standard Contractual Clauses for EU users.
+
+9. COOKIES AND TRACKING
+
+We use minimal tracking:
+• Authentication tokens (to keep you logged in)
+• Analytics identifiers (Firebase Analytics)
+• Crash reporting (Firebase Crashlytics)
+
+You can opt out of analytics in Settings → Privacy.
+
+10. CHANGES TO THIS POLICY
+
+We may update this Privacy Policy. You will be notified via in-app notification or email for material changes.
+
+11. CONTACT US
+
+Email: support@velloshift.com
+Response Time: Within 48 hours
+
+For GDPR/CCPA requests, use subject line "Privacy Rights Request" and include:
+• Your registered email address
+• Description of your request
+• Proof of identity
+
+All privacy inquiries, legal notices, and general support go to the same email for faster response.
+
+12. CONSENT
+
+By using VelloShift, you consent to:
+• Collection and use of information as described
+• Transfer of data to the United States
+• Real-time sharing of your calendar with your linked partner
+
+You can withdraw consent by:
+• Unlinking your partner
+• Disabling notifications
+• Deleting your account
+
+© 2025 VelloShift. All rights reserved.

@@ -8,6 +8,7 @@ import '../../utils/app_colors.dart';
 import '../../services/auth_service.dart';
 import 'notification_settings_screen.dart';
 import 'ical_import_screen.dart';
+import 'legal_document_screen.dart';
 import '../partner/partner_management_screen.dart';
 import '../profile/profile_edit_screen.dart';
 
@@ -284,8 +285,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     icon: Icons.privacy_tip_outlined,
                     title: 'Privacy Policy',
                     onTap: () {
-                      // TODO: Add privacy policy URL
-                      _launchUrl('https://velloshift.com/privacy');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LegalDocumentScreen(
+                            documentType: LegalDocumentType.privacyPolicy,
+                          ),
+                        ),
+                      );
                     },
                   ),
                   _buildDivider(),
@@ -293,8 +300,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     icon: Icons.description_outlined,
                     title: 'Terms of Service',
                     onTap: () {
-                      // TODO: Add terms URL
-                      _launchUrl('https://velloshift.com/terms');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LegalDocumentScreen(
+                            documentType: LegalDocumentType.termsOfService,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ]),

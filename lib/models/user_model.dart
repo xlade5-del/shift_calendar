@@ -38,6 +38,8 @@ class UserModel {
   final String? fcmToken;
   final DateTime? lastTokenUpdate;
   final List<IcalFeedModel> icalFeeds;
+  final DateTime? privacyPolicyAcceptedAt;
+  final DateTime? termsOfServiceAcceptedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -50,12 +52,15 @@ class UserModel {
     this.fcmToken,
     this.lastTokenUpdate,
     this.icalFeeds = const [],
+    this.privacyPolicyAcceptedAt,
+    this.termsOfServiceAcceptedAt,
     required this.createdAt,
     required this.updatedAt,
   });
 
   // Create UserModel from Firebase User
   factory UserModel.fromFirebaseUser(dynamic firebaseUser) {
+    final now = DateTime.now();
     return UserModel(
       uid: firebaseUser.uid,
       email: firebaseUser.email ?? '',
@@ -64,8 +69,10 @@ class UserModel {
       partnerId: null,
       fcmToken: null,
       lastTokenUpdate: null,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      privacyPolicyAcceptedAt: now, // Set to now when creating account
+      termsOfServiceAcceptedAt: now, // Set to now when creating account
+      createdAt: now,
+      updatedAt: now,
     );
   }
 
@@ -86,6 +93,12 @@ class UserModel {
               .map((feed) => IcalFeedModel.fromMap(feed as Map<String, dynamic>))
               .toList()
           : [],
+      privacyPolicyAcceptedAt: map['privacyPolicyAcceptedAt'] != null
+          ? (map['privacyPolicyAcceptedAt'] as dynamic).toDate()
+          : null,
+      termsOfServiceAcceptedAt: map['termsOfServiceAcceptedAt'] != null
+          ? (map['termsOfServiceAcceptedAt'] as dynamic).toDate()
+          : null,
       createdAt: (map['createdAt'] as dynamic).toDate(),
       updatedAt: (map['updatedAt'] as dynamic).toDate(),
     );
@@ -101,6 +114,8 @@ class UserModel {
       'fcmToken': fcmToken,
       'lastTokenUpdate': lastTokenUpdate,
       'icalFeeds': icalFeeds.map((feed) => feed.toMap()).toList(),
+      'privacyPolicyAcceptedAt': privacyPolicyAcceptedAt,
+      'termsOfServiceAcceptedAt': termsOfServiceAcceptedAt,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -116,6 +131,8 @@ class UserModel {
     String? fcmToken,
     DateTime? lastTokenUpdate,
     List<IcalFeedModel>? icalFeeds,
+    DateTime? privacyPolicyAcceptedAt,
+    DateTime? termsOfServiceAcceptedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -128,6 +145,8 @@ class UserModel {
       fcmToken: fcmToken ?? this.fcmToken,
       lastTokenUpdate: lastTokenUpdate ?? this.lastTokenUpdate,
       icalFeeds: icalFeeds ?? this.icalFeeds,
+      privacyPolicyAcceptedAt: privacyPolicyAcceptedAt ?? this.privacyPolicyAcceptedAt,
+      termsOfServiceAcceptedAt: termsOfServiceAcceptedAt ?? this.termsOfServiceAcceptedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

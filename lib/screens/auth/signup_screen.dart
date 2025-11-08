@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_colors.dart';
 import '../home_screen.dart';
+import '../settings/legal_document_screen.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -19,6 +21,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _acceptedPrivacyPolicy = false;
+  bool _acceptedTermsOfService = false;
 
   @override
   void dispose() {
@@ -30,6 +34,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   Future<void> _handleSignUp() async {
+    // Check consent first
+    if (!_acceptedPrivacyPolicy || !_acceptedTermsOfService) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Privacy Policy and Terms of Service to continue'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       try {
         final authNotifier = ref.read(authStateNotifierProvider.notifier);
@@ -62,6 +77,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   Future<void> _handleGoogleSignUp() async {
+    // Check consent first
+    if (!_acceptedPrivacyPolicy || !_acceptedTermsOfService) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Privacy Policy and Terms of Service to continue'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     try {
       final authNotifier = ref.read(authStateNotifierProvider.notifier);
       await authNotifier.signInWithGoogle();
@@ -359,7 +385,117 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                // Privacy Policy Consent
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: _acceptedPrivacyPolicy,
+                      onChanged: (value) {
+                        setState(() {
+                          _acceptedPrivacyPolicy = value ?? false;
+                        });
+                      },
+                      activeColor: AppColors.primaryTeal,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textDark,
+                              height: 1.4,
+                            ),
+                            children: [
+                              const TextSpan(text: 'I have read and accept the '),
+                              TextSpan(
+                                text: 'Privacy Policy',
+                                style: TextStyle(
+                                  color: AppColors.primaryTeal,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const LegalDocumentScreen(
+                                          documentType: LegalDocumentType.privacyPolicy,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Terms of Service Consent
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: _acceptedTermsOfService,
+                      onChanged: (value) {
+                        setState(() {
+                          _acceptedTermsOfService = value ?? false;
+                        });
+                      },
+                      activeColor: AppColors.primaryTeal,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textDark,
+                              height: 1.4,
+                            ),
+                            children: [
+                              const TextSpan(text: 'I agree to the '),
+                              TextSpan(
+                                text: 'Terms of Service',
+                                style: TextStyle(
+                                  color: AppColors.primaryTeal,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const LegalDocumentScreen(
+                                          documentType: LegalDocumentType.termsOfService,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
                 // Sign Up Button
                 ElevatedButton(
