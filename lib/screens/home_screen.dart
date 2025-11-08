@@ -485,7 +485,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
         // Build display based on whether it's a painted template or regular event
         if (isPaintedTemplate && templateAbbreviation != null) {
-          // Painted shift template - show template name, time, and owner
+          // Extract custom notes (notes beyond "Painted from template: X")
+          String? customNotes;
+          if (event.notes != null) {
+            final lines = event.notes!.split('\n');
+            if (lines.length > 1) {
+              // If there are additional lines beyond the "Painted from template" line, show them
+              customNotes = lines.skip(1).join(' ').trim();
+            }
+          }
+
+          // Painted shift template - show template name, time, owner, and custom notes
           return Container(
             margin: const EdgeInsets.only(bottom: 1.5),
             padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
@@ -521,46 +531,97 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   maxLines: 1,
                 ),
-                // Owner name
-                userAsync.when(
-                  data: (userData) => userData != null
-                      ? Text(
-                          userData.displayName ?? 'Me',
-                          style: TextStyle(
-                            fontSize: 6,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.white.withOpacity(0.9),
-                            height: 1.1,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      : const SizedBox(),
-                  loading: () => const SizedBox(),
-                  error: (_, __) => const SizedBox(),
-                ),
+                // Custom notes if available
+                if (customNotes != null && customNotes.isNotEmpty) ...[
+                  const SizedBox(height: 1),
+                  Text(
+                    customNotes,
+                    style: TextStyle(
+                      fontSize: 6,
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.italic,
+                      color: AppColors.white.withOpacity(0.9),
+                      height: 1.1,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ] else
+                  // Owner name (only show if no custom notes)
+                  userAsync.when(
+                    data: (userData) => userData != null
+                        ? Text(
+                            userData.displayName ?? 'Me',
+                            style: TextStyle(
+                              fontSize: 6,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.white.withOpacity(0.9),
+                              height: 1.1,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        : const SizedBox(),
+                    loading: () => const SizedBox(),
+                    error: (_, __) => const SizedBox(),
+                  ),
               ],
             ),
           );
         } else {
-          // Regular event - show title only
+          // Regular event - show title, time, and notes if available
           return Container(
             margin: const EdgeInsets.only(bottom: 1.5),
-            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
             decoration: BoxDecoration(
               color: eventColor,
               borderRadius: BorderRadius.circular(2),
             ),
-            child: Text(
-              event.title,
-              style: const TextStyle(
-                fontSize: 8,
-                fontWeight: FontWeight.w600,
-                color: AppColors.white,
-                height: 1.1,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Text(
+                  event.title,
+                  style: const TextStyle(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.white,
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                // Time range
+                const SizedBox(height: 1),
+                Text(
+                  timeRange,
+                  style: const TextStyle(
+                    fontSize: 6,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.white,
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
+                ),
+                // Notes if available
+                if (event.notes != null && event.notes!.isNotEmpty) ...[
+                  const SizedBox(height: 1),
+                  Text(
+                    event.notes!,
+                    style: TextStyle(
+                      fontSize: 6,
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.italic,
+                      color: AppColors.white.withOpacity(0.9),
+                      height: 1.1,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
             ),
           );
         }
