@@ -159,7 +159,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.cream,
+                  color: AppColors.background,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -211,7 +211,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -270,7 +270,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -384,12 +384,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (isOverflowDate) {
       // Creamy, faded appearance for dates from other months
-      backgroundColor = const Color(0xFFFAF9F7); // Very light cream
-      textColor = const Color(0xFFB8B5B2); // Soft grey-beige
-      borderColor = const Color(0xFFEAE8E6); // Light border
+      backgroundColor = AppColors.lightCream;
+      textColor = AppColors.textLight;
+      borderColor = AppColors.divider;
     } else {
       // Normal styling for current month
-      backgroundColor = isWeekend ? AppColors.lightPeach.withOpacity(0.3) : Colors.white;
+      backgroundColor = isWeekend ? AppColors.lightPeach.withOpacity(0.3) : AppColors.white;
       textColor = isWeekend ? AppColors.peach : AppColors.textDark;
       borderColor = isToday ? AppColors.primaryTeal : AppColors.divider;
     }
@@ -632,7 +632,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.divider, width: 1.5),
           boxShadow: [
@@ -648,7 +648,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2C2C2E),
+            color: AppColors.textDark,
           ),
         ),
       ),
@@ -673,7 +673,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -692,7 +692,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1C1C1E),
+              color: AppColors.textDark,
               letterSpacing: 0.5,
             ),
           ),
@@ -789,7 +789,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -811,7 +811,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ? const Icon(
                           Icons.person,
                           size: 40,
-                          color: Color(0xFF007AFF),
+                          color: AppColors.primaryTeal,
                         )
                       : null,
                 ),
@@ -850,7 +850,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             data: (currentUserData) => Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -944,7 +944,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -1033,7 +1033,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F7),
+          color: AppColors.background,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -1321,7 +1321,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         padding: const EdgeInsets.all(16),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTeal.withOpacity(0.1) : AppColors.cream,
+          color: isSelected ? AppColors.primaryTeal.withOpacity(0.1) : AppColors.background,
           borderRadius: BorderRadius.circular(12),
           border: isSelected ? Border.all(color: AppColors.primaryTeal, width: 2) : null,
         ),
@@ -1499,7 +1499,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         padding: const EdgeInsets.all(16),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F7),
+          color: AppColors.background,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -1701,8 +1701,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     icon: const Icon(Icons.add),
                     label: const Text('Add Event'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007AFF),
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.primaryTeal,
+                      foregroundColor: AppColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1939,7 +1939,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.cream.withOpacity(0.9),
+                color: AppColors.background.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -1970,7 +1970,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           child: Text(
                             'No shift templates. Create one in Shifts tab.',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                              color: AppColors.white.withOpacity(0.9),
                               fontSize: 12,
                             ),
                           ),
@@ -1990,13 +1990,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                       ),
                     ),
                     error: (error, _) => Text(
                       'Error loading templates',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: AppColors.white.withOpacity(0.9),
                         fontSize: 12,
                       ),
                     ),
@@ -2023,7 +2023,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: _isEraseMode ? AppColors.cream : AppColors.cream.withOpacity(0.9),
+          color: _isEraseMode ? AppColors.background : AppColors.background.withOpacity(0.9),
           borderRadius: BorderRadius.circular(8),
           border: _isEraseMode ? Border.all(color: AppColors.peach, width: 2) : null,
         ),

@@ -102,7 +102,7 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
 
     if (!hasPartner) {
       return Scaffold(
-        backgroundColor: AppColors.cream,
+        backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -160,7 +160,7 @@ class _FreeTimeFinderScreenState extends ConsumerState<FreeTimeFinderScreen> {
     final eventsAsync = ref.watch(eventsStreamProvider(_selectedDate));
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

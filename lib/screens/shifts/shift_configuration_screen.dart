@@ -157,7 +157,7 @@ class _ShiftConfigurationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -203,7 +203,7 @@ class _ShiftConfigurationScreenState
                           hintText: 'Enter shift name',
                           hintStyle: TextStyle(color: AppColors.textGrey),
                           filled: true,
-                          fillColor: AppColors.cream,
+                          fillColor: AppColors.background,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: AppColors.textLight),
@@ -474,7 +474,7 @@ class _ShiftConfigurationScreenState
       Colors.grey,
       Colors.blueGrey,
       Colors.black,
-      Colors.white,
+      AppColors.white,
     ];
 
     return Wrap(
@@ -631,7 +631,7 @@ class _ShiftConfigurationScreenState
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.cream,
+                    fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -661,7 +661,7 @@ class _ShiftConfigurationScreenState
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.cream,
+                    fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -700,7 +700,7 @@ class _ShiftConfigurationScreenState
               data: Theme.of(context).copyWith(
                 colorScheme: ColorScheme.light(
                   primary: AppColors.primaryTeal,
-                  onPrimary: Colors.white,
+                  onPrimary: AppColors.white,
                   onSurface: AppColors.textDark,
                 ),
               ),
@@ -726,7 +726,7 @@ class _ShiftConfigurationScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.cream,
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.textLight),
             ),
@@ -775,7 +775,7 @@ class _ShiftConfigurationScreenState
             style: TextStyle(color: AppColors.textDark, fontSize: 14),
             decoration: InputDecoration(
               filled: true,
-              fillColor: AppColors.cream,
+              fillColor: AppColors.background,
               contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -871,7 +871,7 @@ class _ShiftConfigurationScreenState
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.cream,
+                    fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -903,7 +903,7 @@ class _ShiftConfigurationScreenState
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.cream,
+                    fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -943,7 +943,7 @@ class _ShiftConfigurationScreenState
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.cream,
+                    fillColor: AppColors.background,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -991,6 +991,6 @@ class _ShiftConfigurationScreenState
   /// Get best contrast color (white or black) for a given background color
   Color _getBestContrastColor(Color backgroundColor) {
     final luminance = backgroundColor.computeLuminance();
-    return luminance > 0.5 ? Colors.black : Colors.white;
+    return luminance > 0.5 ? Colors.black : AppColors.white;
   }
 }

@@ -383,7 +383,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                             child: Text(
                               event.title,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: Colors.white,
+                                color: AppColors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                               maxLines: 1,
@@ -402,7 +402,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         Text(
                           '${DateFormat('h:mm a').format(event.startTime)} - ${DateFormat('h:mm a').format(event.endTime)}',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white70,
+                            color: AppColors.white.withOpacity(0.7),
                             fontSize: 10,
                           ),
                           maxLines: 1,

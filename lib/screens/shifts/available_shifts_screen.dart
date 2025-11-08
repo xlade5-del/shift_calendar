@@ -34,7 +34,7 @@ class AvailableShiftsScreen extends ConsumerWidget {
               data: (shifts) => _buildShiftsList(context, ref, shifts),
               loading: () => const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                 ),
               ),
               error: (error, stack) => Center(
@@ -72,7 +72,7 @@ class AvailableShiftsScreen extends ConsumerWidget {
             },
             child: const Icon(
               Icons.keyboard_arrow_down,
-              color: Colors.white,
+              color: AppColors.white,
               size: 32,
             ),
           ),
@@ -84,7 +84,7 @@ class AvailableShiftsScreen extends ConsumerWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppColors.white,
               letterSpacing: 1.2,
             ),
           ),
@@ -108,7 +108,7 @@ class AvailableShiftsScreen extends ConsumerWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryTeal,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -133,7 +133,7 @@ class AvailableShiftsScreen extends ConsumerWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryTeal,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -280,7 +280,7 @@ class _ShiftTemplateCard extends ConsumerWidget {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                          color: AppColors.white,
                         ),
                       ),
                       if (shift.schedule != null && shift.schedule!.isNotEmpty) ...[
@@ -336,8 +336,8 @@ class _ShiftTemplateCard extends ConsumerWidget {
 
             // Edit option
             ListTile(
-              leading: const Icon(Icons.edit, color: Colors.white),
-              title: const Text('Edit', style: TextStyle(color: Colors.white)),
+              leading: const Icon(Icons.edit, color: AppColors.white),
+              title: const Text('Edit', style: TextStyle(color: AppColors.white)),
               onTap: () {
                 print('Edit tapped for shift: ${shift.name}');
                 Navigator.pop(context); // Close options menu

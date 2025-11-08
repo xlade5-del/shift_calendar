@@ -105,7 +105,7 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
     final partnerAsync = ref.watch(partnerDataProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

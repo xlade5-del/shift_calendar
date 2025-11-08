@@ -126,7 +126,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.cream.withOpacity(0.3),
+                        color: AppColors.background.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(

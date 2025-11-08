@@ -3,10 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import '../services/onboarding_service.dart';
 
 // Auth service provider
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService();
+});
+
+// Onboarding service provider
+final onboardingServiceProvider = Provider<OnboardingService>((ref) {
+  return OnboardingService();
+});
+
+// Check if user has completed onboarding
+final hasCompletedOnboardingProvider = FutureProvider<bool>((ref) async {
+  final onboardingService = ref.watch(onboardingServiceProvider);
+  return await onboardingService.hasCompletedOnboarding();
 });
 
 // Auth state changes stream provider

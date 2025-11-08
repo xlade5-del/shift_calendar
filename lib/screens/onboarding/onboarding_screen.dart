@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../utils/app_colors.dart';
-import '../../services/onboarding_service.dart';
+import '../../providers/auth_provider.dart';
 import 'welcome_step.dart';
 import 'profile_setup_step.dart';
 import 'partner_setup_step.dart';
@@ -10,16 +11,15 @@ import 'complete_step.dart';
 import '../home_screen.dart';
 
 /// Main onboarding screen with PageView-based wizard
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
-  final OnboardingService _onboardingService = OnboardingService();
   int _currentPage = 0;
   final int _totalPages = 5;
 
@@ -51,7 +51,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   /// Skip to the end and complete onboarding
   Future<void> _skipOnboarding() async {
-    await _onboardingService.setOnboardingComplete();
+    final onboardingService = ref.read(onboardingServiceProvider);
+    await onboardingService.setOnboardingComplete();
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -61,7 +62,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   /// Complete onboarding and navigate to home
   Future<void> _completeOnboarding() async {
-    await _onboardingService.setOnboardingComplete();
+    final onboardingService = ref.read(onboardingServiceProvider);
+    await onboardingService.setOnboardingComplete();
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -72,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [

@@ -292,7 +292,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     final dateFormat = DateFormat('EEE, MMM d, yyyy');
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

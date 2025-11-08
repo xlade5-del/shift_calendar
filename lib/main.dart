@@ -11,7 +11,6 @@ import 'screens/auth/welcome_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'services/notification_service.dart';
-import 'services/onboarding_service.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -88,6 +87,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateChangesProvider);
+    final hasCompletedOnboarding = ref.watch(hasCompletedOnboardingProvider);
 
     // Listen for auth state changes to update FCM token
     ref.listen<AsyncValue<dynamic>>(authStateChangesProvider, (previous, next) {
@@ -108,27 +108,26 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
         }
 
         // If user is logged in, check onboarding status
-        return FutureBuilder<bool>(
-          future: OnboardingService().hasCompletedOnboarding(),
-          builder: (context, snapshot) {
-            // Show loading while checking onboarding status
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-
+        return hasCompletedOnboarding.when(
+          data: (completed) {
             // If onboarding not complete, show onboarding screen
-            final hasCompletedOnboarding = snapshot.data ?? false;
-            if (!hasCompletedOnboarding) {
+            if (!completed) {
               return const OnboardingScreen();
             }
 
             // If onboarding complete, show home screen
             return const HomeScreen();
           },
+          loading: () => const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          error: (error, stackTrace) => const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
         );
       },
       loading: () => const Scaffold(

@@ -15,6 +15,7 @@ class AppColors {
   static const Color lightMint = Color(0xFFCCEBEC);
 
   // Background Colors
+  static const Color background = Color(0xFFF5F5F7); // Airy light grey background
   static const Color cream = Color(0xFFF5E6D3);
   static const Color lightCream = Color(0xFFFAF3E8);
   static const Color white = Color(0xFFFFFFFF);

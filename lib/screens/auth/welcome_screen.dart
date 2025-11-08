@@ -37,7 +37,7 @@ class WelcomeScreen extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors.cream, // VelloShift brand cream background
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
