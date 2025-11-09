@@ -18,6 +18,9 @@ class _NotificationSettingsScreenState
   bool _partnerChanges = true;
   bool _conflicts = true;
   bool _freeTime = true;
+  bool _quietHoursEnabled = false;
+  TimeOfDay _quietHoursStart = const TimeOfDay(hour: 22, minute: 0); // 10:00 PM
+  TimeOfDay _quietHoursEnd = const TimeOfDay(hour: 7, minute: 0); // 7:00 AM
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -45,6 +48,26 @@ class _NotificationSettingsScreenState
             _partnerChanges = settings['partnerChanges'] ?? true;
             _conflicts = settings['conflicts'] ?? true;
             _freeTime = settings['freeTime'] ?? true;
+            _quietHoursEnabled = settings['quietHoursEnabled'] ?? false;
+
+            // Parse quiet hours start time
+            if (settings['quietHoursStart'] != null) {
+              final startParts = settings['quietHoursStart'].split(':');
+              _quietHoursStart = TimeOfDay(
+                hour: int.parse(startParts[0]),
+                minute: int.parse(startParts[1]),
+              );
+            }
+
+            // Parse quiet hours end time
+            if (settings['quietHoursEnd'] != null) {
+              final endParts = settings['quietHoursEnd'].split(':');
+              _quietHoursEnd = TimeOfDay(
+                hour: int.parse(endParts[0]),
+                minute: int.parse(endParts[1]),
+              );
+            }
+
             _isLoading = false;
           });
           return;
@@ -67,6 +90,37 @@ class _NotificationSettingsScreenState
     }
   }
 
+  /// Show time picker for quiet hours
+  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: isStartTime ? _quietHoursStart : _quietHoursEnd,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryTeal,
+              onPrimary: AppColors.white,
+              surface: AppColors.white,
+              onSurface: AppColors.textDark,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && mounted) {
+      setState(() {
+        if (isStartTime) {
+          _quietHoursStart = picked;
+        } else {
+          _quietHoursEnd = picked;
+        }
+      });
+    }
+  }
+
   /// Save notification settings to Firestore
   Future<void> _saveSettings() async {
     final user = ref.read(currentFirebaseUserProvider);
@@ -82,6 +136,9 @@ class _NotificationSettingsScreenState
           'partnerChanges': _partnerChanges,
           'conflicts': _conflicts,
           'freeTime': _freeTime,
+          'quietHoursEnabled': _quietHoursEnabled,
+          'quietHoursStart': '${_quietHoursStart.hour.toString().padLeft(2, '0')}:${_quietHoursStart.minute.toString().padLeft(2, '0')}',
+          'quietHoursEnd': '${_quietHoursEnd.hour.toString().padLeft(2, '0')}:${_quietHoursEnd.minute.toString().padLeft(2, '0')}',
         },
       });
     } catch (e) {
@@ -379,6 +436,154 @@ class _NotificationSettingsScreenState
               ),
             ),
           ),
+          const SizedBox(height: 24),
+
+          // Quiet Hours Section
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'Quiet Hours',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDark,
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowLight,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  title: Text(
+                    'Enable Quiet Hours',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Silence notifications during specific hours',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textGrey,
+                    ),
+                  ),
+                  secondary: Icon(Icons.bedtime, color: AppColors.info),
+                  value: _quietHoursEnabled,
+                  activeColor: AppColors.primaryTeal,
+                  onChanged: (value) {
+                    setState(() {
+                      _quietHoursEnabled = value;
+                    });
+                  },
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                ),
+                if (_quietHoursEnabled) ...[
+                  Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: AppColors.divider,
+                    indent: 20,
+                    endIndent: 20,
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.nightlight, color: AppColors.primaryTeal),
+                    title: Text(
+                      'Start Time',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    trailing: InkWell(
+                      onTap: () => _selectTime(context, true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryTeal.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _quietHoursStart.format(context),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryTeal,
+                          ),
+                        ),
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 4,
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: AppColors.divider,
+                    indent: 20,
+                    endIndent: 20,
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.wb_sunny, color: AppColors.warning),
+                    title: Text(
+                      'End Time',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    trailing: InkWell(
+                      onTap: () => _selectTime(context, false),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _quietHoursEnd.format(context),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.warning,
+                          ),
+                        ),
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 4,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
 
           // Save button
@@ -392,7 +597,7 @@ class _NotificationSettingsScreenState
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 0,
-              disabledBackgroundColor: AppColors.primaryTeal.withOpacity(0.5),
+              disabledBackgroundColor: AppColors.primaryTeal.withValues(alpha: 0.5),
             ),
             child: _isSaving
                 ? SizedBox(

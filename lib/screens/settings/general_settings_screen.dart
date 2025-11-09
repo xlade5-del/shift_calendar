@@ -5,10 +5,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/app_colors.dart';
-import '../../services/auth_service.dart';
 import 'notification_settings_screen.dart';
 import 'ical_import_screen.dart';
 import 'legal_document_screen.dart';
+import 'subscription_screen.dart';
 import '../partner/partner_management_screen.dart';
 import '../profile/profile_edit_screen.dart';
 
@@ -170,6 +170,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const ProfileEditScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildDivider(),
+                  _buildListTile(
+                    icon: Icons.workspace_premium,
+                    title: 'VelloShift Premium',
+                    subtitle: 'Unlock premium features',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SubscriptionScreen(),
                         ),
                       );
                     },

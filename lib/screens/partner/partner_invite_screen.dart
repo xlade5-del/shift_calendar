@@ -28,6 +28,23 @@ class _PartnerInviteScreenState extends ConsumerState<PartnerInviteScreen> {
         throw 'You must be signed in to generate a partner code';
       }
 
+      // Check email verification before allowing partner linking
+      if (!user.emailVerified) {
+        setState(() {
+          _isGenerating = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Please verify your email before linking a partner'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        return;
+      }
+
       final firestoreService = ref.read(firestoreServiceProvider);
       final code = await firestoreService.generatePartnerCode(user.uid);
 

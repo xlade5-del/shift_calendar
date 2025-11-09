@@ -35,6 +35,23 @@ class _PartnerAcceptScreenState extends ConsumerState<PartnerAcceptScreen> {
         throw 'You must be signed in to link with a partner';
       }
 
+      // Check email verification before allowing partner linking
+      if (!user.emailVerified) {
+        setState(() {
+          _isLinking = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Please verify your email before linking a partner'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        return;
+      }
+
       final firestoreService = ref.read(firestoreServiceProvider);
       final partnerUserId = await firestoreService.validateAndUsePartnerCode(
         _codeController.text.trim(),

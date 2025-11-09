@@ -1,0 +1,13 @@
+# Don't deploy these files to GitHub Pages
+convert.js
+convert_to_html.py
+README.md
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
+*.swo
+*~

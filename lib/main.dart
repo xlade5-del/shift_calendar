@@ -8,6 +8,7 @@ import 'providers/notification_provider.dart';
 import 'providers/offline_sync_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/auth/welcome_screen.dart';
+import 'screens/auth/email_verification_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'services/notification_service.dart';
@@ -107,7 +108,12 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
           return const WelcomeScreen();
         }
 
-        // If user is logged in, check onboarding status
+        // If user's email is not verified, show email verification screen
+        if (!user.emailVerified) {
+          return const EmailVerificationScreen();
+        }
+
+        // If user is logged in and verified, check onboarding status
         return hasCompletedOnboarding.when(
           data: (completed) {
             // If onboarding not complete, show onboarding screen

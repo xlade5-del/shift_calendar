@@ -1,7 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:io' show Platform;
 
 /// Service for managing push notifications via FCM/APNs
 class NotificationService {
@@ -116,12 +115,67 @@ class NotificationService {
     });
   }
 
+  /// Check if current time is within quiet hours for a specific user
+  Future<bool> _isQuietHours(String userId) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (!doc.exists) return false;
+
+      final settings = doc.data()?['notificationSettings'] as Map<String, dynamic>?;
+      if (settings == null) return false;
+
+      final quietHoursEnabled = settings['quietHoursEnabled'] ?? false;
+      if (!quietHoursEnabled) return false;
+
+      final startTimeStr = settings['quietHoursStart'] as String?;
+      final endTimeStr = settings['quietHoursEnd'] as String?;
+
+      if (startTimeStr == null || endTimeStr == null) return false;
+
+      // Parse quiet hours times
+      final startParts = startTimeStr.split(':');
+      final endParts = endTimeStr.split(':');
+
+      final now = DateTime.now();
+      final currentMinutes = now.hour * 60 + now.minute;
+
+      final startMinutes = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+      final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+
+      // Handle cases where quiet hours span midnight (e.g., 22:00 - 07:00)
+      if (startMinutes > endMinutes) {
+        // Quiet hours span midnight
+        return currentMinutes >= startMinutes || currentMinutes < endMinutes;
+      } else {
+        // Quiet hours within same day
+        return currentMinutes >= startMinutes && currentMinutes < endMinutes;
+      }
+    } catch (e) {
+      print('NotificationService: Error checking quiet hours: $e');
+      return false; // On error, don't suppress notifications
+    }
+  }
+
   /// Handle foreground messages (when app is open)
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     print('NotificationService: Foreground message received');
     print('Title: ${message.notification?.title}');
     print('Body: ${message.notification?.body}');
     print('Data: ${message.data}');
+
+    // Check if recipient has quiet hours enabled
+    final userId = message.data['recipientId'];
+    if (userId != null) {
+      final inQuietHours = await _isQuietHours(userId);
+      if (inQuietHours) {
+        print('NotificationService: Suppressing notification during quiet hours');
+        return; // Don't show notification during quiet hours
+      }
+    }
 
     // Show local notification
     RemoteNotification? notification = message.notification;

@@ -42,7 +42,7 @@ VelloShift is a cross-platform mobile application designed to eliminate the fric
 | **MVP Scope** | Auth, partner linking, manual events, 1 iCal feed, week view, real-time sync, offline mode, conflict alerts |
 | **Tech Stack** | Flutter + Firebase (Firestore, Auth, Functions) + SQLite + FCM/APNs |
 | **Timeline** | 20 weeks development + 4 weeks beta testing = 24 weeks to launch |
-| **Pricing** | Free (core features) + $4.99/month premium (unlimited feeds, exports, priority support) |
+| **Pricing** | Free (core features) + $3.99/month premium (unlimited feeds, exports) |
 | **Target Metrics** | 1k DAU at 6 months, 60% D90 retention, 4.5+ store rating, 95% sync reliability |
 
 ### 1.3 Key Objectives
@@ -103,7 +103,7 @@ The calendar application market is dominated by platform-specific solutions (App
 | Retail & Hospitality | 4.5M couples | Medium |
 | Manufacturing | 2.1M couples | Medium |
 
-**Total Addressable Market:** 5-8 million couples in the United States, with global expansion potential of 50+ million couples. At a premium subscription rate of $4.99/month per couple, this represents annual recurring revenue potential of $300-400 million in the US market.
+**Total Addressable Market:** 5-8 million couples in the United States, with global expansion potential of 50+ million couples. At a premium subscription rate of $3.99/month per couple, this represents annual recurring revenue potential of $240-320 million in the US market.
 
 **Cost of Inaction:** Without a purpose-built solution, users continue losing 15-20 hours monthly to manual coordination, experiencing relationship stress, missing important events, and accepting suboptimal schedule management as inevitable.
 
@@ -534,7 +534,7 @@ Non-functional requirements define system performance, reliability, and quality 
 
 ### 8.1 Free vs Premium Tiers
 
-| Feature | Free Tier | Premium Tier ($4.99/month) |
+| Feature | Free Tier | Premium Tier ($3.99/month) |
 |---------|-----------|---------------------------|
 | **Manual Events** | ✅ Unlimited | ✅ Unlimited |
 | **Partner Linking** | ✅ 1 partner (2 people) | ✅ 1 partner (2 people) |
@@ -545,19 +545,18 @@ Non-functional requirements define system performance, reliability, and quality 
 | **Offline Mode** | ✅ Included | ✅ Included |
 | **Free Time Finder** | ❌ | ✅ Shows mutual availability |
 | **Export** | ❌ | ✅ PDF & iCal export |
-| **Support** | Email (48hr response) | Priority email (24hr response) |
 | **AI Suggestions** | ❌ | ✅ Coming post-10k users |
 
 ### 8.2 Pricing Strategy
 
 **Price Point:**
-- Monthly: $4.99/month per couple
-- Annual: $49.99/year (~$4.17/month, 17% discount)
-- Free Trial: 14 days full premium access, no credit card required
+- Monthly: $3.99/month per couple
+- Annual: $39.99/year (~$3.33/month, 17% discount)
+- Free Trial: 7 days full premium access, no credit card required
 
 **Rationale:**
 - Price aligns with productivity app market ($3-7/month range)
-- Couples typically share cost, making it ~$2.50/person
+- Couples typically share cost, making it ~$2.00/person
 - Annual discount incentivizes longer commitment and reduces churn
 - Free tier provides unlimited core value; premium adds convenience
 

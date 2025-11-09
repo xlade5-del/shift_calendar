@@ -842,12 +842,11 @@ exports.pollIcalFeeds = functions.pubsub.schedule('every 15 minutes').onRun(asyn
 - Real-time sync and offline mode
 - Basic conflict alerts
 
-### Premium Tier ($4.99/month or $49.99/year)
+### Premium Tier ($3.99/month or $39.99/year)
 - Unlimited iCal feeds
 - Free time finder (mutual availability)
 - PDF/iCal export
 - Advanced notification customization
-- Priority support (24hr response)
 - Future: AI suggestions (post-10k users)
 
 ## Critical Checkpoints

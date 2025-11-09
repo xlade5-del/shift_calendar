@@ -7,6 +7,42 @@ const fetch = require('node-fetch');
 admin.initializeApp();
 
 /**
+ * Check if current time is within user's quiet hours
+ * @param {object} notificationSettings - User's notification settings
+ * @return {boolean} True if currently in quiet hours
+ */
+function isQuietHours(notificationSettings) {
+  if (!notificationSettings || !notificationSettings.quietHoursEnabled) {
+    return false;
+  }
+
+  const startTimeStr = notificationSettings.quietHoursStart;
+  const endTimeStr = notificationSettings.quietHoursEnd;
+
+  if (!startTimeStr || !endTimeStr) {
+    return false;
+  }
+
+  // Parse quiet hours times
+  const [startHour, startMinute] = startTimeStr.split(':').map(Number);
+  const [endHour, endMinute] = endTimeStr.split(':').map(Number);
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const startMinutes = startHour * 60 + startMinute;
+  const endMinutes = endHour * 60 + endMinute;
+
+  // Handle cases where quiet hours span midnight (e.g., 22:00 - 07:00)
+  if (startMinutes > endMinutes) {
+    // Quiet hours span midnight
+    return currentMinutes >= startMinutes || currentMinutes < endMinutes;
+  } else {
+    // Quiet hours within same day
+    return currentMinutes >= startMinutes && currentMinutes < endMinutes;
+  }
+}
+
+/**
  * Scheduled function to poll iCal feeds every 15 minutes
  * Fetches external calendar feeds and imports new/updated events
  */
@@ -221,6 +257,12 @@ exports.onEventCreated = onDocumentCreated({
       return;
     }
 
+    // Check quiet hours
+    if (isQuietHours(partner.notificationSettings)) {
+      console.log('Partner is in quiet hours, suppressing notification');
+      return;
+    }
+
     const fcmToken = partner.fcmToken;
 
     if (!fcmToken) {
@@ -317,6 +359,12 @@ exports.onEventUpdated = onDocumentUpdated({
       return;
     }
 
+    // Check quiet hours
+    if (isQuietHours(partner.notificationSettings)) {
+      console.log('Partner is in quiet hours, suppressing notification');
+      return;
+    }
+
     const fcmToken = partner.fcmToken;
 
     if (!fcmToken) {
@@ -382,6 +430,12 @@ exports.onEventDeleted = onDocumentDeleted({
 
     // Check notification settings
     if (!partner.notificationSettings?.partnerChanges) {
+      return;
+    }
+
+    // Check quiet hours
+    if (isQuietHours(partner.notificationSettings)) {
+      console.log('Partner is in quiet hours, suppressing notification');
       return;
     }
 

@@ -35,6 +35,9 @@ class AuthService {
         await user.reload();
       }
 
+      // Send email verification
+      await user.sendEmailVerification();
+
       // Create user document in Firestore
       final UserModel userModel = UserModel(
         uid: user.uid,
@@ -101,6 +104,41 @@ class AuthService {
       await _auth.signOut();
     } catch (e) {
       throw 'Error signing out. Please try again.';
+    }
+  }
+
+  // Check if current user's email is verified
+  bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
+
+  // Send email verification to current user
+  Future<void> sendEmailVerification() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw 'No user is currently signed in.';
+      }
+
+      if (user.emailVerified) {
+        throw 'Email is already verified.';
+      }
+
+      await user.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'too-many-requests') {
+        throw 'Too many verification emails sent. Please wait a few minutes before trying again.';
+      }
+      throw 'Error sending verification email. Please try again.';
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Reload current user to check for email verification status
+  Future<void> reloadUser() async {
+    try {
+      await _auth.currentUser?.reload();
+    } catch (e) {
+      throw 'Error reloading user data.';
     }
   }
 
