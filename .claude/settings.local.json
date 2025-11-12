@@ -18,7 +18,9 @@
       "Bash(flutter build:*)",
       "Bash(python convert_to_html.py:*)",
       "Bash(python3:*)",
-      "Bash(node convert.js:*)"
+      "Bash(node convert.js:*)",
+      "Bash(git push)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

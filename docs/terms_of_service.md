@@ -1,510 +1,396 @@
 # VelloShift Terms of Service
 
-**Last Updated:** November 8, 2025
-**Effective Date:** November 8, 2025
+**Last Updated:** November 9, 2025
+**Effective Date:** November 9, 2025
 
-## 1. Agreement to Terms
+---
 
-By accessing or using the VelloShift mobile application ("App," "Service," or "VelloShift"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the App.
+## Welcome to VelloShift
 
-**Important:** These Terms constitute a legally binding agreement between you and VelloShift ("we," "us," or "our"). Please read them carefully.
+These Terms of Service ("Terms") govern your use of the VelloShift mobile application and services (collectively, "VelloShift" or the "Service"). By creating an account or using VelloShift, you agree to these Terms.
 
-## 2. Eligibility
+**Please read carefully.** These Terms include important information about your rights, obligations, and how disputes are resolved.
 
-### 2.1 Age Requirements
+If you don't agree to these Terms, please don't use VelloShift.
 
-You must be at least 13 years old to use VelloShift. If you are between 13 and 18 years old (or the age of majority in your jurisdiction), you may only use the Service with the consent and supervision of a parent or legal guardian.
+---
 
-Users in the European Economic Area (EEA) must be at least 16 years old.
+## 1. Who Can Use VelloShift
 
-### 2.2 Account Accuracy
+### Age Requirements
+- You must be at least **13 years old** to use VelloShift
+- Users aged 13-18 need parental or guardian consent
+- Users in the European Economic Area (EEA) must be at least **16 years old**
 
-You agree to:
-- Provide accurate and complete registration information
-- Maintain and update your information to keep it current
-- Keep your password secure and confidential
-- Notify us immediately of any unauthorized use of your account
+### Account Requirements
+- Provide accurate and complete information when creating your account
+- Keep your account information current
+- Maintain the security of your password
+- You're responsible for all activity under your account
+- One account per person — don't create multiple accounts
 
-**You are responsible for all activities** that occur under your account, whether authorized by you or not.
+---
 
-## 3. Account Registration and Security
+## 2. What VelloShift Does
 
-### 3.1 Account Creation
+VelloShift is a calendar app designed for couples managing shift work schedules. Our Service includes:
 
-To use VelloShift, you must create an account using one of the following methods:
-- Email and password
-- Google Sign-In
-- Apple Sign-In
+### Core Features (Free)
+- Real-time calendar sync between you and your partner
+- Unlimited manual event creation and editing
+- 1 iCal feed import per user
+- Offline mode with automatic sync
+- Push notifications for schedule changes
+- Conflict detection when both partners work
 
-### 3.2 Account Security
+### Premium Features ($3.99/month or $39.99/year)
+- Unlimited iCal feed imports
+- Advanced free time finder
+- PDF and iCal export capabilities
+- Priority customer support
 
-You are solely responsible for:
-- Maintaining the confidentiality of your login credentials
-- All activities that occur under your account
-- Notifying us immediately if you suspect unauthorized access
+---
 
-**We are not liable** for any loss or damage arising from your failure to maintain account security.
+## 3. Partner Linking
 
-### 3.3 One Account Per Person
+### How It Works
+- You can link your account with **one partner** to share calendars
+- Both people must approve the connection using a 6-digit code
+- Once linked, you both see each other's events in real-time
 
-You may only create and maintain one account. Creating multiple accounts to circumvent our policies is prohibited.
+### What This Means
+- Your partner will see **all** your calendar events
+- You trust this person with your schedule information
+- **You're responsible** for who you choose to link with
+- We're not responsible for how your partner uses this information
 
-## 4. Service Description
+### Unlinking
+- Either person can unlink at any time in Settings
+- Unlinking immediately stops all calendar sharing
+- Both people are notified when unlinking happens
 
-### 4.1 What VelloShift Provides
+---
 
-VelloShift is a calendar synchronization application designed for couples managing shift work schedules. The Service includes:
+## 4. Your Content and Behavior
 
-- Real-time calendar synchronization between partner accounts
-- Manual event creation, editing, and deletion
-- iCal feed import for external calendar integration
-- Offline mode with automatic synchronization
-- Push notifications for schedule changes and conflicts
-- Conflict detection and free time identification
+### What You Own
+You own all calendar events, notes, and information you create in VelloShift. By using the Service, you allow us to:
+- Store and display your content
+- Share it with your linked partner
+- Back it up for disaster recovery
+- Process it to provide features (sync, notifications, conflict detection)
 
-### 4.2 Service Availability
-
-We strive to provide 99.5% uptime, but we do not guarantee uninterrupted access. The Service may be temporarily unavailable due to:
-- Scheduled maintenance (we will provide advance notice when possible)
-- Emergency repairs
-- Third-party service outages (Firebase, Apple, Google)
-- Events beyond our reasonable control
-
-### 4.3 Service Changes
-
-We reserve the right to:
-- Modify or discontinue features (temporarily or permanently)
-- Update the App to improve functionality or security
-- Change pricing for premium features (with 30 days' notice to existing subscribers)
-
-**We will notify you** of material changes via in-app notification or email.
-
-## 5. Partner Linking
-
-### 5.1 How Partner Linking Works
-
-VelloShift allows you to link your account with one partner to share calendar data in real-time. By linking accounts:
-- You grant your partner access to view all your calendar events
-- You gain access to view all your partner's calendar events
-- Both parties must approve the connection
-
-### 5.2 Partner Responsibilities
-
-When you link with a partner, you acknowledge that:
-- You trust this person with access to your schedule information
-- Your partner can see all events you create or import
-- You are responsible for choosing who you link with
-
-**We are not responsible** for how your partner uses or shares the information they access through the partner link.
-
-### 5.3 Unlinking
-
-Either partner can unlink the connection at any time:
-- Go to Settings → Partner Management → Unlink Partner
-- Unlinking immediately stops all calendar data sharing
-- Both partners are notified when unlinking occurs
-
-## 6. User Content and Conduct
-
-### 6.1 Your Content
-
-"User Content" includes all calendar events, notes, titles, and other information you create or upload to VelloShift.
-
-**You retain ownership** of your User Content. By using the Service, you grant us a limited license to:
-- Store and display your content within the App
-- Share your content with your linked partner
-- Backup your content for disaster recovery
-- Process your content to provide the Service (sync, notifications, conflict detection)
-
-### 6.2 Content Standards
-
-You agree NOT to use VelloShift to create, upload, or share content that:
-- Violates any law or regulation
-- Infringes on intellectual property rights
-- Contains malware, viruses, or harmful code
+### What's Not Allowed
+Don't use VelloShift to create or share content that:
+- Violates laws or regulations
 - Harasses, threatens, or abuses others
-- Contains explicit or inappropriate content
-- Impersonates any person or entity
-- Contains false or misleading information
+- Contains malware or viruses
+- Infringes on others' intellectual property rights
+- Contains explicit or inappropriate material
 
-### 6.3 Prohibited Activities
+### Prohibited Activities
+You agree not to:
+- Reverse engineer or decompile the app
+- Access the Service through bots or automated tools
+- Try to hack or disrupt the Service
+- Use the Service for illegal purposes
+- Share your account with others
+- Resell or redistribute VelloShift
 
-You agree NOT to:
-- Reverse engineer, decompile, or disassemble the App
-- Access the Service through automated means (bots, scrapers)
-- Attempt to gain unauthorized access to our systems
-- Interfere with or disrupt the Service's operation
-- Use the Service for any illegal purpose
-- Resell or redistribute the Service without permission
-- Create accounts for anyone other than yourself
-- Share your account credentials with third parties
-
-### 6.4 Enforcement
-
-We reserve the right to:
-- Remove content that violates these Terms
-- Suspend or terminate accounts for violations
+### Enforcement
+If you violate these Terms, we may:
+- Remove your content
+- Suspend or terminate your account
 - Report illegal activity to law enforcement
-- Cooperate with legal investigations
 
-## 7. Intellectual Property Rights
+---
 
-### 7.1 Our Property
+## 5. Subscription and Payments
 
-VelloShift and all related content, features, and functionality (including but not limited to software, design, text, graphics, logos) are owned by VelloShift and are protected by copyright, trademark, and other intellectual property laws.
+### Billing
+- **Monthly:** $3.99 every 30 days
+- **Annual:** $39.99 every 365 days
+- **Auto-renewal:** Subscriptions renew automatically unless canceled 24 hours before renewal
 
-You are granted a limited, non-exclusive, non-transferable license to use the App for personal, non-commercial purposes.
+### Payment Processing
+- iOS subscriptions: Processed through Apple App Store
+- Android subscriptions: Processed through Google Play Store
+- We don't store your credit card information
 
-### 7.2 Trademarks
+### Cancellation
+**To cancel:**
+- **iOS:** Settings → Your Name → Subscriptions → VelloShift → Cancel
+- **Android:** Google Play → Subscriptions → VelloShift → Cancel
 
-"VelloShift" and associated logos are trademarks of VelloShift. You may not use our trademarks without prior written permission.
+Your access continues until the end of your current billing period.
 
-### 7.3 Feedback
-
-If you provide us with suggestions, ideas, or feedback about the App ("Feedback"), you grant us a perpetual, royalty-free license to use, modify, and incorporate that Feedback into our Service without compensation or attribution.
-
-## 8. Subscription and Payment Terms
-
-### 8.1 Free and Premium Tiers
-
-VelloShift offers two service tiers:
-
-**Free Tier:**
-- Unlimited manual events
-- 1 partner link
-- 1 iCal feed per user
-- Week calendar view
-- Real-time sync
-- Basic notifications
-
-**Premium Tier ($4.99/month or $49.99/year):**
-- All free tier features
-- Unlimited iCal feeds
-- Month and day calendar views
-- Free time finder
-- PDF and iCal export
-- Priority support (24-hour response)
-
-### 8.2 Payment Processing
-
-Premium subscriptions are processed through:
-- **iOS:** Apple App Store (subject to Apple's terms)
-- **Android:** Google Play Store (subject to Google's terms)
-
-**We do not store** your credit card information. All payment processing is handled by Apple or Google.
-
-### 8.3 Billing Cycle
-
-- **Monthly Subscription:** Billed every 30 days from signup date
-- **Annual Subscription:** Billed every 365 days from signup date
-- **Auto-Renewal:** Subscriptions automatically renew unless canceled at least 24 hours before the renewal date
-
-### 8.4 Free Trial
-
-New premium users may receive a 14-day free trial:
-- No credit card required to start trial
-- You will be notified 3 days before trial ends
-- Cancel anytime during trial to avoid charges
-- One trial per user (enforced by email address)
-
-### 8.5 Cancellation and Refunds
-
-**Canceling Subscription:**
-- iOS: Settings → Your Name → Subscriptions → VelloShift → Cancel
-- Android: Google Play → Subscriptions → VelloShift → Cancel
-- Access continues until the end of the billing period
-
-**Refund Policy:**
-- App Store and Play Store refunds are subject to Apple's and Google's policies
-- For direct billing, refunds may be granted within 7 days for unused service
+### Refunds
+- Refunds follow Apple's and Google's policies
+- For direct billing: Request within 7 days for unused service
 - Contact support@velloshift.com with your purchase receipt
 
 **No refunds for:**
-- Partial months of service
-- Account termination for Terms violations
-- Dissatisfaction with features clearly described before purchase
+- Partial months or years
+- Account termination due to Terms violations
+- Change of mind after trying features
 
-### 8.6 Price Changes
+### Price Changes
+We may change premium pricing with **30 days' advance notice**. Existing subscribers can cancel before the new price takes effect.
 
-We may change premium pricing with 30 days' advance notice:
-- Existing subscribers receive 30 days to cancel before new price applies
-- New subscribers pay the current price at time of signup
+---
 
-## 9. Data and Privacy
+## 6. Service Availability
 
-### 9.1 Privacy Policy
+### What We Aim For
+We strive for 99.5% uptime and <3 second sync latency.
 
-Your use of VelloShift is governed by our Privacy Policy (available at docs/privacy_policy.md), which is incorporated into these Terms by reference.
+### What We Don't Guarantee
+The Service may be temporarily unavailable due to:
+- Scheduled maintenance (we'll notify you when possible)
+- Emergency repairs or updates
+- Third-party service outages (Firebase, Apple, Google)
+- Events beyond our control (natural disasters, internet outages)
 
-By using the Service, you consent to our collection and use of your information as described in the Privacy Policy.
+### Service Changes
+We reserve the right to:
+- Modify or discontinue features
+- Update the app for functionality, security, or compliance
+- Change these Terms (with notice)
 
-### 9.2 Data Ownership
+We'll notify you of material changes via in-app notification or email.
 
-You own all calendar data and personal information you provide. We are a data processor, not a data owner.
+---
 
-### 9.3 Data Backup
+## 7. Privacy and Data
 
-While we implement robust backup systems, **you are responsible** for maintaining your own backups of important calendar information. We recommend:
-- Keeping copies of critical dates in a separate system
-- Exporting your data regularly (premium feature)
+### Your Privacy
+Your use of VelloShift is also governed by our [Privacy Policy](privacy_policy.md), which explains:
+- What information we collect
+- How we use it
+- How we protect it
+- Your rights and choices
 
-### 9.4 Data Deletion
+### Data Ownership
+- You own your calendar data and personal information
+- We're a data processor, not a data owner
+- When you delete your account, your data is permanently deleted within 30 days
 
-When you delete your account:
-- All your calendar events are immediately removed from partner view
-- Your data is permanently deleted from our systems within 30 days
-- Backup copies are purged within 90 days
-- This action cannot be undone
+### Data Backup
+While we implement robust backup systems, **you're responsible** for maintaining your own backups of important information. We recommend keeping critical dates in a separate system.
 
-## 10. Third-Party Services
+---
 
-### 10.1 External Calendar Integration
+## 8. Third-Party Services
 
-VelloShift supports iCal feed imports from third-party calendar services (Google Calendar, Apple Calendar, etc.).
+### iCal Feed Imports
+VelloShift can import calendars from Google Calendar, Apple Calendar, and other services.
 
-**We are not responsible for:**
-- Availability or reliability of third-party calendar services
-- Accuracy of data from external calendars
-- Changes to third-party APIs that break integration
-- Privacy practices of third-party services
+**We're not responsible for:**
+- Availability or reliability of third-party services
+- Accuracy of imported data
+- Changes to third-party APIs
+- Privacy practices of external services
 
-You use third-party integrations at your own risk.
+### Authentication
+When you sign in with Google or Apple:
+- We only receive basic profile information (name, email)
+- You remain subject to their terms of service
+- We don't access your emails, contacts, or other services
 
-### 10.2 OAuth and Authentication
+---
 
-When you use Google Sign-In or Apple Sign-In:
-- You authorize us to receive basic profile information
-- You remain subject to Google's and Apple's terms of service
-- We do not access your email, contacts, or other Google/Apple services beyond authentication
+## 9. Intellectual Property
 
-## 11. Disclaimers and Limitations of Liability
+### What We Own
+VelloShift owns all rights to:
+- The app software and code
+- VelloShift name, logo, and trademarks
+- Design, graphics, and user interface
+- Features and functionality
 
-### 11.1 "AS IS" Service
+You receive a limited, non-exclusive license to use VelloShift for personal, non-commercial purposes.
 
-VELLOSHIFT IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
+### Your Feedback
+If you send us suggestions or ideas, we can use them freely without paying you or crediting you.
 
-- Warranties of merchantability
-- Fitness for a particular purpose
-- Non-infringement
-- Uninterrupted or error-free operation
-- Accuracy, reliability, or completeness of content
+---
 
-### 11.2 No Guarantee of Sync Reliability
+## 10. Disclaimers
 
-While we strive for 95%+ sync reliability, we do not guarantee:
-- Perfect real-time synchronization
-- Zero data loss
-- 100% uptime
+### "As Is" Service
+VELLOSHIFT IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND.
+
+We don't guarantee:
+- Perfect sync reliability or zero data loss
+- 100% uptime or error-free operation
 - Compatibility with all devices or OS versions
+- Accuracy or completeness of content
 
-**Use VelloShift as a convenience tool**, not as the sole source of critical scheduling information.
+**Use VelloShift as a convenience tool**, not as your only scheduling system for critical appointments.
 
-### 11.3 Limitation of Liability
+---
 
-TO THE MAXIMUM EXTENT PERMITTED BY LAW, VELLOSHIFT AND ITS OFFICERS, DIRECTORS, EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR:
+## 11. Limitation of Liability
+
+### What We're Not Liable For
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, VELLOSHIFT IS NOT LIABLE FOR:
 
 **Indirect Damages:**
-- Lost profits, revenue, or data
-- Loss of use or business opportunities
+- Lost profits, revenue, or business opportunities
+- Lost or corrupted data
 - Reputational harm
-- Consequential or incidental damages
+- Relationship issues arising from app use
 
-**Direct Damages:**
-Our total liability for any claim arising out of or relating to these Terms or the Service shall not exceed the greater of:
-- $100 USD, or
-- The amount you paid us in the 12 months preceding the claim
-
-**This limitation applies even if:**
-- We have been advised of the possibility of damages
-- A remedy fails of its essential purpose
-- The damages result from our negligence (to the extent permitted by law)
-
-### 11.4 Excluded Damages
-
-**We are not liable for damages resulting from:**
-- Missed appointments or scheduling conflicts
+**Specific Scenarios:**
+- Missed appointments due to sync failures or notification issues
 - Partner misuse of shared calendar information
 - Third-party service failures (Firebase, Apple, Google)
-- Lost or corrupted calendar data
-- Relationship issues arising from app use
-- Reliance on notifications that fail to deliver
 - Compatibility issues with specific devices
 
-### 11.5 Jurisdictional Limitations
+### Cap on Damages
+Our total liability for any claim is limited to the **greater of**:
+- **$100 USD**, or
+- **The amount you paid us in the past 12 months**
 
-Some jurisdictions do not allow exclusion of implied warranties or limitation of liability for incidental or consequential damages. In such jurisdictions, our liability is limited to the maximum extent permitted by law.
+**This applies even if:**
+- We knew damages were possible
+- A remedy doesn't work as intended
+- The damages result from our negligence (where legally permitted)
+
+### Jurisdictional Variations
+Some regions don't allow these liability limitations. In those cases, our liability is limited to the maximum extent permitted by law.
+
+---
 
 ## 12. Indemnification
 
-You agree to indemnify, defend, and hold harmless VelloShift and its officers, directors, employees, agents, and affiliates from and against any claims, liabilities, damages, losses, costs, or expenses (including reasonable attorneys' fees) arising out of or relating to:
-
+You agree to defend and hold harmless VelloShift from claims, damages, or costs arising from:
 - Your use or misuse of the Service
 - Your violation of these Terms
-- Your violation of any rights of another person or entity
-- Your User Content
-- Any activity under your account, whether authorized or not
+- Your violation of others' rights
+- Content you create or share
+- Any activity under your account
 
-We reserve the right to assume exclusive defense and control of any matter subject to indemnification, at your expense.
+---
 
 ## 13. Termination
 
-### 13.1 Termination by You
+### By You
+Delete your account anytime:
+1. Go to Settings → Account → Delete My Account
+2. Confirm deletion
+3. Your data will be permanently deleted within 30 days
 
-You may terminate your account at any time:
-- Go to Settings → Account → Delete My Account
-- Confirm deletion
-- Your data will be deleted within 30 days
-
-### 13.2 Termination by Us
-
-We may suspend or terminate your account immediately, without notice, if:
+### By Us
+We may suspend or terminate your account if:
 - You violate these Terms
 - You engage in fraudulent or illegal activity
-- Your account remains inactive for 2+ years
+- Your account is inactive for 2+ years
 - We discontinue the Service (with 30 days' notice)
-- Required by law or legal process
+- Required by law
 
-### 13.3 Effect of Termination
-
+### What Happens
 Upon termination:
-- Your right to use the Service immediately ceases
-- Partner links are immediately severed
+- You immediately lose access to the Service
+- Partner links are severed
+- Subscriptions are canceled (no partial refunds)
 - Your data becomes inaccessible
-- Subscriptions are canceled (no refunds for partial periods)
-- These Terms survive termination to the extent necessary to enforce rights and obligations
 
-### 13.4 No Liability for Termination
-
-We are not liable to you or any third party for termination of your access to the Service.
+---
 
 ## 14. Dispute Resolution
 
-### 14.1 Informal Resolution
+### Step 1: Contact Us First
+Before filing any legal claim, email support@velloshift.com to resolve the issue informally. We'll work with you in good faith for 30 days.
 
-Before filing a claim, you agree to contact us at support@velloshift.com to attempt to resolve the dispute informally. We will work in good faith to resolve disputes within 30 days.
+### Step 2: Binding Arbitration
+If informal resolution fails, disputes will be resolved through **binding arbitration**, not court, except for:
+- Small claims court (if under the jurisdictional limit)
+- Injunctive relief for intellectual property violations
 
-### 14.2 Binding Arbitration
-
-If informal resolution fails, you agree that disputes will be resolved through binding arbitration, not in court, except:
-- Small claims court for disputes under jurisdictional limit
-- Injunctive relief to prevent unauthorized use of intellectual property
-
-**Arbitration Rules:**
-- Conducted by the American Arbitration Association (AAA)
-- AAA Consumer Arbitration Rules apply
-- Arbitration takes place in California or your home state
+**Arbitration Details:**
+- Administered by the American Arbitration Association (AAA)
+- Conducted under AAA Consumer Arbitration Rules
+- Takes place in your home state or California
 - Arbitrator's decision is final and binding
-- Arbitrator may award relief available in court
 
-### 14.3 Class Action Waiver
+### Class Action Waiver
+**YOU AND VELLOSHIFT AGREE THAT DISPUTES WILL BE RESOLVED INDIVIDUALLY.** You waive the right to participate in class actions or representative actions.
 
-YOU AND VELLOSHIFT AGREE THAT DISPUTES WILL BE RESOLVED INDIVIDUALLY. YOU WAIVE THE RIGHT TO PARTICIPATE IN CLASS ACTIONS, CLASS ARBITRATIONS, OR REPRESENTATIVE ACTIONS.
-
-If this waiver is found unenforceable, the arbitration agreement does not apply to that claim.
-
-### 14.4 Opt-Out of Arbitration
-
-You may opt out of arbitration within 30 days of account creation by emailing support@velloshift.com with:
+### Opt-Out Right
+You may opt out of arbitration within **30 days** of creating your account by emailing support@velloshift.com with:
+- Subject: "Arbitration Opt-Out"
 - Your name and email address
-- Subject line: "Arbitration Opt-Out"
-- Statement: "I opt out of the arbitration agreement in VelloShift's Terms of Service"
+- Statement: "I opt out of the arbitration agreement"
 
-## 15. Governing Law and Jurisdiction
+---
 
-These Terms are governed by the laws of the State of California and the United States, without regard to conflict of law principles.
+## 15. Governing Law
 
-**For disputes not subject to arbitration:**
-- Exclusive jurisdiction: State and federal courts in San Francisco County, California
+These Terms are governed by the laws of the **State of California** and the **United States**.
+
+For disputes not subject to arbitration:
+- Exclusive jurisdiction: California state and federal courts
 - You consent to personal jurisdiction in these courts
-- You waive any objection to venue in these courts
 
-## 16. General Provisions
+---
 
-### 16.1 Entire Agreement
+## 16. General Terms
 
-These Terms, together with our Privacy Policy, constitute the entire agreement between you and VelloShift regarding the Service, superseding any prior agreements.
+### Entire Agreement
+These Terms and our Privacy Policy constitute the complete agreement between you and VelloShift.
 
-### 16.2 Severability
-
-If any provision of these Terms is found unenforceable, the remaining provisions remain in full effect. The unenforceable provision will be modified to reflect the parties' intent to the maximum extent permitted by law.
-
-### 16.3 Waiver
-
-Our failure to enforce any right or provision in these Terms does not constitute a waiver of that right or provision. Waivers must be in writing and signed by an authorized representative.
-
-### 16.4 Assignment
-
-You may not assign or transfer these Terms or your account without our written consent. We may assign these Terms to any affiliate or successor in interest.
-
-### 16.5 Force Majeure
-
-We are not liable for delays or failures in performance resulting from causes beyond our reasonable control, including:
-- Acts of God (earthquakes, floods, fires)
-- War, terrorism, or civil unrest
-- Government actions or restrictions
-- Internet or telecommunications failures
-- Third-party service outages
-
-### 16.6 No Partnership
-
-These Terms do not create a partnership, joint venture, employment, or agency relationship between you and VelloShift.
-
-### 16.7 Notices
-
-**To You:** We may provide notices via:
-- In-app notifications
-- Email to your registered address
-- Updates to these Terms (check "Last Updated" date)
-
-**To Us:** Send legal notices to:
-VelloShift Legal Department
-Email: support@velloshift.com
-Subject line: "Legal Notice"
-
-Notices are effective upon receipt.
-
-### 16.8 Language
-
-These Terms are written in English. Any translations are provided for convenience only. In case of conflict, the English version prevails.
-
-## 17. Updates to Terms
-
-We may update these Terms from time to time to reflect:
-- Changes in our practices or features
+### Changes to Terms
+We may update these Terms to reflect:
+- New features or changes to the Service
 - Legal or regulatory requirements
 - Security improvements
 
-**How we notify you:**
-- In-app notification of material changes
-- Email to registered users
-- Updated "Last Updated" date at top of document
+We'll notify you of material changes via in-app notification or email. **Continued use after changes means you accept the updated Terms.**
 
-**Your continued use** of VelloShift after changes constitutes acceptance of the updated Terms. If you do not agree to changes, you must stop using the Service and delete your account.
+### Severability
+If any provision is found unenforceable, the rest of these Terms remain in effect.
 
-## 18. Contact Information
+### No Waiver
+Our failure to enforce a provision doesn't waive our right to enforce it later.
 
-For all questions, concerns, or support regarding these Terms:
+### Assignment
+You can't transfer these Terms or your account without our consent. We may assign these Terms to affiliates or successors.
+
+### Force Majeure
+We're not liable for delays or failures due to events beyond our control (natural disasters, war, terrorism, internet outages, government actions, etc.).
+
+### Language
+These Terms are in English. Translations (if any) are for convenience only. The English version controls in case of conflicts.
+
+---
+
+## 17. Contact Us
+
+For questions, support, or legal notices:
 
 **Email:** support@velloshift.com
-**Response Time:** We aim to respond within 48 hours (24 hours for premium subscribers)
+**Response Time:**
+- Free users: Within 48 hours
+- Premium subscribers: Within 24 hours
 
 **Subject Line Guidelines:**
-- For privacy requests: Use subject "Privacy Rights Request"
-- For legal notices: Use subject "Legal Notice"
-- For arbitration opt-out: Use subject "Arbitration Opt-Out"
-- For general support: Any subject line
-
-All inquiries go to the same email for faster response and simplified communication.
+- Privacy requests: "Privacy Rights Request"
+- Legal notices: "Legal Notice"
+- Arbitration opt-out: "Arbitration Opt-Out"
+- General support: Any subject
 
 ---
 
-**Acknowledgment:**
+## Your Agreement
 
-BY CREATING AN ACCOUNT OR USING VELLOSHIFT, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS OF SERVICE.
+**BY CREATING AN ACCOUNT OR USING VELLOSHIFT, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS OF SERVICE.**
+
+If you don't agree, please don't use VelloShift.
 
 ---
 
-**Last Reviewed:** November 8, 2025
-**Version:** 1.0
+**Version:** 2.0
+**Last Reviewed:** November 9, 2025
 
 © 2025 VelloShift. All rights reserved.
