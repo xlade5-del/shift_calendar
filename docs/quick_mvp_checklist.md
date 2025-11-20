@@ -82,9 +82,9 @@
 #### Week 19-20: Store Prep
 - [ ] App Store submission (iOS)
 - [ ] Google Play submission (Android)
-- [ ] Privacy policy written + hosted
-- [ ] Terms of service written + hosted
-- [ ] Support email set up
+- [x] Privacy policy written + hosted (https://legal.velloshift.com/privacy-policy.html)
+- [x] Terms of service written + hosted (https://legal.velloshift.com/terms-of-service.html)
+- [ ] Support email set up (support@velloshift.com - needs Google Workspace)
 - [ ] Marketing website (single page)
 
 ---

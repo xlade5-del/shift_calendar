@@ -302,6 +302,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - docs/email_setup_guide.md - Email infrastructure setup (400+ lines)
   - docs/email_unification_summary.md - Email simplification summary
 
+- **Legal Documents Hosted Online (COMPLETE ✅ - November 20, 2025)**
+  - Privacy Policy hosted at https://legal.velloshift.com/privacy-policy.html
+  - Terms of Service hosted at https://legal.velloshift.com/terms-of-service.html
+  - Landing page at https://legal.velloshift.com/
+  - Professional HTML design with VelloShift branding (#2B7A78)
+  - Responsive layout (mobile-friendly)
+  - Enhanced readability with warning boxes and info boxes
+  - Ready for App Store/Play Store submission requirements
+
 ### ⏳ Next Phase: Week 21-24 (Testing & Beta Launch)
 **Planned:**
 - Comprehensive offline mode testing (airplane mode, slow networks)
@@ -309,12 +318,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Performance optimization and profiling
 - ✅ Legal documents and consent flow (COMPLETE - November 8, 2025)
 - ✅ Deploy Cloud Functions to Firebase (COMPLETE - November 7, 2025)
+- ✅ Host legal documents online (COMPLETE - November 20, 2025)
 - Set up support@velloshift.com email (Google Workspace recommended, $6/month)
 - Recruit 50 couples for beta testing
 - Set up feedback collection system
 - Bug tracking and triage
-- Attorney review of legal documents ($1,500-$3,000)
-- Host legal documents online (required for App Store/Play Store)
+- Attorney review of legal documents ($1,500-$3,000) - Optional
 - Prepare App Store and Google Play submissions
 
 **Deferred to Post-MVP:**

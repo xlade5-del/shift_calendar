@@ -43,43 +43,35 @@
         }
 
         .header .date {
-            color: #666;
+            color: #999;
             font-size: 14px;
         }
 
         h2 {
             color: #2B7A78;
-            font-size: 28px;
+            font-size: 24px;
             margin: 40px 0 20px 0;
-            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #E0E0E0;
         }
 
         h3 {
             color: #333;
-            font-size: 22px;
+            font-size: 20px;
             margin: 30px 0 15px 0;
-            font-weight: 600;
-        }
-
-        h4 {
-            color: #555;
-            font-size: 18px;
-            margin: 25px 0 12px 0;
-            font-weight: 600;
         }
 
         p {
-            margin: 15px 0;
-            color: #444;
+            margin-bottom: 15px;
+            text-align: justify;
         }
 
-        ul, ol {
+        ul {
             margin: 15px 0 15px 30px;
         }
 
         li {
-            margin: 8px 0;
-            color: #444;
+            margin-bottom: 8px;
         }
 
         strong {
@@ -87,49 +79,64 @@
             font-weight: 600;
         }
 
-        a {
-            color: #2B7A78;
-            text-decoration: none;
-            border-bottom: 1px solid #2B7A78;
+        .warning-box {
+            background: #FFF3CD;
+            border-left: 4px solid #FFA500;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
         }
 
-        a:hover {
-            color: #1F5654;
-            border-bottom-color: #1F5654;
+        .warning-box h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: #1565C0;
+            margin-top: 0;
+        }
+
+        .contact-box {
+            background: #E8F4F3;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .contact-box h3 {
+            color: #2B7A78;
+            margin-top: 0;
         }
 
         .back-link {
             display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background: #F5F5F7;
-            border-radius: 8px;
+            margin-bottom: 30px;
             color: #2B7A78;
             text-decoration: none;
-            border: none;
-            transition: all 0.2s;
+            font-weight: 600;
         }
 
         .back-link:hover {
-            background: #2B7A78;
-            color: white;
+            text-decoration: underline;
         }
 
         .footer {
+            text-align: center;
             margin-top: 60px;
             padding-top: 30px;
-            border-top: 2px solid #E0E0E0;
-            text-align: center;
+            border-top: 1px solid #E0E0E0;
             color: #999;
-            font-size: 14px;
-        }
-
-        .contact-box {
-            background: #F0F9F9;
-            border-left: 4px solid #2B7A78;
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 8px;
+            font-size: 12px;
         }
 
         @media (max-width: 768px) {
@@ -142,11 +149,11 @@
             }
 
             h2 {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             h3 {
-                font-size: 20px;
+                font-size: 18px;
             }
         }
     </style>
@@ -154,399 +161,239 @@
 <body>
     <div class="container">
         <a href="index.html" class="back-link">← Back to Legal Documents</a>
+
         <div class="header">
-            <h1>VelloShift Terms of Service</h1>
-            <p class="date">Last Updated: November 9, 2025</p>
-            <p class="date">Effective Date: November 9, 2025</p>
-        <p>---</p>
+            <h1>VelloShift – Terms of Service</h1>
+            <p class="date">Last Updated: November 2025</p>
         </div>
-        <h2>Welcome to VelloShift</h2>
-        <p>These Terms of Service ("Terms") govern your use of the VelloShift mobile application and services (collectively, "VelloShift" or the "Service"). By creating an account or using VelloShift, you agree to these Terms.</p>
-        <p><strong>Please read carefully.</strong> These Terms include important information about your rights, obligations, and how disputes are resolved.</p>
-        <p>If you don't agree to these Terms, please don't use VelloShift.</p>
-        <p>---</p>
-        </div>
-        <h2>1. Who Can Use VelloShift</h2>
-        <h3>Age Requirements</h3>
+
+        <h2>1. Agreement to Terms</h2>
+        <p>By downloading, accessing, or using the VelloShift mobile app ("App"), you agree to these Terms of Service ("Terms").</p>
+        <p><strong>If you do not agree, please stop using the App immediately.</strong></p>
+
+        <h2>2. Eligibility</h2>
+        <p>You must be:</p>
         <ul>
-            <li>You must be at least <strong>13 years old</strong> to use VelloShift</li>
-            <li>Users aged 13-18 need parental or guardian consent</li>
-            <li>Users in the European Economic Area (EEA) must be at least <strong>16 years old</strong></li>
+            <li>At least 13 years old (or 16+ where required by law).</li>
+            <li>A single individual with one account (no shared or duplicate accounts).</li>
         </ul>
-        <h3>Account Requirements</h3>
+        <p>Users under 18 should have parental or guardian permission.</p>
+
+        <h2>3. What VelloShift Does</h2>
+        <p>VelloShift is a personal scheduling tool that allows you to:</p>
         <ul>
-            <li>Provide accurate and complete information when creating your account</li>
-            <li>Keep your account information current</li>
-            <li>Maintain the security of your password</li>
-            <li>You're responsible for all activity under your account</li>
-            <li>One account per person — don't create multiple accounts</li>
+            <li>Create and manage calendar events</li>
+            <li>(Optionally) share events with a partner</li>
+            <li>(Optionally) import iCal feeds</li>
         </ul>
-        <p>---</p>
-        </div>
-        <h2>2. What VelloShift Does</h2>
-        <p>VelloShift is a calendar app designed for couples managing shift work schedules. Our Service includes:</p>
-        <h3>Core Features (Free)</h3>
+        <p><strong>The App is provided for general convenience only, not for critical, medical, safety, or professional scheduling.</strong></p>
+
+        <h2>4. Partner Linking</h2>
+        <p>If you choose to link with a partner:</p>
         <ul>
-            <li>Real-time calendar sync between you and your partner</li>
-            <li>Unlimited manual event creation and editing</li>
-            <li>1 iCal feed import per user</li>
-            <li>Offline mode with automatic sync</li>
-            <li>Push notifications for schedule changes</li>
-            <li>Conflict detection when both partners work</li>
+            <li>They will see all events you add, import, or modify</li>
+            <li>You decide who you link with</li>
+            <li>You can unlink anytime in Settings</li>
         </ul>
-        <h3>Premium Features ($3.99/month or $39.99/year)</h3>
+
+        <p><strong>We are not responsible for:</strong></p>
         <ul>
-            <li>Unlimited iCal feed imports</li>
-            <li>Advanced free time finder</li>
-            <li>PDF and iCal export capabilities</li>
-            <li>Priority customer support</li>
+            <li>Your partner's actions</li>
+            <li>Misuse or redistribution of your information</li>
+            <li>Any relationship or personal consequences</li>
         </ul>
-        <p>---</p>
-        </div>
-        <h2>3. Partner Linking</h2>
-        <h3>How It Works</h3>
+
+        <p><strong>You assume all risks associated with sharing your schedule.</strong></p>
+
+        <h2>5. Your Content</h2>
+        <p>You own the content you create, including events, notes, and iCal links.</p>
+        <p>By using the App, you give us permission to:</p>
         <ul>
-            <li>You can link your account with <strong>one partner</strong> to share calendars</li>
-            <li>Both people must approve the connection using a 6-digit code</li>
-            <li>Once linked, you both see each other's events in real-time</li>
+            <li>Store your data</li>
+            <li>Process it for app functionality</li>
+            <li>Sync it to your devices</li>
+            <li>Share it with your linked partner (if linked)</li>
         </ul>
-        <h3>What This Means</h3>
+        <p>We do not claim ownership of your information.</p>
+
+        <h2>6. Acceptable Use</h2>
+        <p>You agree <strong>NOT</strong> to:</p>
         <ul>
-            <li>Your partner will see <strong>all</strong> your calendar events</li>
-            <li>You trust this person with your schedule information</li>
-            <li><strong>You're responsible</strong> for who you choose to link with</li>
-            <li>We're not responsible for how your partner uses this information</li>
+            <li>Use the App for unlawful or harmful purposes</li>
+            <li>Upload malware or attempt to disrupt the App</li>
+            <li>Reverse engineer, scrape, or automate access</li>
+            <li>Use the App to harass, defraud, or harm others</li>
+            <li>Share inappropriate, explicit, or illegal content</li>
         </ul>
-        <h3>Unlinking</h3>
+        <p>We may suspend or terminate accounts involved in abuse or violations.</p>
+
+        <h2>7. Subscriptions (If You Choose Premium)</h2>
+        <p>Premium subscription payments are handled directly through:</p>
         <ul>
-            <li>Either person can unlink at any time in Settings</li>
-            <li>Unlinking immediately stops all calendar sharing</li>
-            <li>Both people are notified when unlinking happens</li>
+            <li>Apple App Store (iOS)</li>
+            <li>Google Play Store (Android)</li>
         </ul>
-        <p>---</p>
-        </div>
-        <h2>4. Your Content and Behavior</h2>
-        <h3>What You Own</h3>
-        <p>You own all calendar events, notes, and information you create in VelloShift. By using the Service, you allow us to:</p>
+
+        <p>We do not process or store your payment details.</p>
+        <p>Cancellation and refunds follow Apple/Google policies.</p>
+        <p>You can cancel anytime through your device subscription settings.</p>
+        <p>Price changes may occur with advance notice through the app stores.</p>
+
+        <h2>8. Service Availability</h2>
+        <p>We try to maintain a useful and stable service, but:</p>
+
+        <p><strong>We do not guarantee:</strong></p>
         <ul>
-            <li>Store and display your content</li>
-            <li>Share it with your linked partner</li>
-            <li>Back it up for disaster recovery</li>
-            <li>Process it to provide features (sync, notifications, conflict detection)</li>
-        </ul>
-        <h3>What's Not Allowed</h3>
-        <p>Don't use VelloShift to create or share content that:</p>
-        <ul>
-            <li>Violates laws or regulations</li>
-            <li>Harasses, threatens, or abuses others</li>
-            <li>Contains malware or viruses</li>
-            <li>Infringes on others' intellectual property rights</li>
-            <li>Contains explicit or inappropriate material</li>
-        </ul>
-        <h3>Prohibited Activities</h3>
-        <p>You agree not to:</p>
-        <ul>
-            <li>Reverse engineer or decompile the app</li>
-            <li>Access the Service through bots or automated tools</li>
-            <li>Try to hack or disrupt the Service</li>
-            <li>Use the Service for illegal purposes</li>
-            <li>Share your account with others</li>
-            <li>Resell or redistribute VelloShift</li>
-        </ul>
-        <h3>Enforcement</h3>
-        <p>If you violate these Terms, we may:</p>
-        <ul>
-            <li>Remove your content</li>
-            <li>Suspend or terminate your account</li>
-            <li>Report illegal activity to law enforcement</li>
-        </ul>
-        <p>---</p>
-        </div>
-        <h2>5. Subscription and Payments</h2>
-        <h3>Billing</h3>
-        <ul>
-            <li><strong>Monthly:</strong> $3.99 every 30 days</li>
-            <li><strong>Annual:</strong> $39.99 every 365 days</li>
-            <li><strong>Auto-renewal:</strong> Subscriptions renew automatically unless canceled 24 hours before renewal</li>
-        </ul>
-        <h3>Payment Processing</h3>
-        <ul>
-            <li>iOS subscriptions: Processed through Apple App Store</li>
-            <li>Android subscriptions: Processed through Google Play Store</li>
-            <li>We don't store your credit card information</li>
-        </ul>
-        <h3>Cancellation</h3>
-        <p><strong>To cancel:</strong></p>
-        <ul>
-            <li><strong>iOS:</strong> Settings → Your Name → Subscriptions → VelloShift → Cancel</li>
-            <li><strong>Android:</strong> Google Play → Subscriptions → VelloShift → Cancel</li>
-        </ul>
-        <p>Your access continues until the end of your current billing period.</p>
-        <h3>Refunds</h3>
-        <ul>
-            <li>Refunds follow Apple's and Google's policies</li>
-            <li>For direct billing: Request within 7 days for unused service</li>
-            <li>Contact support@velloshift.com with your purchase receipt</li>
-        </ul>
-        <p><strong>No refunds for:</strong></p>
-        <ul>
-            <li>Partial months or years</li>
-            <li>Account termination due to Terms violations</li>
-            <li>Change of mind after trying features</li>
-        </ul>
-        <h3>Price Changes</h3>
-        <p>We may change premium pricing with <strong>30 days' advance notice</strong>. Existing subscribers can cancel before the new price takes effect.</p>
-        <p>---</p>
-        </div>
-        <h2>6. Service Availability</h2>
-        <h3>What We Aim For</h3>
-        <p>We strive for 99.5% uptime and <3 second sync latency.</p>
-        <h3>What We Don't Guarantee</h3>
-        <p>The Service may be temporarily unavailable due to:</p>
-        <ul>
-            <li>Scheduled maintenance (we'll notify you when possible)</li>
-            <li>Emergency repairs or updates</li>
-            <li>Third-party service outages (Firebase, Apple, Google)</li>
-            <li>Events beyond our control (natural disasters, internet outages)</li>
-        </ul>
-        <h3>Service Changes</h3>
-        <p>We reserve the right to:</p>
-        <ul>
-            <li>Modify or discontinue features</li>
-            <li>Update the app for functionality, security, or compliance</li>
-            <li>Change these Terms (with notice)</li>
-        </ul>
-        <p>We'll notify you of material changes via in-app notification or email.</p>
-        <p>---</p>
-        </div>
-        <h2>7. Privacy and Data</h2>
-        <h3>Your Privacy</h3>
-        <p>Your use of VelloShift is also governed by our <a href="privacy_policy.md">Privacy Policy</a>, which explains:</p>
-        <ul>
-            <li>What information we collect</li>
-            <li>How we use it</li>
-            <li>How we protect it</li>
-            <li>Your rights and choices</li>
-        </ul>
-        <h3>Data Ownership</h3>
-        <ul>
-            <li>You own your calendar data and personal information</li>
-            <li>We're a data processor, not a data owner</li>
-            <li>When you delete your account, your data is permanently deleted within 30 days</li>
-        </ul>
-        <h3>Data Backup</h3>
-        <p>While we implement robust backup systems, <strong>you're responsible</strong> for maintaining your own backups of important information. We recommend keeping critical dates in a separate system.</p>
-        <p>---</p>
-        </div>
-        <h2>8. Third-Party Services</h2>
-        <h3>iCal Feed Imports</h3>
-        <p>VelloShift can import calendars from Google Calendar, Apple Calendar, and other services.</p>
-        <p><strong>We're not responsible for:</strong></p>
-        <ul>
-            <li>Availability or reliability of third-party services</li>
-            <li>Accuracy of imported data</li>
-            <li>Changes to third-party APIs</li>
-            <li>Privacy practices of external services</li>
-        </ul>
-        <h3>Authentication</h3>
-        <p>When you sign in with Google or Apple:</p>
-        <ul>
-            <li>We only receive basic profile information (name, email)</li>
-            <li>You remain subject to their terms of service</li>
-            <li>We don't access your emails, contacts, or other services</li>
-        </ul>
-        <p>---</p>
-        </div>
-        <h2>9. Intellectual Property</h2>
-        <h3>What We Own</h3>
-        <p>VelloShift owns all rights to:</p>
-        <ul>
-            <li>The app software and code</li>
-            <li>VelloShift name, logo, and trademarks</li>
-            <li>Design, graphics, and user interface</li>
-            <li>Features and functionality</li>
-        </ul>
-        <p>You receive a limited, non-exclusive license to use VelloShift for personal, non-commercial purposes.</p>
-        <h3>Your Feedback</h3>
-        <p>If you send us suggestions or ideas, we can use them freely without paying you or crediting you.</p>
-        <p>---</p>
-        </div>
-        <h2>10. Disclaimers</h2>
-        <h3>"As Is" Service</h3>
-        <p>VELLOSHIFT IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND.</p>
-        <p>We don't guarantee:</p>
-        <ul>
-            <li>Perfect sync reliability or zero data loss</li>
-            <li>100% uptime or error-free operation</li>
+            <li>Uptime or availability</li>
+            <li>Perfect sync reliability</li>
+            <li>Notification delivery</li>
+            <li>Accuracy of imported iCal or partner data</li>
             <li>Compatibility with all devices or OS versions</li>
-            <li>Accuracy or completeness of content</li>
+            <li>That features will always continue to exist</li>
         </ul>
-        <p><strong>Use VelloShift as a convenience tool</strong>, not as your only scheduling system for critical appointments.</p>
-        <p>---</p>
-        </div>
-        <h2>11. Limitation of Liability</h2>
-        <h3>What We're Not Liable For</h3>
-        <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, VELLOSHIFT IS NOT LIABLE FOR:</p>
-        <p><strong>Indirect Damages:</strong></p>
+
+        <p>The App may be changed, updated, or discontinued at any time.</p>
+
+        <h2>9. Third-Party Services</h2>
+        <p>The App uses trusted third-party providers such as:</p>
         <ul>
-            <li>Lost profits, revenue, or business opportunities</li>
-            <li>Lost or corrupted data</li>
-            <li>Reputational harm</li>
-            <li>Relationship issues arising from app use</li>
+            <li>Firebase (hosting, authentication, storage, analytics)</li>
+            <li>APNs and FCM (notifications)</li>
+            <li>Apple/Google Sign-In</li>
+            <li>Third-party iCal sources</li>
         </ul>
-        <p><strong>Specific Scenarios:</strong></p>
+
+        <p><strong>We are not responsible for:</strong></p>
         <ul>
-            <li>Missed appointments due to sync failures or notification issues</li>
-            <li>Partner misuse of shared calendar information</li>
-            <li>Third-party service failures (Firebase, Apple, Google)</li>
-            <li>Compatibility issues with specific devices</li>
+            <li>Outages or errors caused by third-party services</li>
+            <li>Accuracy of external calendar data</li>
+            <li>Any policies or practices of those services</li>
         </ul>
-        <h3>Cap on Damages</h3>
-        <p>Our total liability for any claim is limited to the <strong>greater of</strong>:</p>
+
+        <p>Using those services means you agree to their terms as well.</p>
+
+        <h2>10. Intellectual Property</h2>
+        <p><strong>We own:</strong></p>
         <ul>
-            <li><strong>$100 USD</strong>, or</li>
-            <li><strong>The amount you paid us in the past 12 months</strong></li>
+            <li>The VelloShift app</li>
+            <li>The design, code, graphics, and branding</li>
         </ul>
-        <p><strong>This applies even if:</strong></p>
+
+        <p>You receive a limited license to use the App for personal, non-commercial purposes.</p>
+        <p>Any feedback or suggestions you provide may be used freely without obligation.</p>
+
+        <h2>11. Privacy</h2>
+        <p>Your use of the App is governed by our <a href="privacy-policy.html" style="color: #2B7A78; text-decoration: underline;">Privacy Policy</a>, which explains:</p>
         <ul>
-            <li>We knew damages were possible</li>
-            <li>A remedy doesn't work as intended</li>
-            <li>The damages result from our negligence (where legally permitted)</li>
+            <li>What we collect</li>
+            <li>How we use it</li>
+            <li>Your choices</li>
         </ul>
-        <h3>Jurisdictional Variations</h3>
-        <p>Some regions don't allow these liability limitations. In those cases, our liability is limited to the maximum extent permitted by law.</p>
-        <p>---</p>
-        </div>
-        <h2>12. Indemnification</h2>
-        <p>You agree to defend and hold harmless VelloShift from claims, damages, or costs arising from:</p>
-        <ul>
-            <li>Your use or misuse of the Service</li>
-            <li>Your violation of these Terms</li>
-            <li>Your violation of others' rights</li>
-            <li>Content you create or share</li>
-            <li>Any activity under your account</li>
-        </ul>
-        <p>---</p>
-        </div>
-        <h2>13. Termination</h2>
-        <h3>By You</h3>
-        <p>Delete your account anytime:</p>
-        <ol>
-            <li>Go to Settings → Account → Delete My Account</li>
-            <li>Confirm deletion</li>
-            <li>Your data will be permanently deleted within 30 days</li>
-        </ol>
-        <h3>By Us</h3>
-        <p>We may suspend or terminate your account if:</p>
+
+        <p>You can request account deletion at any time by contacting:<br>
+        <strong>support@velloshift.com</strong></p>
+
+        <h2>12. Termination</h2>
+        <p>You may delete your account anytime.</p>
+
+        <p><strong>We may suspend or terminate access if:</strong></p>
         <ul>
             <li>You violate these Terms</li>
-            <li>You engage in fraudulent or illegal activity</li>
-            <li>Your account is inactive for 2+ years</li>
-            <li>We discontinue the Service (with 30 days' notice)</li>
-            <li>Required by law</li>
+            <li>You misuse the App</li>
+            <li>You attempt to harm or disrupt the service</li>
+            <li>The App is discontinued</li>
         </ul>
-        <h3>What Happens</h3>
-        <p>Upon termination:</p>
-        <ul>
-            <li>You immediately lose access to the Service</li>
-            <li>Partner links are severed</li>
-            <li>Subscriptions are canceled (no partial refunds)</li>
-            <li>Your data becomes inaccessible</li>
-        </ul>
-        <p>---</p>
+
+        <p>Termination does not entitle you to refunds.</p>
+
+        <h2>13. "As-Is" and "As-Available" Disclaimer</h2>
+        <div class="warning-box">
+            <p>To the fullest extent allowed by law:</p>
+            <p><strong>VelloShift is provided "AS IS", "AS AVAILABLE", and WITHOUT ANY WARRANTIES OF ANY KIND</strong>, whether express or implied.</p>
+
+            <p><strong>We do not guarantee:</strong></p>
+            <ul>
+                <li>Accuracy</li>
+                <li>Reliability</li>
+                <li>Timeliness</li>
+                <li>Performance</li>
+                <li>Security</li>
+                <li>Error-free operation</li>
+            </ul>
+
+            <p><strong>You use the App at your own risk.</strong></p>
         </div>
-        <h2>14. Dispute Resolution</h2>
-        <h3>Step 1: Contact Us First</h3>
+
+        <h2>14. Zero-Liability Clause</h2>
+        <div class="warning-box">
+            <h3>IMPORTANT: Limitation of Liability</h3>
+            <p>To the maximum extent permitted by law:</p>
+
+            <p><strong>We are NOT liable for any:</strong></p>
+            <ul>
+                <li>Missed shifts or missed appointments</li>
+                <li>Incorrect or incomplete data</li>
+                <li>Sync delays or failures</li>
+                <li>Notification issues</li>
+                <li>Loss of data or content</li>
+                <li>Partner misuse of information</li>
+                <li>Personal, emotional, or relationship issues</li>
+                <li>Financial losses or damages</li>
+                <li>Third-party service outages</li>
+                <li>Indirect, incidental, or consequential damages</li>
+            </ul>
+
+            <p><strong>Your sole remedy is to stop using the App.</strong></p>
+        </div>
+
+        <h2>15. Indemnification</h2>
+        <p>You agree to indemnify, defend, and hold harmless VelloShift from claims, losses, liabilities, or damages arising from:</p>
+        <ul>
+            <li>Your use or misuse of the App</li>
+            <li>Content you add or share</li>
+            <li>Any dispute with a partner</li>
+            <li>Your violation of these Terms</li>
+        </ul>
+
+        <h2>16. Dispute Resolution</h2>
+        <div class="info-box">
+            <h3>Resolving Disputes</h3>
+            <p>Before any legal action, you agree to contact us first at <strong>support@velloshift.com</strong> so we can attempt to resolve the issue informally.</p>
+
+            <p><strong>We do not require arbitration.</strong></p>
+
+            <p>However, you agree that:</p>
+            <ul>
+                <li>Disputes must be brought individually, not as part of a class action</li>
+                <li>Any legal proceedings must occur in your local jurisdiction</li>
+            </ul>
+
+            <p><em>This avoids high-risk U.S. arbitration clauses while still protecting you from class claims.</em></p>
+        </div>
+
+        <h2>17. Changes to These Terms</h2>
+        <p>We may update these Terms occasionally.</p>
+        <p>Updates will be posted in the App.</p>
+        <p><strong>Continuing to use the App means you accept the updated Terms.</strong></p>
+
+        <h2>18. General Legal Terms</h2>
+        <ul>
+            <li>These Terms + the Privacy Policy form the entire agreement</li>
+            <li>If any part is invalid, the rest still applies</li>
+            <li>Our failure to enforce a provision is not a waiver</li>
+            <li>You may not transfer your account; we may assign this agreement</li>
+            <li>We are not liable for events outside our control (force majeure)</li>
+        </ul>
+
+        <h2>19. Contact</h2>
         <div class="contact-box">
-            <p>Before filing any legal claim, email support@velloshift.com to resolve the issue informally. We'll work with you in good faith for 30 days.</p>
+            <h3>Questions or Concerns?</h3>
+            <p>If you have questions or concerns about these Terms:</p>
+            <p><strong>📧 support@velloshift.com</strong></p>
+            <p>We respond within a reasonable timeframe.</p>
         </div>
-        <h3>Step 2: Binding Arbitration</h3>
-        <p>If informal resolution fails, disputes will be resolved through <strong>binding arbitration</strong>, not court, except for:</p>
-        <ul>
-            <li>Small claims court (if under the jurisdictional limit)</li>
-            <li>Injunctive relief for intellectual property violations</li>
-        </ul>
-        <p><strong>Arbitration Details:</strong></p>
-        <ul>
-            <li>Administered by the American Arbitration Association (AAA)</li>
-            <li>Conducted under AAA Consumer Arbitration Rules</li>
-            <li>Takes place in your home state or California</li>
-            <li>Arbitrator's decision is final and binding</li>
-        </ul>
-        <h3>Class Action Waiver</h3>
-        <p><strong>YOU AND VELLOSHIFT AGREE THAT DISPUTES WILL BE RESOLVED INDIVIDUALLY.</strong> You waive the right to participate in class actions or representative actions.</p>
-        <h3>Opt-Out Right</h3>
-        <div class="contact-box">
-            <p>You may opt out of arbitration within <strong>30 days</strong> of creating your account by emailing support@velloshift.com with:</p>
-        </div>
-        <ul>
-            <li>Subject: "Arbitration Opt-Out"</li>
-            <li>Your name and email address</li>
-            <li>Statement: "I opt out of the arbitration agreement"</li>
-        </ul>
-        <p>---</p>
-        </div>
-        <h2>15. Governing Law</h2>
-        <p>These Terms are governed by the laws of the <strong>State of California</strong> and the <strong>United States</strong>.</p>
-        <p>For disputes not subject to arbitration:</p>
-        <ul>
-            <li>Exclusive jurisdiction: California state and federal courts</li>
-            <li>You consent to personal jurisdiction in these courts</li>
-        </ul>
-        <p>---</p>
-        </div>
-        <h2>16. General Terms</h2>
-        <h3>Entire Agreement</h3>
-        <p>These Terms and our Privacy Policy constitute the complete agreement between you and VelloShift.</p>
-        <h3>Changes to Terms</h3>
-        <p>We may update these Terms to reflect:</p>
-        <ul>
-            <li>New features or changes to the Service</li>
-            <li>Legal or regulatory requirements</li>
-            <li>Security improvements</li>
-        </ul>
-        <p>We'll notify you of material changes via in-app notification or email. <strong>Continued use after changes means you accept the updated Terms.</strong></p>
-        <h3>Severability</h3>
-        <p>If any provision is found unenforceable, the rest of these Terms remain in effect.</p>
-        <h3>No Waiver</h3>
-        <p>Our failure to enforce a provision doesn't waive our right to enforce it later.</p>
-        <h3>Assignment</h3>
-        <p>You can't transfer these Terms or your account without our consent. We may assign these Terms to affiliates or successors.</p>
-        <h3>Force Majeure</h3>
-        <p>We're not liable for delays or failures due to events beyond our control (natural disasters, war, terrorism, internet outages, government actions, etc.).</p>
-        <h3>Language</h3>
-        <p>These Terms are in English. Translations (if any) are for convenience only. The English version controls in case of conflicts.</p>
-        <p>---</p>
-        </div>
-        <h2>17. Contact Us</h2>
-        <p>For questions, support, or legal notices:</p>
-        <div class="contact-box">
-            <p><strong>Email:</strong> support@velloshift.com</p>
-        </div>
-        <p><strong>Response Time:</strong></p>
-        <ul>
-            <li>Free users: Within 48 hours</li>
-            <li>Premium subscribers: Within 24 hours</li>
-        </ul>
-        <p><strong>Subject Line Guidelines:</strong></p>
-        <ul>
-            <li>Privacy requests: "Privacy Rights Request"</li>
-            <li>Legal notices: "Legal Notice"</li>
-            <li>Arbitration opt-out: "Arbitration Opt-Out"</li>
-            <li>General support: Any subject</li>
-        </ul>
-        <p>---</p>
-        </div>
-        <h2>Your Agreement</h2>
-        <p><strong>BY CREATING AN ACCOUNT OR USING VELLOSHIFT, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS OF SERVICE.</strong></p>
-        <p>If you don't agree, please don't use VelloShift.</p>
-        <p>---</p>
-        <p><strong>Version:</strong> 2.0</p>
-        <p><strong>Last Reviewed:</strong> November 9, 2025</p>
-        <p>© 2025 VelloShift. All rights reserved.</p>
 
         <div class="footer">
-            <p><a href="index.html">Return to Legal Documents</a></p>
             <p>© 2025 VelloShift. All rights reserved.</p>
         </div>
     </div>
