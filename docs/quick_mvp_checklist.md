@@ -84,7 +84,7 @@
 - [ ] Google Play submission (Android)
 - [x] Privacy policy written + hosted (https://legal.velloshift.com/privacy-policy.html)
 - [x] Terms of service written + hosted (https://legal.velloshift.com/terms-of-service.html)
-- [ ] Support email set up (support@velloshift.com - needs Google Workspace)
+- [x] Support email set up (support@velloshift.com via Zoho Mail)
 - [ ] Marketing website (single page)
 
 ---
