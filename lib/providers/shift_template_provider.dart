@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/shift_template_model.dart';
-import '../services/firestore_service.dart';
 import 'auth_provider.dart';
 
 /// Provider for user's shift templates stream (real-time updates)

@@ -8,7 +8,6 @@ import 'providers/notification_provider.dart';
 import 'providers/offline_sync_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/auth/welcome_screen.dart';
-import 'screens/auth/email_verification_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'services/notification_service.dart';

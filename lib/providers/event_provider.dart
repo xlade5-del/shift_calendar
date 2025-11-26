@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/event_model.dart';
-import '../services/firestore_service.dart';
 import 'auth_provider.dart' show currentFirebaseUserProvider, firestoreServiceProvider;
 import 'workplace_provider.dart' show selectedWorkplaceIdProvider;
 import 'offline_sync_provider.dart';
