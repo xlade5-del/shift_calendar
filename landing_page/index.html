@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VelloShift helps couples working rotating shifts find more time together. Real-time calendar sync, conflict detection, and free time finder.">
+    <meta name="keywords" content="couple calendar, shift work, schedule sync, rotating shifts, healthcare workers, nurses calendar">
+    <title>VelloShift - More Time Together for Shift-Working Couples</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* VelloShift Brand Colors */
+            --primary-teal: #2B7A78;
+            --dark-teal: #1F5654;
+            --light-teal: #3D9B98;
+            --peach: #F4C49A;
+            --dark-peach: #E8A370;
+            --light-peach: #FFECD9;
+            --mint: #A8DADC;
+            --light-mint: #D4F1F4;
+            --background: #FEFDFB;
+            --cream: #F5E6D3;
+            --white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-grey: #4A4A4A;
+            --text-light: #8A8A8A;
+            --shadow: rgba(43, 122, 120, 0.15);
+            --shadow-soft: rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--background);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Grain texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            z-index: 9999;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: var(--background);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(43, 122, 120, 0.08);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 48px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-text {
+            font-family: 'Crimson Text', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-teal);
+            letter-spacing: -0.5px;
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-grey);
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-teal);
+        }
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--primary-teal);
+            color: var(--white);
+            box-shadow: 0 4px 20px rgba(43, 122, 120, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-teal);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(43, 122, 120, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-teal);
+            border: 2px solid var(--primary-teal);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-teal);
+            color: var(--white);
+        }
+
+        .btn-large {
+            padding: 20px 48px;
+            font-size: 17px;
+        }
+
+        /* Hero Section - Dramatic Editorial Layout */
+        .hero {
+            position: relative;
+            padding: 120px 0 160px;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--light-mint) 0%, transparent 70%);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--light-peach) 0%, transparent 70%);
+            opacity: 0.3;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -30px) scale(1.1); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 82px;
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--text-dark);
+            margin-bottom: 32px;
+            letter-spacing: -2px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-text .highlight {
+            color: var(--primary-teal);
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-text .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            background: var(--light-peach);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .hero-text p {
+            font-size: 22px;
+            color: var(--text-grey);
+            max-width: 580px;
+            margin-bottom: 48px;
+            line-height: 1.7;
+            font-weight: 400;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 48px;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .trust-badges {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.6s backwards;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-grey);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .trust-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-mint);
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            animation: fadeInUp 0.8s ease-out 0.3s backwards;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone-mockup {
+            position: relative;
+            animation: floatPhone 6s ease-in-out infinite;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .phone-mockup img {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(43, 122, 120, 0.25);
+            transition: transform 0.3s ease;
+        }
+
+        .phone-mockup:hover img {
+            transform: scale(1.02);
+        }
+
+        @keyframes floatPhone {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Trust & Stats Section */
+        .trust-stats-section {
+            padding: 80px 0;
+            background: var(--white);
+            border-bottom: 1px solid rgba(43, 122, 120, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 48px;
+            margin-bottom: 60px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Crimson Text', serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary-teal);
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .stat-label {
+            font-size: 15px;
+            color: var(--text-grey);
+            font-weight: 500;
+        }
+
+        .trust-badges-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 28px;
+            background: var(--background);
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: transform 0.3s ease;
+        }
+
+        .trust-badge:hover {
+            transform: translateY(-2px);
+        }
+
+        .trust-badge-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-teal);
+        }
+
+        /* Problem Section - Asymmetric Layout */
+        .problem-section {
+            background: var(--white);
+            padding: 140px 0;
+            position: relative;
+        }
+
+        .problem-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(to right, var(--background) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .section-intro {
+            max-width: 700px;
+            margin: 0 auto 80px;
+            text-align: center;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary-teal);
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .section-intro h2 {
+            font-family: 'Crimson Text', serif;
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 0.1s forwards;
+        }
+
+        .section-intro p {
+            font-size: 20px;
+            color: var(--text-grey);
+            line-height: 1.7;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 0.2s forwards;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .problem-card {
+            background: var(--background);
+            padding: 48px 36px;
+            border-radius: 24px;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-teal), var(--peach));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .problem-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .problem-icon {
+            font-size: 56px;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .problem-card h3 {
+            font-family: 'Crimson Text', serif;
+            font-size: 26px;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .problem-card p {
+            color: var(--text-grey);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* Features Section - Bold Blocks */
+        .features {
+            padding: 140px 0;
+            background: var(--background);
+            position: relative;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 80px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 56px;
+            border-radius: 32px;
+            box-shadow: 0 8px 40px var(--shadow-soft);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--light-mint) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(43, 122, 120, 0.15);
+        }
+
+        .feature-card:nth-child(1) {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--primary-teal) 0%, var(--dark-teal) 100%);
+            color: var(--white);
+        }
+
+        .feature-card:nth-child(1) h3,
+        .feature-card:nth-child(1) p {
+            color: var(--white);
+        }
+
+        .feature-card:nth-child(1) .feature-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            width: 72px;
+            height: 72px;
+            background: var(--light-mint);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 28px;
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: rotate(5deg) scale(1.1);
+        }
+
+        .feature-card h3 {
+            font-family: 'Crimson Text', serif;
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .feature-card p {
+            color: var(--text-grey);
+            line-height: 1.8;
+            font-size: 17px;
+        }
+
+        /* How It Works - Timeline Style */
+        .how-it-works {
+            padding: 140px 0;
+            background: var(--white);
+            position: relative;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 60px;
+            margin-top: 80px;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-teal), var(--peach));
+            z-index: 0;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: var(--white);
+            border: 4px solid var(--primary-teal);
+            color: var(--primary-teal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Crimson Text', serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin: 0 auto 32px;
+            box-shadow: 0 8px 24px rgba(43, 122, 120, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .step:nth-child(2) .step-number {
+            border-color: var(--peach);
+            color: var(--peach);
+        }
+
+        .step:nth-child(3) .step-number {
+            background: var(--primary-teal);
+            color: var(--white);
+        }
+
+        .step:hover .step-number {
+            transform: scale(1.15) rotate(10deg);
+        }
+
+        .step h3 {
+            font-family: 'Crimson Text', serif;
+            font-size: 28px;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .step p {
+            color: var(--text-grey);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* Testimonials - Magazine Style */
+        .social-proof {
+            padding: 140px 0;
+            background: var(--light-peach);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-proof::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+        }
+
+        .testimonials {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-top: 80px;
+        }
+
+        .testimonial {
+            background: var(--white);
+            padding: 44px;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: transform 0.4s ease;
+            position: relative;
+        }
+
+        .testimonial:hover {
+            transform: translateY(-8px) rotate(1deg);
+        }
+
+        .testimonial::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            left: 32px;
+            font-family: 'Crimson Text', serif;
+            font-size: 120px;
+            color: var(--light-mint);
+            line-height: 1;
+            opacity: 0.5;
+        }
+
+        .testimonial-text {
+            font-size: 17px;
+            line-height: 1.8;
+            color: var(--text-dark);
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .author-avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-teal), var(--peach));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+            font-size: 18px;
+        }
+
+        .author-name {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        .author-role {
+            font-size: 14px;
+            color: var(--text-grey);
+        }
+
+        /* Launch Notification Section */
+        .launch-notification {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--light-mint) 0%, var(--light-peach) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .launch-notification::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+        }
+
+        .launch-content {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .launch-badge {
+            display: inline-block;
+            padding: 10px 24px;
+            background: var(--primary-teal);
+            color: var(--white);
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .launch-notification h2 {
+            font-family: 'Crimson Text', serif;
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .launch-notification p {
+            font-size: 20px;
+            color: var(--text-grey);
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .waitlist-form {
+            display: flex;
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto 32px;
+        }
+
+        .waitlist-input {
+            flex: 1;
+            padding: 18px 24px;
+            border: 2px solid var(--primary-teal);
+            border-radius: 100px;
+            font-size: 16px;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .waitlist-input:focus {
+            outline: none;
+            border-color: var(--dark-teal);
+            box-shadow: 0 0 0 4px rgba(43, 122, 120, 0.1);
+        }
+
+        .waitlist-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .btn-waitlist {
+            padding: 18px 40px;
+            background: var(--primary-teal);
+            color: var(--white);
+            border: none;
+            border-radius: 100px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            font-family: 'Outfit', sans-serif;
+            white-space: nowrap;
+        }
+
+        .btn-waitlist:hover {
+            background: var(--dark-teal);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(43, 122, 120, 0.3);
+        }
+
+        .platform-badges {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .platform-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--white);
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .platform-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Pricing - Clean & Bold */
+        .pricing {
+            padding: 140px 0;
+            background: var(--background);
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            max-width: 1000px;
+            margin: 80px auto 0;
+        }
+
+        .pricing-card {
+            background: var(--white);
+            padding: 60px 48px;
+            border-radius: 32px;
+            box-shadow: 0 8px 40px var(--shadow-soft);
+            text-align: center;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 60px rgba(43, 122, 120, 0.2);
+        }
+
+        .pricing-card.featured {
+            background: linear-gradient(135deg, var(--primary-teal) 0%, var(--dark-teal) 100%);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.08) translateY(-12px);
+        }
+
+        .pricing-card.featured h3,
+        .pricing-card.featured .price,
+        .pricing-card.featured .features-list li {
+            color: var(--white);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--peach);
+            color: var(--white);
+            padding: 10px 28px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 16px rgba(244, 196, 154, 0.4);
+        }
+
+        .pricing-card h3 {
+            font-family: 'Crimson Text', serif;
+            font-size: 36px;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .price {
+            font-family: 'Crimson Text', serif;
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--primary-teal);
+            margin: 28px 0;
+            letter-spacing: -2px;
+        }
+
+        .price-period {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            color: var(--text-grey);
+            font-weight: 400;
+        }
+
+        .pricing-card.featured .price-period {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 40px 0;
+            text-align: left;
+        }
+
+        .features-list li {
+            padding: 14px 0;
+            color: var(--text-grey);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 16px;
+        }
+
+        .check-icon {
+            color: var(--primary-teal);
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .pricing-card.featured .check-icon {
+            color: var(--white);
+        }
+
+        /* FAQ - Accordion Style */
+        .faq {
+            padding: 140px 0;
+            background: var(--white);
+        }
+
+        .faq-list {
+            max-width: 900px;
+            margin: 80px auto 0;
+        }
+
+        .faq-item {
+            background: var(--background);
+            padding: 40px 44px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary-teal);
+            transform: translateX(8px);
+        }
+
+        .faq-question {
+            font-family: 'Crimson Text', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .faq-answer {
+            color: var(--text-grey);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .faq-answer a {
+            color: var(--primary-teal);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid var(--light-mint);
+            transition: border-color 0.3s ease;
+        }
+
+        .faq-answer a:hover {
+            border-bottom-color: var(--primary-teal);
+        }
+
+        /* Final CTA - Dramatic */
+        .final-cta {
+            padding: 140px 0;
+            background: linear-gradient(135deg, var(--dark-teal) 0%, var(--primary-teal) 100%);
+            text-align: center;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-cta::before,
+        .final-cta::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .final-cta::before {
+            width: 600px;
+            height: 600px;
+            top: -300px;
+            right: -200px;
+        }
+
+        .final-cta::after {
+            width: 400px;
+            height: 400px;
+            bottom: -200px;
+            left: -100px;
+        }
+
+        .final-cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .final-cta h2 {
+            font-family: 'Crimson Text', serif;
+            font-size: 64px;
+            font-weight: 700;
+            margin-bottom: 28px;
+            letter-spacing: -1px;
+        }
+
+        .final-cta p {
+            font-size: 22px;
+            margin-bottom: 48px;
+            opacity: 0.95;
+        }
+
+        .btn-white {
+            background: var(--white);
+            color: var(--primary-teal);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-white:hover {
+            background: var(--light-mint);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: var(--white);
+            padding: 80px 0 40px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-section h4 {
+            font-family: 'Crimson Text', serif;
+            font-size: 22px;
+            margin-bottom: 24px;
+            color: var(--white);
+            font-weight: 700;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: var(--text-light);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 14px;
+            transition: color 0.3s ease;
+            font-size: 15px;
+        }
+
+        .footer-section a:hover {
+            color: var(--white);
+            padding-left: 4px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-light);
+            font-size: 15px;
+        }
+
+        /* Sticky Mobile CTA */
+        .mobile-sticky-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            padding: 16px 24px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 999;
+            border-top: 1px solid rgba(43, 122, 120, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-sticky-cta {
+                display: block;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+
+            .hero-text h1 {
+                font-size: 64px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 32px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card:nth-child(1) {
+                grid-column: span 1;
+            }
+
+            .problem-grid,
+            .steps,
+            .testimonials {
+                grid-template-columns: 1fr;
+            }
+
+            .steps::before {
+                display: none;
+            }
+
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 24px;
+            }
+
+            nav {
+                padding: 20px 24px;
+            }
+
+            .logo-text {
+                display: none;
+            }
+
+            .nav-links a:not(.btn) {
+                display: none;
+            }
+
+            .hero {
+                padding: 80px 0 100px;
+            }
+
+            .hero-text h1 {
+                font-size: 48px;
+            }
+
+            .hero-text p {
+                font-size: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .trust-badges-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .trust-badge {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section-intro h2 {
+                font-size: 40px;
+            }
+
+            .launch-notification h2 {
+                font-size: 40px;
+            }
+
+            .waitlist-form {
+                flex-direction: column;
+            }
+
+            .btn-waitlist {
+                width: 100%;
+            }
+
+            .final-cta h2 {
+                font-size: 44px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scroll-triggered animations */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="#" class="logo">
+                <img src="velloshift_logo.png" alt="VelloShift">
+                <span class="logo-text">VelloShift</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#faq">FAQ</a>
+                <a href="#launch" class="btn btn-primary">Get Early Access</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>
+                    Stop Missing Moments.<br>
+                    <span class="highlight">Start Finding Time Together.</span>
+                </h1>
+                <p>
+                    Built for couples who work rotating shifts. Real-time sync, instant conflict alerts, and a free time finder that helps you make the most of every moment together.
+                </p>
+
+                <div class="cta-buttons">
+                    <a href="#launch" class="btn btn-primary btn-large">Get Early Access</a>
+                    <a href="#how-it-works" class="btn btn-secondary btn-large">See How It Works</a>
+                </div>
+
+                <div class="trust-badges">
+                    <div class="trust-item">
+                        <span class="trust-icon">🔒</span>
+                        <span>End-to-End Encrypted</span>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">✓</span>
+                        <span>GDPR Compliant</span>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">⚡</span>
+                        <span>&lt;1s Sync Speed</span>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">🌍</span>
+                        <span>Works Offline</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="phone-mockup">
+                    <img src="phone_mockup.png" alt="VelloShift App - Calendar View with Color-Coded Shifts">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem-section">
+        <div class="container">
+            <div class="section-intro scroll-reveal">
+                <div class="section-label">The Challenge</div>
+                <h2>The Reality of Shift Work</h2>
+                <p>Rotating schedules, last-minute swaps, and conflicting commitments make planning time together nearly impossible.</p>
+            </div>
+
+            <div class="problem-grid">
+                <div class="problem-card scroll-reveal">
+                    <span class="problem-icon">📅</span>
+                    <h3>Schedules Change Constantly</h3>
+                    <p>Rotating shifts, last-minute swaps, and unpredictable overtime make planning nearly impossible.</p>
+                </div>
+                <div class="problem-card scroll-reveal">
+                    <span class="problem-icon">💔</span>
+                    <h3>You Keep Missing Each Other</h3>
+                    <p>One leaves as the other arrives. Double-booked date nights. Conflicting commitments you could have avoided.</p>
+                </div>
+                <div class="problem-card scroll-reveal">
+                    <span class="problem-icon">📱</span>
+                    <h3>Calendar Apps Don't Cut It</h3>
+                    <p>Google Calendar wasn't built for shift workers. Manual updates, delayed syncs, and zero conflict detection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-intro scroll-reveal">
+                <div class="section-label">Features</div>
+                <h2>Built Specifically for Shift-Working Couples</h2>
+                <p>Everything you need to coordinate schedules, avoid conflicts, and find more time together—all in one beautifully simple app.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-Time Sync (&lt;1 Second)</h3>
+                    <p>Your partner adds a shift—you see it instantly. No refresh, no delays, no surprises. Updates appear the moment they're made.</p>
+                </div>
+
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">⚠️</div>
+                    <h3>Automatic Conflict Detection</h3>
+                    <p>Planning date night when your partner's working? VelloShift warns you before you double-book, not after.</p>
+                </div>
+
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Free Time Finder</h3>
+                    <p>Instantly see when you're both free. No more back-and-forth texts—just open the app and know when you can be together.</p>
+                </div>
+
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">📲</div>
+                    <h3>iCal Import (One-Click)</h3>
+                    <p>Already using your hospital's or employer's calendar? Import shifts from any iCal feed in seconds. No manual data entry.</p>
+                </div>
+
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Works Offline</h3>
+                    <p>Update shifts in the ER basement or during overnight shifts. Changes sync automatically when you're back online.</p>
+                </div>
+
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Smart Notifications</h3>
+                    <p>Get notified when your partner's schedule changes, when conflicts arise, or when free time opens up. Stay in sync effortlessly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-intro scroll-reveal">
+                <div class="section-label">Getting Started</div>
+                <h2>Get Started in 60 Seconds</h2>
+                <p>No complicated setup. No learning curve. Just download, link, and start coordinating.</p>
+            </div>
+
+            <div class="steps">
+                <div class="step scroll-reveal">
+                    <div class="step-number">1</div>
+                    <h3>Download & Sign Up</h3>
+                    <p>Create your account with email or Google Sign-In. Takes 15 seconds.</p>
+                </div>
+
+                <div class="step scroll-reveal">
+                    <div class="step-number">2</div>
+                    <h3>Link Your Partner</h3>
+                    <p>Share a 6-digit code with your partner. They enter it, and boom—you're synced.</p>
+                </div>
+
+                <div class="step scroll-reveal">
+                    <div class="step-number">3</div>
+                    <h3>Add Your Shifts</h3>
+                    <p>Manually add shifts or import from your employer's calendar. Your partner sees everything in real time.</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 64px;">
+                <a href="#launch" class="btn btn-primary btn-large">Get Early Access</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Launch Notification -->
+    <section id="launch" class="launch-notification">
+        <div class="launch-content">
+            <div class="launch-badge scroll-reveal">Launching Soon</div>
+            <h2 class="scroll-reveal">Be the First to Know</h2>
+            <p class="scroll-reveal">VelloShift is launching soon on iOS and Android. Join the waitlist to get early access and exclusive launch benefits.</p>
+
+            <form class="waitlist-form scroll-reveal" id="waitlist-form">
+                <input type="email" class="waitlist-input" id="waitlist-email" placeholder="Enter your email" required>
+                <button type="submit" class="btn-waitlist" id="waitlist-submit">Join Waitlist</button>
+            </form>
+            <p id="waitlist-message" style="margin-top: 16px; font-size: 15px; font-weight: 600;"></p>
+
+            <div class="platform-badges scroll-reveal">
+                <div class="platform-badge">
+                    <svg class="platform-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
+                    <span>iOS</span>
+                </div>
+                <div class="platform-badge">
+                    <svg class="platform-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.523 15.341c-.538-.09-.969.44-.767.92l.033.104c.11.297.25.653.423 1.027.328.712.638 1.182 1.113 1.182.295 0 .523-.182.771-.542.248-.36.419-.737.419-1.109 0-.585-.586-.873-1.992-1.582zm-1.88-2.02c.267-.362.394-.77.394-1.223 0-.914-.737-1.651-1.651-1.651-.914 0-1.65.737-1.65 1.651 0 .452.126.86.393 1.223L12 15.673l1.643-2.352zM12 4.348c-.914 0-1.651.737-1.651 1.651S11.086 7.65 12 7.65s1.651-.737 1.651-1.651S12.914 4.348 12 4.348zM6.477 8.659c-.914 0-1.651.737-1.651 1.651s.737 1.651 1.651 1.651 1.651-.737 1.651-1.651-.737-1.651-1.651-1.651zm11.046 0c-.914 0-1.651.737-1.651 1.651s.737 1.651 1.651 1.651 1.651-.737 1.651-1.651-.737-1.651-1.651-1.651z"/>
+                    </svg>
+                    <span>Android</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof / Testimonials -->
+    <section class="social-proof">
+        <div class="container">
+            <div class="section-intro scroll-reveal">
+                <div class="section-label">Beta Feedback</div>
+                <h2>What Our Beta Testers Are Saying</h2>
+                <p>Real feedback from couples testing VelloShift during our private beta program.</p>
+            </div>
+
+            <div class="testimonials">
+                <div class="testimonial scroll-reveal">
+                    <p class="testimonial-text">We're both ER nurses with opposite rotations. Before VelloShift, planning anything was a nightmare. Now we actually know when we're both free without endless texts.</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SR</div>
+                        <div class="author-info">
+                            <div class="author-name">Sarah & Ryan</div>
+                            <div class="author-role">Emergency Room Nurses</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial scroll-reveal">
+                    <p class="testimonial-text">The conflict detection is a game-changer. I used to accidentally book dinner reservations when my partner was on night shift. Not anymore!</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MP</div>
+                        <div class="author-info">
+                            <div class="author-name">Mike & Priya</div>
+                            <div class="author-role">Firefighter & Retail Manager</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial scroll-reveal">
+                    <p class="testimonial-text">Finally, a calendar app that understands shift work! The iCal import saves me 20 minutes every week. Worth every penny of the premium subscription.</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JL</div>
+                        <div class="author-info">
+                            <div class="author-name">Jordan & Lucas</div>
+                            <div class="author-role">Hospital Staff & Police Officer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-intro scroll-reveal">
+                <div class="section-label">Pricing</div>
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Start free. Upgrade when you need more. Cancel anytime.</p>
+            </div>
+
+            <div class="pricing-cards">
+                <div class="pricing-card scroll-reveal">
+                    <h3>Free</h3>
+                    <div class="price">
+                        $0
+                        <span class="price-period">/forever</span>
+                    </div>
+                    <ul class="features-list">
+                        <li><span class="check-icon">✓</span> <span>Unlimited manual shifts</span></li>
+                        <li><span class="check-icon">✓</span> <span>Real-time sync (&lt;1s)</span></li>
+                        <li><span class="check-icon">✓</span> <span>Partner linking</span></li>
+                        <li><span class="check-icon">✓</span> <span>Conflict detection</span></li>
+                        <li><span class="check-icon">✓</span> <span>Offline mode</span></li>
+                        <li><span class="check-icon">✓</span> <span>1 iCal feed per person</span></li>
+                    </ul>
+                    <a href="#download" class="btn btn-secondary" style="width: 100%; margin-top: 24px;">Get Started Free</a>
+                </div>
+
+                <div class="pricing-card featured scroll-reveal">
+                    <div class="popular-badge">Most Popular</div>
+                    <h3>Premium</h3>
+                    <div class="price">
+                        $3.99
+                        <span class="price-period">/month</span>
+                    </div>
+                    <ul class="features-list">
+                        <li><span class="check-icon">✓</span> <span>Everything in Free</span></li>
+                        <li><span class="check-icon">✓</span> <span><strong>Unlimited iCal feeds</strong></span></li>
+                        <li><span class="check-icon">✓</span> <span><strong>Free time finder</strong></span></li>
+                        <li><span class="check-icon">✓</span> <span><strong>Advanced notifications</strong></span></li>
+                        <li><span class="check-icon">✓</span> <span><strong>PDF/iCal export</strong></span></li>
+                        <li><span class="check-icon">✓</span> <span><strong>Priority support</strong></span></li>
+                    </ul>
+                    <a href="#download" class="btn btn-white" style="width: 100%; margin-top: 24px;">Start 14-Day Free Trial</a>
+                    <p style="font-size: 13px; margin-top: 12px; opacity: 0.9;">No credit card required</p>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 48px; color: var(--text-grey); font-size: 17px;">
+                🎉 <strong>Annual plan:</strong> $39.99/year (save 17%) — Just $3.33/month
+            </p>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq">
+        <div class="container">
+            <div class="section-intro scroll-reveal">
+                <div class="section-label">Questions</div>
+                <h2>Frequently Asked Questions</h2>
+            </div>
+
+            <div class="faq-list">
+                <div class="faq-item scroll-reveal">
+                    <h3 class="faq-question">How is VelloShift different from Google Calendar?</h3>
+                    <p class="faq-answer">Google Calendar was built for meetings and appointments, not rotating shifts. VelloShift offers instant conflict detection, automatic partner syncing (&lt;1 second), a free time finder, and works offline—features Google Calendar doesn't have for shift workers.</p>
+                </div>
+
+                <div class="faq-item scroll-reveal">
+                    <h3 class="faq-question">Does my partner need a separate subscription?</h3>
+                    <p class="faq-answer">Nope! One person can be on Free and the other on Premium—you'll still sync perfectly. If you both want premium features (like unlimited iCal feeds), you'll each need a Premium subscription.</p>
+                </div>
+
+                <div class="faq-item scroll-reveal">
+                    <h3 class="faq-question">Can I import shifts from my employer's scheduling system?</h3>
+                    <p class="faq-answer">Yes! If your employer provides an iCal feed (most hospital systems like Epic MyChart, When I Work, Deputy do), you can import it in one click. Free accounts get 1 feed, Premium gets unlimited.</p>
+                </div>
+
+                <div class="faq-item scroll-reveal">
+                    <h3 class="faq-question">What if we both work nights or have no internet at work?</h3>
+                    <p class="faq-answer">VelloShift works completely offline. Add or update shifts anytime—they'll sync automatically when you're back online. No internet required to use the app.</p>
+                </div>
+
+                <div class="faq-item scroll-reveal">
+                    <h3 class="faq-question">Is my schedule data private and secure?</h3>
+                    <p class="faq-answer">Absolutely. Your data is end-to-end encrypted, GDPR compliant, and only visible to you and your partner. We never sell or share your information. Read our <a href="https://legal.velloshift.com/privacy-policy.html">Privacy Policy</a>.</p>
+                </div>
+
+                <div class="faq-item scroll-reveal">
+                    <h3 class="faq-question">Can I cancel Premium anytime?</h3>
+                    <p class="faq-answer">Yes! Cancel anytime from Settings → Manage Subscription. You'll keep Premium features until the end of your billing period, then automatically revert to the Free plan—no data lost.</p>
+                </div>
+
+                <div class="faq-item scroll-reveal">
+                    <h3 class="faq-question">Do you offer refunds?</h3>
+                    <p class="faq-answer">We offer a 14-day free trial (no credit card required). If you subscribe and aren't satisfied within 30 days, email support@velloshift.com for a full refund—no questions asked.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section id="download" class="final-cta">
+        <div class="final-cta-content">
+            <h2>Stop Missing Moments. Start Finding Time Together.</h2>
+            <p>Be among the first couples to experience stress-free schedule coordination with VelloShift.</p>
+
+            <a href="#launch" class="btn btn-white btn-large" style="margin-top: 16px;">Join the Waitlist</a>
+
+            <p style="margin-top: 40px; opacity: 0.95; font-size: 17px;">
+                ✓ Free forever plan &nbsp;|&nbsp; ✓ No credit card required &nbsp;|&nbsp; ✓ Real-time sync &lt;1s
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#launch">Get Early Access</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="mailto:support@velloshift.com">Help Center</a></li>
+                        <li><a href="mailto:support@velloshift.com">Contact Us</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="https://legal.velloshift.com/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="https://legal.velloshift.com/terms-of-service.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="mailto:support@velloshift.com?subject=Support">About</a></li>
+                        <li><a href="mailto:support@velloshift.com?subject=Support">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 VelloShift. All rights reserved. Made with ❤️ for shift-working couples.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sticky Mobile CTA -->
+    <div class="mobile-sticky-cta">
+        <a href="#launch" class="btn btn-primary" style="width: 100%; text-align: center;">Join Waitlist</a>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Scroll reveal script -->
+    <script>
+        // Smooth scroll reveal on scroll
+        const revealElements = document.querySelectorAll('.scroll-reveal');
+
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            const revealPoint = 80;
+
+            revealElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+
+                if (elementTop < windowHeight - revealPoint) {
+                    element.classList.add('revealed');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Initial check
+    </script>
+
+    <!-- Firebase Configuration & Waitlist Form Handler -->
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFHHtQDCWYpSPwdGVe-Ei5jSI8dRtKj-E",
+            authDomain: "deb-shiftsync-7984c.firebaseapp.com",
+            projectId: "deb-shiftsync-7984c",
+            storageBucket: "deb-shiftsync-7984c.firebasestorage.app",
+            messagingSenderId: "462030675562",
+            appId: "1:462030675562:web:7bfe0bc6fbe8d5c5d5513e"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Waitlist form handler
+        const form = document.getElementById('waitlist-form');
+        const emailInput = document.getElementById('waitlist-email');
+        const submitButton = document.getElementById('waitlist-submit');
+        const message = document.getElementById('waitlist-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+
+            // Disable form while submitting
+            submitButton.disabled = true;
+            submitButton.textContent = 'Joining...';
+            message.textContent = '';
+            message.style.color = '';
+
+            try {
+                // Save to Firestore
+                await db.collection('waitlist').add({
+                    email: email,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    source: 'landing_page',
+                    userAgent: navigator.userAgent
+                });
+
+                // Success
+                message.textContent = '🎉 Success! You\'re on the waitlist. We\'ll notify you when VelloShift launches!';
+                message.style.color = '#2B7A78';
+                emailInput.value = '';
+
+                // Re-enable form
+                submitButton.disabled = false;
+                submitButton.textContent = 'Join Waitlist';
+
+            } catch (error) {
+                // Error
+                console.error('Error adding to waitlist:', error);
+                message.textContent = '❌ Oops! Something went wrong. Please try again.';
+                message.style.color = '#D32F2F';
+
+                // Re-enable form
+                submitButton.disabled = false;
+                submitButton.textContent = 'Join Waitlist';
+            }
+        });
+    </script>
+</body>
+</html>

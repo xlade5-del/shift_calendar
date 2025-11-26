@@ -117,6 +117,19 @@ service cloud.firestore {
     }
 
     // ============================================================================
+    // WAITLIST COLLECTION (PUBLIC WRITE ACCESS)
+    // ============================================================================
+    match /waitlist/{documentId} {
+      // Anyone can add their email to the waitlist (no auth required)
+      allow create: if request.resource.data.keys().hasAll(['email', 'timestamp']) &&
+                       request.resource.data.email is string &&
+                       request.resource.data.email.matches('.+@.+[.].+');
+
+      // No one can read or delete waitlist entries (admin only via console)
+      allow read, update, delete: if false;
+    }
+
+    // ============================================================================
     // DEFAULT DENY
     // ============================================================================
     // Deny all other access by default
