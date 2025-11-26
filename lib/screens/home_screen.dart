@@ -631,7 +631,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildYearView() {
     final year = _selectedDate.year;
-    final yearEventsAsync = ref.watch(eventsStreamProvider(DateTime(year, 1, 1)));
+    final yearEventsAsync = ref.watch(yearEventsStreamProvider(DateTime(year, 1, 1)));
 
     return yearEventsAsync.when(
       data: (events) => Column(
@@ -777,15 +777,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 3),
 
-          // Calendar Days Grid - more compact, rectangular boxes
+          // Calendar Days Grid - larger cells with dot indicators
           Expanded(
             child: GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
-                crossAxisSpacing: 1.5,
-                mainAxisSpacing: 1.5,
-                childAspectRatio: 1.2, // Slightly wider than tall for rectangular look
+                crossAxisSpacing: 1,
+                mainAxisSpacing: 1,
+                childAspectRatio: 0.85, // Taller cells for dot indicators
               ),
               itemCount: days.length,
               itemBuilder: (context, index) {
@@ -794,49 +794,131 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   return const SizedBox.shrink();
                 }
 
-                // Find events for this day
+                // Find events for this day (must match year, month, AND day)
                 final dayEvents = events.where((event) {
-                  return event.startTime.day == day.day;
+                  return event.startTime.year == day.year &&
+                         event.startTime.month == day.month &&
+                         event.startTime.day == day.day;
                 }).toList();
 
-                // Determine color based on events
-                Color bgColor = AppColors.lightCream; // Very light cream for empty days
-                Color textColor = AppColors.textDark;
+                // Get current user ID
+                final currentUser = ref.read(authStateChangesProvider).value;
+                final currentUserId = currentUser?.uid ?? '';
 
-                if (dayEvents.isNotEmpty) {
-                  // Use the first event's color
-                  final eventColor = Color(int.parse(dayEvents.first.color.replaceFirst('#', '0xFF')));
-                  bgColor = eventColor.withOpacity(0.9);
-                  textColor = AppColors.white;
-                }
-
-                return Container(
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(2),
-                    border: Border.all(
-                      color: dayEvents.isEmpty
-                        ? AppColors.divider.withOpacity(0.3)
-                        : Colors.transparent,
-                      width: 0.5,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${day.day}',
-                      style: TextStyle(
-                        fontSize: 8,
-                        fontWeight: dayEvents.isNotEmpty ? FontWeight.w600 : FontWeight.w500,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
-                );
+                return _buildYearlyDateCell(day, dayEvents, currentUserId);
               },
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Build a single date cell for the yearly calendar with dot indicators
+  Widget _buildYearlyDateCell(DateTime day, List<EventModel> dayEvents, String currentUserId) {
+    // Separate events by owner
+    final userEvents = dayEvents.where((e) => e.userId == currentUserId).toList();
+    final partnerEvents = dayEvents.where((e) => e.userId != currentUserId).toList();
+
+    // Sort by start time (show earliest events first)
+    userEvents.sort((a, b) => a.startTime.compareTo(b.startTime));
+    partnerEvents.sort((a, b) => a.startTime.compareTo(b.startTime));
+
+    // Limit to 3 visible dots per row
+    const maxDots = 3;
+    final userDots = userEvents.take(maxDots).toList();
+    final partnerDots = partnerEvents.take(maxDots).toList();
+    final userOverflow = userEvents.length > maxDots ? userEvents.length - maxDots : 0;
+    final partnerOverflow = partnerEvents.length > maxDots ? partnerEvents.length - maxDots : 0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.lightCream,
+        borderRadius: BorderRadius.circular(2),
+        border: Border.all(
+          color: dayEvents.isEmpty
+              ? AppColors.divider.withOpacity(0.3)
+              : Colors.transparent,
+          width: 0.5,
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Day number (centered)
+          Center(
+            child: Text(
+              '${day.day}',
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDark,
+              ),
+            ),
+          ),
+
+          // User shift indicators (top row)
+          if (userDots.isNotEmpty)
+            Positioned(
+              top: 2,
+              left: 0,
+              right: 0,
+              child: _buildDotRow(userDots, userOverflow),
+            ),
+
+          // Partner shift indicators (bottom row)
+          if (partnerDots.isNotEmpty)
+            Positioned(
+              bottom: 2,
+              left: 0,
+              right: 0,
+              child: _buildDotRow(partnerDots, partnerOverflow),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Build a row of color dots for shift indicators
+  Widget _buildDotRow(List<EventModel> events, int overflow) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ...events.map((event) {
+          final color = Color(int.parse(event.color.replaceFirst('#', '0xFF')));
+          return Container(
+            width: 5,
+            height: 5,
+            margin: const EdgeInsets.symmetric(horizontal: 1),
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.white,
+                width: 0.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowLight,
+                  blurRadius: 1,
+                  offset: const Offset(0, 0.5),
+                ),
+              ],
+            ),
+          );
+        }),
+        if (overflow > 0)
+          Container(
+            margin: const EdgeInsets.only(left: 1),
+            child: Text(
+              '+$overflow',
+              style: const TextStyle(
+                fontSize: 6,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textLight,
+              ),
+            ),
+          ),
+      ],
     );
   }
 

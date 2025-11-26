@@ -46,6 +46,23 @@ final monthEventsStreamProvider = StreamProvider.family<List<EventModel>, DateTi
   return firestoreService.eventsForDateRangeStream(user.uid, rangeStart, rangeEnd);
 });
 
+/// Provider for year events stream (includes user and partner events for full year)
+/// Takes a year start date (January 1st) and loads the entire year
+final yearEventsStreamProvider = StreamProvider.family<List<EventModel>, DateTime>((ref, yearStart) {
+  final user = ref.watch(currentFirebaseUserProvider);
+
+  if (user == null) {
+    return Stream.value([]);
+  }
+
+  final firestoreService = ref.watch(firestoreServiceProvider);
+
+  // Calculate the entire year range
+  final yearEnd = DateTime(yearStart.year, 12, 31, 23, 59, 59);
+
+  return firestoreService.eventsForDateRangeStream(user.uid, yearStart, yearEnd);
+});
+
 /// Provider for events for a specific week (one-time fetch)
 final eventsForWeekProvider = FutureProvider.family<List<EventModel>, DateTime>((ref, weekStart) async {
   final user = ref.watch(currentFirebaseUserProvider);

@@ -109,9 +109,11 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
         }
 
         // If user's email is not verified, show email verification screen
-        if (!user.emailVerified) {
-          return const EmailVerificationScreen();
-        }
+        // TODO: Re-enable email verification before production
+        // TEMPORARILY DISABLED FOR TESTING
+        // if (!user.emailVerified) {
+        //   return const EmailVerificationScreen();
+        // }
 
         // If user is logged in and verified, check onboarding status
         return hasCompletedOnboarding.when(
