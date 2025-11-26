@@ -62,8 +62,8 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
     );
     _endTime = TimeOfDay.fromDateTime(widget.event.endTime);
 
-    // Parse color from hex string
-    _selectedColor = _parseColor(widget.event.color);
+    // Parse color from hex string (preserve exact color for painted templates)
+    _selectedColor = _parseColor(widget.event.color, _isPaintedTemplate);
   }
 
   /// Check if this is a painted template event
@@ -107,7 +107,7 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
   }
 
   /// Parse color from hex string
-  Color _parseColor(String hexColor) {
+  Color _parseColor(String hexColor, bool isPaintedTemplate) {
     try {
       // Remove # if present
       final hex = hexColor.replaceAll('#', '');
@@ -115,7 +115,20 @@ class _EditEventScreenState extends ConsumerState<EditEventScreen> {
       final colorInt = int.parse('FF$hex', radix: 16);
       final color = Color(colorInt);
 
-      // Find closest matching color from options
+      // For painted template events, preserve the exact color from the template
+      // For regular events, try to match to predefined options for consistency
+      if (isPaintedTemplate) {
+        return color;
+      }
+
+      // Check if color exists in predefined options (exact match)
+      for (final option in _colorOptions) {
+        if (option.value == color.value) {
+          return option;
+        }
+      }
+
+      // If no exact match, find closest matching color from options
       return _colorOptions.reduce((a, b) {
         final aDiff = (a.value - color.value).abs();
         final bDiff = (b.value - color.value).abs();

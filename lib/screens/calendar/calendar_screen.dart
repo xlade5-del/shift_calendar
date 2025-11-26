@@ -210,31 +210,37 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
       ),
       child: Row(
-        children: _weekDays.map((day) {
-          final isToday = day.year == today.year &&
-              day.month == today.month &&
-              day.day == today.day;
+        children: [
+          // Spacer to align with time labels column (60px)
+          SizedBox(width: 60),
 
-          return Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
-              decoration: isToday
-                  ? BoxDecoration(
-                      color: AppColors.lightMint,
-                    )
-                  : null,
-              child: Text(
-                dayFormat.format(day),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: isToday ? AppColors.primaryTeal : AppColors.textDark,
-                  fontSize: 14,
-                  fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+          // Day headers
+          ..._weekDays.map((day) {
+            final isToday = day.year == today.year &&
+                day.month == today.month &&
+                day.day == today.day;
+
+            return Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                decoration: isToday
+                    ? BoxDecoration(
+                        color: AppColors.lightMint,
+                      )
+                    : null,
+                child: Text(
+                  dayFormat.format(day),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isToday ? AppColors.primaryTeal : AppColors.textDark,
+                    fontSize: 14,
+                    fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                  ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ],
       ),
     );
   }

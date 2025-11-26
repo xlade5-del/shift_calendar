@@ -530,6 +530,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     height: 1.1,
                   ),
                   maxLines: 1,
+                  overflow: TextOverflow.visible,
                 ),
                 // Custom notes if available
                 if (customNotes != null && customNotes.isNotEmpty) ...[
@@ -604,6 +605,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     height: 1.1,
                   ),
                   maxLines: 1,
+                  overflow: TextOverflow.visible,
                 ),
                 // Notes if available
                 if (event.notes != null && event.notes!.isNotEmpty) ...[
