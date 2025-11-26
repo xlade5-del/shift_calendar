@@ -32,6 +32,8 @@ class _ShiftConfigurationScreenState
   TimeOfDay _startTime = const TimeOfDay(hour: 14, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 14, minute: 0);
   bool _isSplitShift = false;
+  TimeOfDay _splitStartTime = const TimeOfDay(hour: 18, minute: 0);
+  TimeOfDay _splitEndTime = const TimeOfDay(hour: 22, minute: 0);
   final TextEditingController _restTimeController = TextEditingController(text: '0');
   bool _calculateShiftTime = false;
   final TextEditingController _shiftHoursController = TextEditingController(text: '0');
@@ -39,10 +41,11 @@ class _ShiftConfigurationScreenState
 
   // Alarms state
   bool _alarm1Enabled = false;
+  TimeOfDay _alarm1Time = const TimeOfDay(hour: 6, minute: 0);
   bool _alarm2Enabled = false;
+  TimeOfDay _alarm2Time = const TimeOfDay(hour: 7, minute: 0);
 
   // Incomes state
-  final TextEditingController _currencySymbolController = TextEditingController(text: '\$');
   final TextEditingController _perHourController = TextEditingController();
   final TextEditingController _perExtraHourController = TextEditingController();
 
@@ -58,10 +61,80 @@ class _ShiftConfigurationScreenState
       _backgroundColor = _parseColor(widget.template!.backgroundColor);
       _textColor = _parseColor(widget.template!.textColor);
       _textSize = widget.template!.textSize;
+
+      // Parse schedule if available (format: "HH:mm-HH:mm")
+      if (widget.template!.schedule != null && widget.template!.schedule!.contains('-')) {
+        try {
+          final parts = widget.template!.schedule!.split('-');
+          final startParts = parts[0].trim().split(':');
+          final endParts = parts[1].trim().split(':');
+
+          _startTime = TimeOfDay(
+            hour: int.parse(startParts[0]),
+            minute: startParts.length > 1 ? int.parse(startParts[1]) : 0,
+          );
+
+          _endTime = TimeOfDay(
+            hour: int.parse(endParts[0]),
+            minute: endParts.length > 1 ? int.parse(endParts[1]) : 0,
+          );
+        } catch (e) {
+          // If parsing fails, keep default times (14:00-14:00)
+        }
+      }
+
+      // Load split shift data
+      _isSplitShift = widget.template!.isSplitShift;
+      if (widget.template!.splitStartTime != null) {
+        final parts = widget.template!.splitStartTime!.split(':');
+        _splitStartTime = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: parts.length > 1 ? int.parse(parts[1]) : 0,
+        );
+      }
+      if (widget.template!.splitEndTime != null) {
+        final parts = widget.template!.splitEndTime!.split(':');
+        _splitEndTime = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: parts.length > 1 ? int.parse(parts[1]) : 0,
+        );
+      }
+
+      // Load rest time
+      _restTimeController.text = widget.template!.restTimeMinutes.toString();
+
+      // Load alarms
+      _alarm1Enabled = widget.template!.alarm1Enabled;
+      if (widget.template!.alarm1Time != null) {
+        final parts = widget.template!.alarm1Time!.split(':');
+        _alarm1Time = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: parts.length > 1 ? int.parse(parts[1]) : 0,
+        );
+      }
+      _alarm2Enabled = widget.template!.alarm2Enabled;
+      if (widget.template!.alarm2Time != null) {
+        final parts = widget.template!.alarm2Time!.split(':');
+        _alarm2Time = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: parts.length > 1 ? int.parse(parts[1]) : 0,
+        );
+      }
+
+      // Load income data
+      if (widget.template!.hourlyRate != null) {
+        _perHourController.text = widget.template!.hourlyRate.toString();
+      }
+      if (widget.template!.extraHourlyRate != null) {
+        _perExtraHourController.text = widget.template!.extraHourlyRate.toString();
+      }
     } else {
       _nameController = TextEditingController(text: 'New');
       _abbreviationController = TextEditingController(text: 'New');
     }
+
+    // Calculate initial shift time
+    _updateShiftTimeCalculation();
   }
 
   @override
@@ -72,7 +145,6 @@ class _ShiftConfigurationScreenState
     _restTimeController.dispose();
     _shiftHoursController.dispose();
     _shiftMinutesController.dispose();
-    _currencySymbolController.dispose();
     _perHourController.dispose();
     _perExtraHourController.dispose();
     super.dispose();
@@ -88,6 +160,50 @@ class _ShiftConfigurationScreenState
 
   String _colorToHex(Color color) {
     return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+  }
+
+  void _updateShiftTimeCalculation() {
+    if (!_calculateShiftTime) return;
+
+    // Convert TimeOfDay to minutes for easier calculation
+    int startMinutes = _startTime.hour * 60 + _startTime.minute;
+    int endMinutes = _endTime.hour * 60 + _endTime.minute;
+
+    // Handle overnight shifts
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60; // Add 24 hours
+    }
+
+    int totalMinutes = endMinutes - startMinutes;
+
+    // Add split shift duration if enabled
+    if (_isSplitShift) {
+      int splitStartMinutes = _splitStartTime.hour * 60 + _splitStartTime.minute;
+      int splitEndMinutes = _splitEndTime.hour * 60 + _splitEndTime.minute;
+
+      // Handle overnight split shifts
+      if (splitEndMinutes < splitStartMinutes) {
+        splitEndMinutes += 24 * 60;
+      }
+
+      totalMinutes += (splitEndMinutes - splitStartMinutes);
+    }
+
+    // Subtract rest time
+    int restMinutes = int.tryParse(_restTimeController.text) ?? 0;
+    totalMinutes -= restMinutes;
+
+    // Ensure non-negative
+    if (totalMinutes < 0) totalMinutes = 0;
+
+    // Convert back to hours and minutes
+    int hours = totalMinutes ~/ 60;
+    int minutes = totalMinutes % 60;
+
+    setState(() {
+      _shiftHoursController.text = hours.toString();
+      _shiftMinutesController.text = minutes.toString();
+    });
   }
 
   Future<void> _saveTemplate() async {
@@ -119,6 +235,31 @@ class _ShiftConfigurationScreenState
         sortOrder = existingTemplates.length;
       }
 
+      // Format schedule time as "HH:mm-HH:mm"
+      final scheduleString = '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}-${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}';
+
+      // Format split shift times
+      String? splitStart;
+      String? splitEnd;
+      if (_isSplitShift) {
+        splitStart = '${_splitStartTime.hour.toString().padLeft(2, '0')}:${_splitStartTime.minute.toString().padLeft(2, '0')}';
+        splitEnd = '${_splitEndTime.hour.toString().padLeft(2, '0')}:${_splitEndTime.minute.toString().padLeft(2, '0')}';
+      }
+
+      // Format alarm times
+      String? alarm1TimeStr;
+      String? alarm2TimeStr;
+      if (_alarm1Enabled) {
+        alarm1TimeStr = '${_alarm1Time.hour.toString().padLeft(2, '0')}:${_alarm1Time.minute.toString().padLeft(2, '0')}';
+      }
+      if (_alarm2Enabled) {
+        alarm2TimeStr = '${_alarm2Time.hour.toString().padLeft(2, '0')}:${_alarm2Time.minute.toString().padLeft(2, '0')}';
+      }
+
+      // Parse income rates
+      double? hourlyRate = double.tryParse(_perHourController.text);
+      double? extraHourlyRate = double.tryParse(_perExtraHourController.text);
+
       final template = ShiftTemplate(
         id: widget.template?.id ?? '',
         userId: user.uid,
@@ -127,10 +268,20 @@ class _ShiftConfigurationScreenState
         backgroundColor: _colorToHex(_backgroundColor),
         textColor: _colorToHex(_textColor),
         textSize: _textSize,
-        schedule: null, // TODO: Implement schedule tab
+        schedule: scheduleString,
         sortOrder: sortOrder,
         createdAt: widget.template?.createdAt ?? now,
         updatedAt: now,
+        isSplitShift: _isSplitShift,
+        splitStartTime: splitStart,
+        splitEndTime: splitEnd,
+        restTimeMinutes: int.tryParse(_restTimeController.text) ?? 0,
+        alarm1Enabled: _alarm1Enabled,
+        alarm1Time: alarm1TimeStr,
+        alarm2Enabled: _alarm2Enabled,
+        alarm2Time: alarm2TimeStr,
+        hourlyRate: hourlyRate,
+        extraHourlyRate: extraHourlyRate,
       );
 
       if (widget.template == null) {
@@ -262,8 +413,8 @@ class _ShiftConfigurationScreenState
               unselectedLabelColor: AppColors.textGrey,
               labelStyle: const TextStyle(fontWeight: FontWeight.w600),
               tabs: const [
-                Tab(text: 'APPEARANCE'),
                 Tab(text: 'SCHEDULE'),
+                Tab(text: 'APPEARANCE'),
               ],
             ),
           ),
@@ -273,8 +424,8 @@ class _ShiftConfigurationScreenState
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildAppearanceTab(),
                 _buildScheduleTab(),
+                _buildAppearanceTab(),
               ],
             ),
           ),
@@ -565,7 +716,10 @@ class _ShiftConfigurationScreenState
             children: [
               Expanded(
                 child: _buildTimeField('Start', _startTime, (time) {
-                  setState(() => _startTime = time);
+                  setState(() {
+                    _startTime = time;
+                    _updateShiftTimeCalculation();
+                  });
                 }),
               ),
               Padding(
@@ -581,7 +735,10 @@ class _ShiftConfigurationScreenState
               ),
               Expanded(
                 child: _buildTimeField('End', _endTime, (time) {
-                  setState(() => _endTime = time);
+                  setState(() {
+                    _endTime = time;
+                    _updateShiftTimeCalculation();
+                  });
                 }),
               ),
             ],
@@ -593,15 +750,91 @@ class _ShiftConfigurationScreenState
           _buildCheckboxRow(
             'Split shift',
             _isSplitShift,
-            (value) => setState(() => _isSplitShift = value ?? false),
+            (value) {
+              setState(() {
+                _isSplitShift = value ?? false;
+                _updateShiftTimeCalculation();
+              });
+            },
           ),
+
+          // Split shift time pickers (shown when enabled)
+          if (_isSplitShift) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTimeField('Split Start', _splitStartTime, (time) {
+                    setState(() {
+                      _splitStartTime = time;
+                      _updateShiftTimeCalculation();
+                    });
+                  }),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    '-',
+                    style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: _buildTimeField('Split End', _splitEndTime, (time) {
+                    setState(() {
+                      _splitEndTime = time;
+                      _updateShiftTimeCalculation();
+                    });
+                  }),
+                ),
+              ],
+            ),
+          ],
 
           const SizedBox(height: 16),
 
           // Rest Time
-          _buildNumberInputField(
-            'Rest Time (minutes)',
-            _restTimeController,
+          Row(
+            children: [
+              SizedBox(
+                width: 80,
+                child: TextField(
+                  controller: _restTimeController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.background,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
+                    ),
+                  ),
+                  onChanged: (value) => _updateShiftTimeCalculation(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Rest Time (minutes)',
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 16),
@@ -611,7 +844,14 @@ class _ShiftConfigurationScreenState
             children: [
               Checkbox(
                 value: _calculateShiftTime,
-                onChanged: (value) => setState(() => _calculateShiftTime = value ?? false),
+                onChanged: (value) {
+                  setState(() {
+                    _calculateShiftTime = value ?? false;
+                    if (_calculateShiftTime) {
+                      _updateShiftTimeCalculation();
+                    }
+                  });
+                },
                 activeColor: AppColors.primaryTeal,
               ),
               Text(
@@ -820,23 +1060,54 @@ class _ShiftConfigurationScreenState
       ),
       child: Column(
         children: [
+          // Alarm 1
           _buildCheckboxRow(
             'Alarm 1',
             _alarm1Enabled,
             (value) => setState(() => _alarm1Enabled = value ?? false),
           ),
-          const SizedBox(height: 8),
+          if (_alarm1Enabled) ...[
+            const SizedBox(height: 12),
+            _buildTimeField('Alarm 1 Time', _alarm1Time, (time) {
+              setState(() => _alarm1Time = time);
+            }),
+          ],
+          const SizedBox(height: 16),
+
+          // Alarm 2
           _buildCheckboxRow(
             'Alarm 2',
             _alarm2Enabled,
             (value) => setState(() => _alarm2Enabled = value ?? false),
           ),
+          if (_alarm2Enabled) ...[
+            const SizedBox(height: 12),
+            _buildTimeField('Alarm 2 Time', _alarm2Time, (time) {
+              setState(() => _alarm2Time = time);
+            }),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildIncomesSection() {
+    // Calculate total income based on shift hours and rates
+    double totalIncome = 0.0;
+    final hourlyRate = double.tryParse(_perHourController.text) ?? 0.0;
+    final extraHourlyRate = double.tryParse(_perExtraHourController.text) ?? 0.0;
+    final shiftHours = int.tryParse(_shiftHoursController.text) ?? 0;
+    final shiftMinutes = int.tryParse(_shiftMinutesController.text) ?? 0;
+    final totalHours = shiftHours + (shiftMinutes / 60);
+
+    if (totalHours > 8) {
+      // Regular 8 hours + extra hours
+      totalIncome = (8 * hourlyRate) + ((totalHours - 8) * extraHourlyRate);
+    } else {
+      // All regular hours
+      totalIncome = totalHours * hourlyRate;
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -853,53 +1124,13 @@ class _ShiftConfigurationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Currency Symbol
-          Row(
-            children: [
-              Text(
-                'Currency Symbol:',
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _currencySymbolController,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: AppColors.background,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.textLight),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.textLight),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
           // Per hour rate
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _perHourController,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
@@ -918,11 +1149,12 @@ class _ShiftConfigurationScreenState
                       borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
                     ),
                   ),
+                  onChanged: (value) => setState(() {}), // Trigger recalculation
                 ),
               ),
               const SizedBox(width: 12),
               Text(
-                '${_currencySymbolController.text} per hour',
+                '\$ per hour',
                 style: TextStyle(
                   color: AppColors.textDark,
                   fontSize: 14,
@@ -939,7 +1171,7 @@ class _ShiftConfigurationScreenState
               Expanded(
                 child: TextField(
                   controller: _perExtraHourController,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
@@ -958,17 +1190,51 @@ class _ShiftConfigurationScreenState
                       borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
                     ),
                   ),
+                  onChanged: (value) => setState(() {}), // Trigger recalculation
                 ),
               ),
               const SizedBox(width: 12),
               Text(
-                '${_currencySymbolController.text} per extra hour',
+                '\$ per extra hour',
                 style: TextStyle(
                   color: AppColors.textDark,
                   fontSize: 14,
                 ),
               ),
             ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Total income display
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primaryTeal.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.primaryTeal),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Income:',
+                  style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '\$${totalIncome.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: AppColors.primaryTeal,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
