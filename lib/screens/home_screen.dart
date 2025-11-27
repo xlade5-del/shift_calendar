@@ -1220,9 +1220,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildBottomNavButton('PAINT', 0, Icons.brush, events: filteredEvents),
+          _buildBottomNavButton('PAINT', 0, Icons.auto_fix_high, events: filteredEvents),
           _buildBottomNavButton('CONFLICTS', 1, Icons.warning_amber_rounded, events: filteredEvents),
-          _buildBottomNavButton('SHIFTS', 2, Icons.event, events: filteredEvents),
+          _buildBottomNavButton('SHIFTS', 2, Icons.layers, events: filteredEvents),
         ],
       ),
     );
@@ -1311,9 +1311,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   Icon(
                     icon,
-                    color: index == 1 && conflictCount > 0
-                        ? AppColors.error
-                        : (isSelected ? AppColors.primaryTeal : AppColors.textGrey),
+                    color: AppColors.primaryTeal,
+                    size: 28,
                   ),
                   if (index == 1 && conflictCount > 0)
                     Positioned(
@@ -1341,17 +1340,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                 ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: index == 1 && conflictCount > 0
-                      ? AppColors.error
-                      : (isSelected ? AppColors.primaryTeal : AppColors.textGrey),
-                ),
               ),
             ],
           ),
