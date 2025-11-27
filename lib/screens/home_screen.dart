@@ -21,6 +21,7 @@ import 'shifts/shift_configuration_screen.dart';
 import '../models/shift_template_model.dart';
 import '../providers/shift_template_provider.dart';
 import '../services/firestore_service.dart';
+import '../widgets/share_options_dialog.dart';
 
 /// Redesigned home screen with month calendar view
 class HomeScreen extends ConsumerStatefulWidget {
@@ -193,7 +194,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           // Share Button
           IconButton(
             icon: Icon(Icons.share, color: AppColors.primaryTeal),
-            onPressed: () {},
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: AppColors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                isScrollControlled: true,
+                builder: (context) => ShareOptionsDialog(
+                  selectedDate: _selectedDate,
+                ),
+              );
+            },
           ),
 
           // Settings Button

@@ -40,6 +40,8 @@ class UserModel {
   final List<IcalFeedModel> icalFeeds;
   final DateTime? privacyPolicyAcceptedAt;
   final DateTime? termsOfServiceAcceptedAt;
+  final bool isPremium;
+  final DateTime? premiumExpiresAt;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -54,6 +56,8 @@ class UserModel {
     this.icalFeeds = const [],
     this.privacyPolicyAcceptedAt,
     this.termsOfServiceAcceptedAt,
+    this.isPremium = false,
+    this.premiumExpiresAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -71,6 +75,8 @@ class UserModel {
       lastTokenUpdate: null,
       privacyPolicyAcceptedAt: now, // Set to now when creating account
       termsOfServiceAcceptedAt: now, // Set to now when creating account
+      isPremium: false,
+      premiumExpiresAt: null,
       createdAt: now,
       updatedAt: now,
     );
@@ -99,6 +105,10 @@ class UserModel {
       termsOfServiceAcceptedAt: map['termsOfServiceAcceptedAt'] != null
           ? (map['termsOfServiceAcceptedAt'] as dynamic).toDate()
           : null,
+      isPremium: map['isPremium'] ?? false,
+      premiumExpiresAt: map['premiumExpiresAt'] != null
+          ? (map['premiumExpiresAt'] as dynamic).toDate()
+          : null,
       createdAt: (map['createdAt'] as dynamic).toDate(),
       updatedAt: (map['updatedAt'] as dynamic).toDate(),
     );
@@ -116,6 +126,8 @@ class UserModel {
       'icalFeeds': icalFeeds.map((feed) => feed.toMap()).toList(),
       'privacyPolicyAcceptedAt': privacyPolicyAcceptedAt,
       'termsOfServiceAcceptedAt': termsOfServiceAcceptedAt,
+      'isPremium': isPremium,
+      'premiumExpiresAt': premiumExpiresAt,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -133,6 +145,8 @@ class UserModel {
     List<IcalFeedModel>? icalFeeds,
     DateTime? privacyPolicyAcceptedAt,
     DateTime? termsOfServiceAcceptedAt,
+    bool? isPremium,
+    DateTime? premiumExpiresAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -147,6 +161,8 @@ class UserModel {
       icalFeeds: icalFeeds ?? this.icalFeeds,
       privacyPolicyAcceptedAt: privacyPolicyAcceptedAt ?? this.privacyPolicyAcceptedAt,
       termsOfServiceAcceptedAt: termsOfServiceAcceptedAt ?? this.termsOfServiceAcceptedAt,
+      isPremium: isPremium ?? this.isPremium,
+      premiumExpiresAt: premiumExpiresAt ?? this.premiumExpiresAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
