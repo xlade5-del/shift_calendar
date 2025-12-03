@@ -46,3 +46,22 @@ app.*.map.json
 
 # Firebase deployment artifacts
 .firebase/
+
+# Firebase Emulator data (local development only)
+emulator-data/
+ui-debug.log
+firestore-debug.log
+database-debug.log
+firebase-debug.log
+pubsub-debug.log
+
+# Secrets and credentials (DO NOT COMMIT)
+*.env
+*.env.*
+!*.env.example
+**/serviceAccountKey.json
+**/service-account*.json
+**/*-service-account.json
+**/*credentials*.json
+secrets/
+.secrets/
