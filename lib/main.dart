@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
@@ -15,14 +18,58 @@ import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // Initialize Firebase (only if not already initialized)
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    if (e.toString().contains('duplicate-app')) {
+      debugPrint('ℹ️  Firebase already initialized');
+    } else {
+      debugPrint('❌ Firebase initialization error: $e');
+      rethrow;
+    }
+  }
+
+  // Connect to Firebase Emulators in DEBUG mode
+  // TEMPORARILY DISABLED: Testing production API key
+  // if (kDebugMode) {
+  //   await _connectToFirebaseEmulators();
+  // }
 
   // Register background message handler
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   runApp(const ProviderScope(child: MyApp()));
+}
+
+/// Connect to local Firebase emulators for development
+/// Only runs in debug mode (flutter run)
+/// Production builds automatically use production Firebase
+Future<void> _connectToFirebaseEmulators() async {
+  // Use 'localhost' for iOS simulator/web
+  // Use '10.0.2.2' for Android emulator (special alias for host machine)
+  const String host = kIsWeb ? 'localhost' : '10.0.2.2';
+
+  try {
+    // Connect Firestore to emulator
+    FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+    debugPrint('🔧 Firestore connected to emulator: $host:8080');
+
+    // Connect Auth to emulator
+    await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+    debugPrint('🔧 Auth connected to emulator: $host:9099');
+
+    // Note: Functions emulator connection would be added here if needed
+    // FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+
+    debugPrint('✅ Firebase Emulators connected successfully');
+  } catch (e) {
+    debugPrint('⚠️  Failed to connect to Firebase Emulators: $e');
+    debugPrint('   Make sure emulators are running: firebase emulators:start');
+  }
 }
 
 class MyApp extends ConsumerWidget {
@@ -89,13 +136,25 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
     final authState = ref.watch(authStateChangesProvider);
     final hasCompletedOnboarding = ref.watch(hasCompletedOnboardingProvider);
 
-    // Listen for auth state changes to update FCM token
+    // Listen for auth state changes to update FCM token and invalidate providers
     ref.listen<AsyncValue<dynamic>>(authStateChangesProvider, (previous, next) {
       next.whenData((user) async {
         if (user != null) {
+          // User signed in - update FCM token and invalidate providers to fetch fresh data
           final notificationService = ref.read(notificationServiceProvider);
           await notificationService.saveTokenToFirestore(user.uid);
           notificationService.listenToTokenRefresh(user.uid);
+
+          // Invalidate user data provider to fetch fresh profile data
+          ref.invalidate(currentUserDataProvider);
+          ref.invalidate(hasPartnerProvider);
+          ref.invalidate(partnerDataProvider);
+        } else {
+          // User signed out - invalidate all user-related providers
+          ref.invalidate(currentUserDataProvider);
+          ref.invalidate(hasPartnerProvider);
+          ref.invalidate(partnerDataProvider);
+          ref.invalidate(hasCompletedOnboardingProvider);
         }
       });
     });
@@ -144,17 +203,25 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
       ),
       error: (error, stackTrace) => Scaffold(
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                'Error: ${error.toString()}',
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Error: ${error.toString()}',
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -47,7 +47,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDoGqZCaHeBBlQNOTz90Zh7OQ3V6fw_eOI',
+    apiKey: 'AIzaSyDwjN1akCQYFYXGdmFX9GUHzLII433M7B4',
     appId: '1:983110812621:web:4b3fee56d9c33b81fffa84',
     messagingSenderId: '983110812621',
     projectId: 'deb-shiftsync-7984c',
@@ -57,7 +57,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDDdA6dfM-6NJvTnItr1KOcezxSESJK0ak',
+    apiKey: 'AIzaSyDwjN1akCQYFYXGdmFX9GUHzLII433M7B4',
     appId: '1:983110812621:android:84ab1df8f2b7f6eafffa84',
     messagingSenderId: '983110812621',
     projectId: 'deb-shiftsync-7984c',
@@ -65,7 +65,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAIK38U-Uv_cVIUjE4nxFqmj-QeraDYxwM',
+    apiKey: 'AIzaSyDwjN1akCQYFYXGdmFX9GUHzLII433M7B4',
     appId: '1:983110812621:ios:c5f5e95e46093035fffa84',
     messagingSenderId: '983110812621',
     projectId: 'deb-shiftsync-7984c',
