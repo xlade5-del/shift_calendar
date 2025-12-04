@@ -26,6 +26,12 @@ class _ShiftConfigurationScreenState
   Color _textColor = Colors.black;
   double _textSize = 12.0;
 
+  // HSV color picker state
+  double _backgroundHue = 350.0; // Pink hue
+  double _backgroundBrightness = 1.0;
+  double _textHue = 0.0; // Black/white hue (doesn't matter for grayscale)
+  double _textBrightness = 0.0; // Black
+
   bool _isSaving = false;
 
   // Schedule tab state
@@ -61,6 +67,15 @@ class _ShiftConfigurationScreenState
       _backgroundColor = _parseColor(widget.template!.backgroundColor);
       _textColor = _parseColor(widget.template!.textColor);
       _textSize = widget.template!.textSize;
+
+      // Convert RGB to HSV for slider initialization
+      final backgroundHSV = HSVColor.fromColor(_backgroundColor);
+      _backgroundHue = backgroundHSV.hue;
+      _backgroundBrightness = backgroundHSV.value;
+
+      final textHSV = HSVColor.fromColor(_textColor);
+      _textHue = textHSV.hue;
+      _textBrightness = textHSV.value;
 
       // Parse schedule if available (format: "HH:mm-HH:mm")
       if (widget.template!.schedule != null && widget.template!.schedule!.contains('-')) {
@@ -131,7 +146,31 @@ class _ShiftConfigurationScreenState
     } else {
       _nameController = TextEditingController(text: 'New');
       _abbreviationController = TextEditingController(text: 'New');
+
+      // Initialize HSV from default colors
+      final backgroundHSV = HSVColor.fromColor(_backgroundColor);
+      _backgroundHue = backgroundHSV.hue;
+      _backgroundBrightness = backgroundHSV.value;
+
+      final textHSV = HSVColor.fromColor(_textColor);
+      _textHue = textHSV.hue;
+      _textBrightness = textHSV.value;
     }
+
+    // Add listener to auto-populate abbreviation from name (max 10 chars)
+    _nameController.addListener(() {
+      final name = _nameController.text;
+      if (name.length <= 10) {
+        _abbreviationController.text = name;
+      } else {
+        _abbreviationController.text = name.substring(0, 10);
+      }
+    });
+
+    // Add listener to update UI when abbreviation changes
+    _abbreviationController.addListener(() {
+      setState(() {}); // Trigger rebuild to update preview
+    });
 
     // Calculate initial shift time
     _updateShiftTimeCalculation();
@@ -148,6 +187,45 @@ class _ShiftConfigurationScreenState
     _perHourController.dispose();
     _perExtraHourController.dispose();
     super.dispose();
+  }
+
+  // HSV color conversion helpers
+  Color _getBackgroundColorFromHSV() {
+    return HSVColor.fromAHSV(1.0, _backgroundHue, 1.0, _backgroundBrightness).toColor();
+  }
+
+  Color _getTextColorFromHSV() {
+    return HSVColor.fromAHSV(1.0, _textHue, 1.0, _textBrightness).toColor();
+  }
+
+  void _selectBackgroundHue(double dx, double width) {
+    setState(() {
+      _backgroundHue = (dx / width * 360).clamp(0.0, 360.0);
+      _backgroundColor = _getBackgroundColorFromHSV();
+    });
+  }
+
+  void _selectBackgroundBrightness(double dx, double width) {
+    setState(() {
+      // Invert: left (dx=0) = white (1.0), right (dx=width) = black (0.0)
+      _backgroundBrightness = (1.0 - (dx / width)).clamp(0.0, 1.0);
+      _backgroundColor = _getBackgroundColorFromHSV();
+    });
+  }
+
+  void _selectTextHue(double dx, double width) {
+    setState(() {
+      _textHue = (dx / width * 360).clamp(0.0, 360.0);
+      _textColor = _getTextColorFromHSV();
+    });
+  }
+
+  void _selectTextBrightness(double dx, double width) {
+    setState(() {
+      // Invert: left (dx=0) = white (1.0), right (dx=width) = black (0.0)
+      _textBrightness = (1.0 - (dx / width)).clamp(0.0, 1.0);
+      _textColor = _getTextColorFromHSV();
+    });
   }
 
   Color _parseColor(String hexColor) {
@@ -423,6 +501,7 @@ class _ShiftConfigurationScreenState
           Expanded(
             child: TabBarView(
               controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(), // Disable swipe to allow slider dragging
               children: [
                 _buildScheduleTab(),
                 _buildAppearanceTab(),
@@ -507,11 +586,12 @@ class _ShiftConfigurationScreenState
           const SizedBox(height: 8),
           TextField(
             controller: _abbreviationController,
+            maxLength: 10,
             style: TextStyle(color: AppColors.textDark, fontSize: 16),
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.white,
-              hintText: 'Enter abbreviation',
+              hintText: 'Enter abbreviation (max 10 chars)',
               hintStyle: TextStyle(color: AppColors.textGrey),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
@@ -527,7 +607,6 @@ class _ShiftConfigurationScreenState
                 borderSide: BorderSide(color: AppColors.primaryTeal, width: 2),
               ),
             ),
-            onChanged: (value) => setState(() {}),
           ),
 
           const SizedBox(height: 24),
@@ -543,8 +622,10 @@ class _ShiftConfigurationScreenState
           ),
           const SizedBox(height: 12),
           _buildColorPicker(
-            currentColor: _backgroundColor,
-            onColorChanged: (color) => setState(() => _backgroundColor = color),
+            hue: _backgroundHue,
+            brightness: _backgroundBrightness,
+            onHueChanged: _selectBackgroundHue,
+            onBrightnessChanged: _selectBackgroundBrightness,
           ),
 
           const SizedBox(height: 24),
@@ -560,8 +641,10 @@ class _ShiftConfigurationScreenState
           ),
           const SizedBox(height: 12),
           _buildColorPicker(
-            currentColor: _textColor,
-            onColorChanged: (color) => setState(() => _textColor = color),
+            hue: _textHue,
+            brightness: _textBrightness,
+            onHueChanged: _selectTextHue,
+            onBrightnessChanged: _selectTextBrightness,
           ),
 
           const SizedBox(height: 24),
@@ -601,56 +684,161 @@ class _ShiftConfigurationScreenState
   }
 
   Widget _buildColorPicker({
-    required Color currentColor,
-    required ValueChanged<Color> onColorChanged,
+    required double hue,
+    required double brightness,
+    required Function(double dx, double width) onHueChanged,
+    required Function(double dx, double width) onBrightnessChanged,
   }) {
-    final colors = [
-      Colors.red,
-      Colors.pink,
-      Colors.purple,
-      Colors.deepPurple,
-      Colors.indigo,
-      Colors.blue,
-      Colors.lightBlue,
-      Colors.cyan,
-      Colors.teal,
-      Colors.green,
-      Colors.lightGreen,
-      Colors.lime,
-      Colors.yellow,
-      Colors.amber,
-      Colors.orange,
-      Colors.deepOrange,
-      Colors.brown,
-      Colors.grey,
-      Colors.blueGrey,
-      Colors.black,
-      AppColors.white,
-    ];
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: colors.map((color) {
-        final isSelected = currentColor.value == color.value;
-        return GestureDetector(
-          onTap: () => onColorChanged(color),
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: isSelected
-                  ? Border.all(color: AppColors.primaryTeal, width: 3)
-                  : Border.all(color: AppColors.textLight, width: 1),
-            ),
-            child: isSelected
-                ? Icon(Icons.check, color: _getBestContrastColor(color))
-                : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Hue Slider Label
+        Text(
+          'Hue',
+          style: TextStyle(
+            color: AppColors.textGrey,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
           ),
-        );
-      }).toList(),
+        ),
+        const SizedBox(height: 8),
+
+        // Hue Slider (Rainbow Gradient)
+        SizedBox(
+          height: 40,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              // Map hue (0-360) to position (0 to width-24) to prevent overflow
+              final indicatorPosition = (hue / 360 * (width - 24)).clamp(0.0, width - 24);
+
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapDown: (details) => onHueChanged(details.localPosition.dx, width),
+                onPanStart: (details) => onHueChanged(details.localPosition.dx, width),
+                onPanUpdate: (details) => onHueChanged(details.localPosition.dx, width),
+                child: Stack(
+                  children: [
+                    // Rainbow gradient background
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            HSVColor.fromAHSV(1.0, 0, 1.0, 1.0).toColor(),     // Red
+                            HSVColor.fromAHSV(1.0, 60, 1.0, 1.0).toColor(),    // Yellow
+                            HSVColor.fromAHSV(1.0, 120, 1.0, 1.0).toColor(),   // Green
+                            HSVColor.fromAHSV(1.0, 180, 1.0, 1.0).toColor(),   // Cyan
+                            HSVColor.fromAHSV(1.0, 240, 1.0, 1.0).toColor(),   // Blue
+                            HSVColor.fromAHSV(1.0, 300, 1.0, 1.0).toColor(),   // Magenta
+                            HSVColor.fromAHSV(1.0, 360, 1.0, 1.0).toColor(),   // Red
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.textLight, width: 1),
+                      ),
+                    ),
+                    // Position indicator
+                    Positioned(
+                      left: indicatorPosition,
+                      top: 8,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: HSVColor.fromAHSV(1.0, hue, 1.0, 1.0).toColor(),
+                          border: Border.all(color: AppColors.white, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.shadowDark,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Brightness Slider Label
+        Text(
+          'Brightness',
+          style: TextStyle(
+            color: AppColors.textGrey,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Brightness Slider (White → Color → Black)
+        SizedBox(
+          height: 40,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              // Inverted: brightness=1.0 (white) → left, brightness=0.0 (black) → right
+              // Map to position (0 to width-24) to prevent overflow
+              final indicatorPosition = ((1.0 - brightness) * (width - 24)).clamp(0.0, width - 24);
+              final selectedHueColor = HSVColor.fromAHSV(1.0, hue, 1.0, 1.0).toColor();
+
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapDown: (details) => onBrightnessChanged(details.localPosition.dx, width),
+                onPanStart: (details) => onBrightnessChanged(details.localPosition.dx, width),
+                onPanUpdate: (details) => onBrightnessChanged(details.localPosition.dx, width),
+                child: Stack(
+                  children: [
+                    // Brightness gradient background
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.white,
+                            selectedHueColor,
+                            Colors.black,
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.textLight, width: 1),
+                      ),
+                    ),
+                    // Position indicator
+                    Positioned(
+                      left: indicatorPosition,
+                      top: 8,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: HSVColor.fromAHSV(1.0, hue, 1.0, brightness).toColor(),
+                          border: Border.all(color: AppColors.white, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.shadowDark,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
